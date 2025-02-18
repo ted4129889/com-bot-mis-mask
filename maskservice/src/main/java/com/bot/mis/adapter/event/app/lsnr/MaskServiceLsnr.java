@@ -9,14 +9,13 @@ import com.bot.mis.util.xml.mask.allowedTable.AllowedProdTableName;
 import com.bot.txcontrol.adapter.event.BatchListenerCase;
 import com.bot.txcontrol.config.logger.ApLogHelper;
 import com.bot.txcontrol.eum.LogType;
+import java.io.File;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
-import java.io.File;
 
 @Slf4j
 @Component("MaskServiceLsnr")
@@ -89,5 +88,4 @@ public class MaskServiceLsnr extends BatchListenerCase<MaskService> {
             xmlToInsertGenerator.sqlConvInsertTxt(xml, tableName);
         }
     }
-
 }
