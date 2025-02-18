@@ -49,7 +49,6 @@ public class XmlToInsertGenerator {
     private final String SQL_SELECT_TABLE = "select * from ";
     private final String SQL_DELETE_TABLE = "delete from ";
 
-
     public void sqlConvInsertTxt(String xmlFileName, String tableName) {
         try {
             // get SQL data
@@ -76,7 +75,7 @@ public class XmlToInsertGenerator {
 
         StringBuilder result;
         List<String> fileContents = new ArrayList<>();
-        String delContent = SQL_DELETE_TABLE +  tableName + STR_SEMICOLON;
+        String delContent = SQL_DELETE_TABLE + tableName + STR_SEMICOLON;
 
         fileContents.add(delContent);
 
