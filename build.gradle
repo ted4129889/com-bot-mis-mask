@@ -1,0 +1,108 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.springframework.boot' version '3.4.2'  // Spring Boot 版本
+    id 'io.spring.dependency-management' version '1.1.4'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
+}
+
+group = 'com.bot.mask'
+version = '1.0-SNAPSHOT'
+
+repositories {
+//    mavenLocal()      // 引用本地 Maven 倉庫
+    mavenCentral()    // 可搭配遠端使用
+}
+
+
+dependencies {
+//    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation files('libs/TBConvert-0.0.1.jar')
+    implementation files('libs/txcontrol-1.0.0-plain.jar')
+
+
+//    testImplementation platform('org.junit:junit-bom:5.9.1')
+//    testImplementation 'org.junit.jupiter:junit-jupiter'
+
+    //料庫連線池套件
+    implementation 'com.zaxxer:HikariCP:6.2.1'
+
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+    //XML功能
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.15.2")
+
+    // Spring Boot 核心
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // Spring 依賴注入 (DI)
+    implementation 'org.springframework:spring-context'
+
+    // 加密庫依賴
+    implementation 'org.springframework.security:spring-security-crypto:6.4.4'
+    implementation 'org.apache.tomcat.embed:tomcat-embed-core:10.1.35'
+    implementation 'javax.annotation:javax.annotation-api:1.3.2'
+//    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
+//     JSON 處理 (可選，若需要處理 JSON)
+//    implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+//    // JPA + H2 資料庫 (可選，若需要資料庫)
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+//    implementation 'com.h2database:h2'
+    //JAVA FX
+    implementation 'org.openjfx:javafx-controls:23.0.2'
+    implementation 'org.openjfx:javafx-fxml:23.0.2'
+    //Apache Commons IO庫
+    implementation 'commons-io:commons-io:2.18.0'
+
+
+//    implementation 'org.springframework:spring-messaging:6.1.5'
+// Spring Transaction 管理
+//    implementation 'org.springframework:spring-tx:6.1.5'
+
+// Spring AOP（
+//    implementation 'org.springframework:spring-aop:6.1.5'
+
+// Spring Integration
+//    implementation 'org.springframework.integration:spring-integration-file:6.2.2'
+//    implementation 'org.springframework.integration:spring-integration-sftp:6.1.3'
+//    implementation 'org.springframework.integration:spring-integration-core:6.2.2'
+}
+
+javafx {
+    version = "23.0.2"
+    modules = ['javafx.controls', 'javafx.fxml']
+}
+
+test {
+    useJUnitPlatform()
+}
+
+
+application {
+    mainClass = 'com.bot.mask.MaskMain'
+}
+
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': application.mainClass
+        )
+    }
+    // 包含所有依賴（但不適用於 JavaFX，如有需要可用 shadowJar）
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA'
+}
+
+bootJar {
+    archiveFileName = "bot-mis-mask.jar"
+}
+

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="5" xmlns:fx="http://javafx.com/fxml" fx:controller="com.bot.mask.ui.controller.SubViewController"
+      alignment="CENTER" style="-fx-padding: 10; -fx-background-color: #f9f9f9;" stylesheets="@../css/button-style.css">
+
+    <!-- 日期選擇區 -->
+    <HBox spacing="5" fx:id="chooseBatchDateHBox" alignment="CENTER_LEFT">
+        <Label text="BatchDate：" fx:id="labelChooseBatch" minWidth="70" style="-fx-font-size: 12px;"/>
+        <DatePicker fx:id="datePicker" promptText="選擇日期" style="-fx-font-size: 12px;" prefWidth="250"/>
+    </HBox>
+
+    <!-- 環境選擇 -->
+    <HBox spacing="5" alignment="CENTER_LEFT" >
+        <Label text="執行環境：" style="-fx-font-size: 12px;" minWidth="70"/>
+        <ComboBox fx:id="envComboBox" style="-fx-font-size: 12px;" prefWidth="250"/>
+    </HBox>
+
+    <!-- 主要操作按鈕 -->
+    <HBox spacing="5" alignment="CENTER_LEFT">
+        <Button fx:id="btnMaskData" text="產生SQL" onAction="#btnMaskData"
+                styleClass="button-blue" prefWidth="350"/>
+
+    </HBox>
+
+    <HBox spacing="5" alignment="CENTER_LEFT">
+        <Button fx:id="btnMaskRunSql" text="執行SQL" onAction="#btnMaskRunSql"
+                styleClass="button-green" prefWidth="350"/>
+    </HBox>
+<!--    <Button fx:id="btnStopSql" text="停止執行" onAction="#btnStopSql"-->
+<!--            style="-fx-background-color: #FF4D4D; -fx-text-fill: white; -fx-font-weight: bold;"-->
+<!--            visible="false"/>-->
+    <Label fx:id="lblStatus" text="狀態：等待中"
+           style="-fx-font-size: 11px; -fx-text-fill: #333;"/>
+    <ProgressBar fx:id="progressBar" prefWidth="250" progress="0" visible="false"/>
+
+    <!--新增 Log 區域 -->
+    <TextArea fx:id="logArea" editable="false" wrapText="true" prefRowCount="6"/>
+</VBox>

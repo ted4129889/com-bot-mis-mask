@@ -1,0 +1,47 @@
+/* 基本按鈕外觀 */
+.button-blue {
+    -fx-background-color: linear-gradient(#c7d9f0, #0078D7);
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5;
+    -fx-border-color: #005BB5;
+    -fx-border-radius: 5;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.25), 3, 0, 0, 1);
+}
+
+/* 滑鼠移上去 → 顏色變亮 */
+.button-blue:hover {
+    -fx-background-color: linear-gradient(#5AA9FF, #2189FF);
+}
+
+/* 按下去 → 顏色變暗 + 陰影消失 */
+.button-blue:pressed {
+    -fx-background-color: linear-gradient(#0066CC, #004C99);
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 1, 0, 0, 0);
+    -fx-translate-y: 1; /*  模擬按壓往下移動 */
+}
+
+/*  綠色 (btnMaskRunSql) */
+.button-green {
+    -fx-background-color: linear-gradient(#c7ebc7, #28A745);
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5;
+    -fx-border-color: #1E7E34;
+    -fx-border-radius: 5;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.25), 3, 0, 0, 1);
+}
+
+.button-green:hover {
+    -fx-background-color: linear-gradient(#74E074, #35B653);
+}
+
+.button-green:pressed {
+    -fx-background-color: linear-gradient(#1F8C3A, #146B2D);
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 1, 0, 0, 0);
+    -fx-translate-y: 1;
+}
