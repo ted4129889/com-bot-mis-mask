@@ -47,7 +47,50 @@ public class TextFileUtil {
      *                    charsets are "UTF-8" and "BIG5".
      * @return List of strings where each string is a line read from the file specified by filePath.
      */
-//        public List<String> readFileContent(String filePath, String charsetName) {
+    public List<String> readFileContent(String filePath, String charsetName) {
+
+        String normalizedPath = FilenameUtils.normalize(filePath);
+        Path path = Paths.get(normalizedPath);
+
+        List<String> fileContents = new ArrayList<>();
+
+        Charset charset= null;
+            if ("UTF-8".equalsIgnoreCase(charsetName)) {
+                charset = StandardCharsets.UTF_8;
+            } else if ("BIG5".equalsIgnoreCase(charsetName)) {
+                charset = Charset.forName("Big5");
+            } else {
+                charset = Charset.forName(charsetName);
+            }
+        CharsetDecoder decoder = charset.newDecoder()
+                .onMalformedInput(CodingErrorAction.REPLACE)      // Big5 編碼的中文都是兩個byte一組不是的話就會有問題，會以 � 代替。
+                .onUnmappableCharacter(CodingErrorAction.REPLACE);// 找不到Unicode 字元的 byte 組合時，也用 � 代替。
+
+        int lineCount = 0;
+        try (InputStream rawIn = Files.newInputStream(path);
+
+             Reader in = new InputStreamReader(rawIn, decoder);
+             BufferedReader reader = new BufferedReader(in, 8192)) {
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                lineCount++;
+                // 簡單偵測：若這行包含替代字元，打警告，之後再決定是否回頭抓原始 HEX
+                if (line.indexOf('\uFFFD') >= 0) {
+                    LogProcess.warn(log, "Line {} has invalid bytes (shown as �) => {}", lineCount,line);
+                }
+                fileContents.add(line);
+            }
+            LogProcess.info(log, "1 source data count = {}", lineCount);
+
+        } catch (IOException e) {
+            LogProcess.info(log, "2 source data count = {}", lineCount);
+            LogProcess.error(log, "Error Message: file is problem = {}", e.getMessage(), e);
+        }
+        return fileContents;
+    }
+
+    //        public List<String> readFileContent(String filePath, String charsetName) {
 //
 //            String normalizedPath = FilenameUtils.normalize(filePath);
 //            Path path = Paths.get(normalizedPath);
@@ -79,18 +122,18 @@ public class TextFileUtil {
 //                        fileContents.add(line);
 //                    }
 //
-//                    LogProcess.info("1 source data count = {}",lineCount);
+//                    LogProcess.info(log,"1 source data count = {}",lineCount);
 //                }
 //            } catch (IOException e) {
-//                LogProcess.info("2 source data count = {}",lineCount);
-//                LogProcess.error("Error Message: file is problem = {}",e);
+//                LogProcess.info(log,"2 source data count = {}",lineCount);
+//                LogProcess.error(log,"Error Message: file is problem = {}",e);
 //
 //            } finally {
 //                if (reader != null) {
 //                    try {
 //                        reader.close(); // 很重要！
 //                    } catch (IOException e) {
-//                        LogProcess.error("Error Message: fail: close file = {}",e);
+//                        LogProcess.error(log,"Error Message: fail: close file = {}",e);
 //
 //                    }
 //                }
@@ -98,7 +141,7 @@ public class TextFileUtil {
 //
 //            return fileContents;
 //        }
-    public List<String> readFileContent(String filePath, String charsetName) {
+    public List<String> readFileContent2(String filePath, String charsetName) {
         String normalizedPath = FilenameUtils.normalize(filePath);
         Path path = Paths.get(normalizedPath);
         List<String> fileContents = new ArrayList<>();
@@ -106,11 +149,11 @@ public class TextFileUtil {
         if (!Files.exists(path) || !Files.isReadable(path)) {
             throw new IllegalArgumentException("File does not exist or is not readable: " + path);
         }
-        LogProcess.info(log,"Start readFileContent, filePath = {}, charsetName = {}", filePath, charsetName);
+        LogProcess.info(log, "Start readFileContent, filePath = {}, charsetName = {}", filePath, charsetName);
 
         try {
             if ("UTF-8".equalsIgnoreCase(charsetName)) {
-                LogProcess.info(log,"Using UTF-8 decoder with REPLACE policy");
+                LogProcess.info(log, "Using UTF-8 decoder with REPLACE policy");
 
                 CharsetDecoder dec = StandardCharsets.UTF_8
                         .newDecoder()
@@ -127,33 +170,35 @@ public class TextFileUtil {
                         fileContents.add(line);
 
                         // 細粒度 log：顯示行號、長度與前 20 字元
-                        String preview = line.length() > 20 ? line.substring(0,20 ) + "..." : line;
-                        LogProcess.debug(log,"[UTF-8] line {} length={} preview=\"{}\"", lineCount, line.length(), preview);
+                        String preview = line.length() > 20 ? line.substring(0, 20) + "..." : line;
+                        LogProcess.debug(log, "[UTF-8] line {} length={} preview=\"{}\"", lineCount, line.length(), preview);
                     }
-                    LogProcess.info(log,"Completed UTF-8 read, total lines = {}", lineCount);
+                    LogProcess.info(log, "Completed UTF-8 read, total lines = {}", lineCount);
                 }
             } else if ("BIG5".equalsIgnoreCase(charsetName)) {
-                LogProcess.info(log,"Using Big5 (MS950) per-line reader with cleaning");
+                LogProcess.info(log, "Using Big5 (MS950) per-line reader with cleaning");
+
 
                 Big5Result r = readBig5PerLineWithFix(path);
                 int lineCount = 0;
                 for (String line : r.lines) {
+
                     lineCount++;
                     fileContents.add(line);
 
-                    String preview = line.length() > 20 ? line.substring(0, 20) + "..." : line;
-                    LogProcess.debug(log,"[BIG5] line {} length={} preview=\"{}\"", lineCount, line.length(), preview);
+//                    String preview = line.length() > 20 ? line.substring(0, 20) + "..." : line;
+//                    LogProcess.debug(log,"[BIG5] line {} length={} preview=\"{}\"", lineCount, line.length(), preview);
                 }
-                LogProcess.info(log,"Completed Big5 read, total lines = {}", lineCount);
+                LogProcess.info(log, "Completed Big5 read, total lines = {}", lineCount);
 
                 if (!r.anomalies.isEmpty()) {
                     for (Anomaly a : r.anomalies) {
-                        LogProcess.warn(log,"Big5 anomaly at line {}, offset {}: {} | ctx={}",
+                        LogProcess.warn(log, "Big5 anomaly at line {}, offset {}: {} | ctx={}",
                                 a.lineNo, a.byteOffset, a.reason, a.hexContext);
                     }
                 }
             } else {
-                LogProcess.info(log,"Using generic charset={} decoder with REPLACE policy", charsetName);
+                LogProcess.info(log, "Using generic charset={} decoder with REPLACE policy", charsetName);
 
                 CharsetDecoder dec = Charset.forName(charsetName)
                         .newDecoder()
@@ -170,21 +215,19 @@ public class TextFileUtil {
                         fileContents.add(line);
 
                         String preview = line.length() > 20 ? line.substring(0, 20) + "..." : line;
-                        LogProcess.debug(log,"[{}] line {} length={} preview=\"{}\"",
+                        LogProcess.debug(log, "[{}] line {} length={} preview=\"{}\"",
                                 charsetName, lineCount, line.length(), preview);
                     }
-                    LogProcess.info(log,"Completed {} read, total lines = {}", charsetName, lineCount);
+                    LogProcess.info(log, "Completed {} read, total lines = {}", charsetName, lineCount);
                 }
             }
         } catch (IOException e) {
-            LogProcess.error(log,"Error reading file [{}]: {}", filePath, e.toString());
+            LogProcess.error(log, "Error reading file [{}]: {}", filePath, e.toString());
         }
 
-        LogProcess.info(log,"End readFileContent, total lines collected = {}", fileContents.size());
+        LogProcess.info(log, "End readFileContent, total lines collected = {}", fileContents.size());
         return fileContents;
     }
-
-
 
 
     /**
@@ -230,11 +273,11 @@ public class TextFileUtil {
                     writer.newLine();
                 }
             } catch (Exception e) {
-                LogProcess.error(log,"Error Message: not found file = {}", e);
+                LogProcess.error(log, "Error Message: not found file = {}", e);
 
             }
         } catch (Exception e) {
-            LogProcess.error(log,"Error Message: There is a problem with the file = {}", e);
+            LogProcess.error(log, "Error Message: There is a problem with the file = {}", e);
 
         }
     }
@@ -262,7 +305,7 @@ public class TextFileUtil {
                             }
                         });
             } catch (IOException e) {
-                LogProcess.error(log,"Error Message: delete file fail = {}", e);
+                LogProcess.error(log, "Error Message: delete file fail = {}", e);
 
             }
         }
@@ -274,7 +317,7 @@ public class TextFileUtil {
             try {
                 Files.delete(path);
             } catch (IOException e) {
-                LogProcess.error(log,"Error Message: delete file fail = {}", e);
+                LogProcess.error(log, "Error Message: delete file fail = {}", e);
             }
         }
     }
@@ -287,7 +330,7 @@ public class TextFileUtil {
 
     private boolean isValidInput(String input) {
         if (input == null || input.length() == 0) {
-            LogProcess.info(log,"isValidInput is null");
+            LogProcess.info(log, "isValidInput is null");
             return false;
         }
         return true;
@@ -390,23 +433,25 @@ public class TextFileUtil {
 //        LogProcess.info("Start readBig5PerLineWithFix, path={}", path);
 
         try (PushbackInputStream in = new PushbackInputStream(Files.newInputStream(path), 3)) {
+
             byte[] bom = new byte[3];
             int n = in.read(bom, 0, 3);
             boolean hasBom = (n == 3 && (bom[0] & 0xFF) == 0xEF && (bom[1] & 0xFF) == 0xBB && (bom[2] & 0xFF) == 0xBF);
 
             if (hasBom) {
-                LogProcess.info(log,"Detected UTF-8 BOM, skip first 3 bytes");
+                LogProcess.info(log, "Detected UTF-8 BOM, skip first 3 bytes");
             } else {
                 if (n > 0) {
                     in.unread(bom, 0, n);
-                    LogProcess.info(log,"No BOM detected, push back {} byte(s)", n);
+                    LogProcess.info(log, "No BOM detected, push back {} byte(s)", n);
                 } else {
-                    LogProcess.info(log,"No BOM detected, nothing to push back (n={})", n);
+                    LogProcess.info(log, "No BOM detected, nothing to push back (n={})", n);
                 }
             }
 
             ByteArrayOutputStream buf = new ByteArrayOutputStream(4096);
             int b, lineNo = 0;
+
 
             while ((b = in.read()) != -1) {
                 if (b == '\n') {
@@ -415,13 +460,14 @@ public class TextFileUtil {
                     buf.reset();
                     byte[] cleaned = cleanBig5Line(raw, lineNo, result.anomalies);
                     String lineStr = decodeMs950(cleaned);
+
                     result.lines.add(lineStr);
 
-                    String preview = lineStr.length() > 30 ? lineStr.substring(0, 30) + "..." : lineStr;
-//                    LogProcess.debug("[BIG5] line {} length={} preview=\"{}\"", lineNo, lineStr.length(), preview);
                 } else if (b != '\r') {
                     buf.write(b);
                 }
+
+
             }
 
             if (buf.size() > 0) {
@@ -435,11 +481,25 @@ public class TextFileUtil {
 //                LogProcess.debug("[BIG5] line {} (last) length={} preview=\"{}\"", lineNo, lineStr.length(), preview);
             }
 
-//            LogProcess.info("<<< Completed readBig5PerLineWithFix, total lines={}", lineNo);
+//            LogProcess.info("Completed readBig5PerLineWithFix, total lines={}", lineNo);
         }
 
         return result;
     }
+
+    public byte[] hexToBytes(String hex) {
+        int len = hex.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] =
+                    (byte)
+                            ((Character.digit(hex.charAt(i), 16) << 4)
+                                    + Character.digit(hex.charAt(i + 1), 16));
+        }
+        return data;
+    }
+
+
     private String decodeMs950(byte[] bytes) throws CharacterCodingException {
         CharsetDecoder dec = MS950.newDecoder()
                 .onMalformedInput(CodingErrorAction.REPLACE)
@@ -454,13 +514,13 @@ public class TextFileUtil {
     private byte[] cleanBig5Line(byte[] bs, int lineNo, List<Anomaly> anomalies) {
         if (bs.length == 0) return bs;
 
-        // 1) 整行等同「84 C9」重複（你觀察到的“全行空白”誤碼）→ 改為 0x20 空白
+        // 整行等同「84 C9」重複（你觀察到的“全行空白”誤碼）→ 改為 0x20 空白
         if (isAllPattern(bs, (byte) 0x84, (byte) 0xC9)) {
             Arrays.fill(bs, (byte) 0x20);
             return bs;
         }
 
-        // 2) 掃描第一個 Big5 非法點（落單前導位元、非法尾位元、非 Big5 範圍）
+        //掃描第一個 Big5 非法點（落單前導位元、非法尾位元、非 Big5 範圍）
         int bad = findFirstInvalidBig5(bs);
         if (bad >= 0) {
             anomalies.add(new Anomaly(lineNo, bad, hexContext(bs, bad, 16),
@@ -531,6 +591,86 @@ public class TextFileUtil {
             sb.append(' ');
         }
         return sb.toString().trim();
+    }
+
+
+    private final char[] HEX = "0123456789ABCDEF".toCharArray();
+
+    // 將整個檔轉成 HEX，每筆被 0D0A / 0D / 0A 分隔；每筆 HEX 在輸出檔佔一行
+    public long toHexLines(Path input, Path hexOutput) throws IOException {
+        try (BufferedInputStream in = new BufferedInputStream(Files.newInputStream(input), 1 << 16);
+             BufferedWriter out = Files.newBufferedWriter(hexOutput)) {
+
+            long records = 0;
+            int prev = -1, b;
+            boolean lineHasData = false;
+
+            // 小工具：把一個 byte 以「兩位 HEX + 空白」寫出
+            final var sb = new StringBuilder(3 * 4096); // 小幅緩衝，避免頻繁 out.write
+            Runnable flushChunk = () -> {
+                try {
+                    if (sb.length() > 0) {
+                        out.write(sb.toString());
+                        sb.setLength(0);
+                    }
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+            };
+            java.util.function.IntConsumer writeHex = (val) -> {
+                sb.append(HEX[(val >>> 4) & 0xF]).append(HEX[val & 0xF]).append(' ');
+            };
+
+            while ((b = in.read()) != -1) {
+                // 先處理前一個 CR 的情形
+                if (prev == 0x0D) {
+                    if (b == 0x0A) {             // CRLF
+                        flushChunk.run();
+                        out.newLine();           // 結束一筆
+                        records++;
+                        lineHasData = false;
+                        prev = -1;
+                        continue;                // 0x0A 不再當資料
+                    } else {
+                        // 單獨 CR 當分隔
+                        flushChunk.run();
+                        out.newLine();
+                        records++;
+                        lineHasData = false;
+                        // 接著把當前 b 當新資料處理
+                    }
+                }
+
+                if (b == 0x0D) {                 // 可能形成 CRLF，先暫存
+                    prev = 0x0D;
+                    continue;
+                }
+                if (b == 0x0A) {                 // 單獨 LF 當分隔
+                    flushChunk.run();
+                    out.newLine();
+                    records++;
+                    lineHasData = false;
+                    prev = -1;
+                    continue;
+                }
+
+                // 一般資料 → 直接寫 HEX（不累積整筆）
+                writeHex.accept(b & 0xFF);
+                lineHasData = true;
+                prev = -1;
+
+                // 偶爾把 chunk 刷出去，避免 StringBuilder 太大
+                if (sb.length() >= 3 * 4096) flushChunk.run();
+            }
+
+            // 檔尾如果停在 CR（沒有 LF）→ 補一筆
+            if (prev == 0x0D || lineHasData) {
+                flushChunk.run();
+                out.newLine();
+                if (lineHasData || prev == 0x0D) records++;
+            }
+            return records;
+        }
     }
 
 }
