@@ -4080,415 +4080,297 @@
             <field>
                 <fieldName>date</fieldName>
                 <fieldType>string</fieldType>
-                <format>0000000</format>
                 <length>7</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>brno</fieldName>
                 <fieldType>string</fieldType>
-                <format>000</format>
                 <length>3</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>svtdcd</fieldName>
                 <fieldType>string</fieldType>
-                <format>0</format>
                 <length>1</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>charcd</fieldName>
                 <fieldType>string</fieldType>
-                <format>00</format>
                 <length>2</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>curcd</fieldName>
                 <fieldType>string</fieldType>
-                <format>00</format>
                 <length>2</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>nop36</fieldName>
                 <fieldType>string</fieldType>
-                <format>00000000</format>
                 <length>8</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>cls36</fieldName>
                 <fieldType>string</fieldType>
-                <format>00000000</format>
                 <length>8</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>cnt36</fieldName>
                 <fieldType>string</fieldType>
-                <format>00000000</format>
                 <length>8</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>amt36</fieldName>
                 <fieldType>string</fieldType>
-                <format>000000000000000</format>
                 <length>15</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>nop37</fieldName>
                 <fieldType>string</fieldType>
-                <format>00000000</format>
                 <length>8</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>cls37</fieldName>
                 <fieldType>string</fieldType>
-                <format>00000000</format>
                 <length>8</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>cnt37</fieldName>
                 <fieldType>string</fieldType>
-                <format>00000000</format>
                 <length>8</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>amt37</fieldName>
                 <fieldType>string</fieldType>
-                <format>000000000000000</format>
                 <length>15</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>nop38</fieldName>
                 <fieldType>string</fieldType>
-                <format>00000000</format>
                 <length>8</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>cls38</fieldName>
                 <fieldType>string</fieldType>
-                <format>00000000</format>
                 <length>8</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>cnt38</fieldName>
                 <fieldType>string</fieldType>
-                <format>00000000</format>
                 <length>8</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>amt38</fieldName>
                 <fieldType>string</fieldType>
-                <format>000000000000000</format>
                 <length>15</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>nop39</fieldName>
                 <fieldType>string</fieldType>
-                <format>00000000</format>
                 <length>8</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>cls39</fieldName>
                 <fieldType>string</fieldType>
-                <format>00000000</format>
                 <length>8</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>cnt39</fieldName>
                 <fieldType>string</fieldType>
-                <format>00000000</format>
                 <length>8</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>amt39</fieldName>
                 <fieldType>string</fieldType>
-                <format>000000000000000</format>
                 <length>15</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>snop</fieldName>
                 <fieldType>string</fieldType>
-                <format>00000000</format>
                 <length>8</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>scls</fieldName>
                 <fieldType>string</fieldType>
-                <format>00000000</format>
                 <length>8</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>scnt</fieldName>
                 <fieldType>string</fieldType>
-                <format>00000000</format>
                 <length>8</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>total</fieldName>
                 <fieldType>string</fieldType>
-                <format>000000000000000</format>
                 <length>15</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
-                <fieldName>percent</fieldName>
+                <fieldName>pct</fieldName>
                 <fieldType>string</fieldType>
-                <format>000</format>
                 <length>3</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>nop45</fieldName>
                 <fieldType>string</fieldType>
-                <format>00000000</format>
                 <length>8</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>cls45</fieldName>
                 <fieldType>string</fieldType>
-                <format>00000000</format>
                 <length>8</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>cnt45</fieldName>
                 <fieldType>string</fieldType>
-                <format>00000000</format>
                 <length>8</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>amt45</fieldName>
                 <fieldType>string</fieldType>
-                <format>000000000000000</format>
                 <length>15</length>
-                <align>right</align>
             </field>
         </body>
     </data>
@@ -12701,107 +12583,77 @@
             <field>
                 <fieldName>filler</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>22</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>' 同業名稱 '</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>10</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>space</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>22</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>filler1</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>3</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>' 帳號 '</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>6</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>filler2</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>3</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>' 統一編號 '</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>10</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>filler4</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>4</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>' 餘額 '</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>6</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>filler5</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>5</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>filler6</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>3</length>
-                <align>left</align>
             </field>
         </header>
         <body>
@@ -12809,102 +12661,74 @@
             <field>
                 <fieldName>cmpname</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>54</length>
-                <align>left</align>
                 <maskType>4</maskType>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>brno</fieldName>
                 <fieldType>string</fieldType>
-                <format>000</format>
                 <length>3</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>apno</fieldName>
                 <fieldType>string</fieldType>
-                <format>000</format>
                 <length>3</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>srno</fieldName>
                 <fieldType>string</fieldType>
-                <format>00000</format>
                 <length>5</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>chkdg</fieldName>
                 <fieldType>string</fieldType>
-                <format>0</format>
                 <length>1</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>filler7</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>eidno</fieldName>
                 <fieldType>string</fieldType>
-                <format>00000000</format>
                 <length>8</length>
-                <align>right</align>
                 <maskType>1</maskType>
             </field>
             <field>
                 <fieldName>filler8</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>ydbal</fieldName>
                 <fieldType>string</fieldType>
-                <format>+0000000000000.00;-0000000000000.00</format>
                 <length>17</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>filler9</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
         </body>
         <footer>
@@ -18900,6 +18724,7 @@
                 <fieldType>X</fieldType>
                 <length>10</length>
                 <decimal>0</decimal>
+                <maskType>1</maskType>
             </field>
             <field>
                 <fieldName>cusname</fieldName>
@@ -19275,732 +19100,6 @@
                 <fieldName>filler</fieldName>
                 <fieldType>COMP</fieldType>
                 <length>0.5</length>
-                <decimal>0</decimal>
-            </field>
-        </body>
-        <footer>
-        </footer>
-    </data>
-    <data fileName="FasFpA138">
-        <header>
-        </header>
-        <body>
-            <field>
-                <fieldName>brno</fieldName>
-                <fieldType>DISPLAY</fieldType>
-                <length>3</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>atm</fieldName>
-                <fieldType>DISPLAY</fieldType>
-                <length>2</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>rej</fieldName>
-                <fieldType>DISPLAY</fieldType>
-                <length>6</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>cwd</fieldName>
-                <fieldType>DISPLAY</fieldType>
-                <length>6</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>inq</fieldName>
-                <fieldType>DISPLAY</fieldType>
-                <length>6</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>tfr</fieldName>
-                <fieldType>DISPLAY</fieldType>
-                <length>6</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>pin</fieldName>
-                <fieldType>DISPLAY</fieldType>
-                <length>6</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>dep</fieldName>
-                <fieldType>DISPLAY</fieldType>
-                <length>6</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>fwd</fieldName>
-                <fieldType>DISPLAY</fieldType>
-                <length>6</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>nbf</fieldName>
-                <fieldType>DISPLAY</fieldType>
-                <length>6</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>utp</fieldName>
-                <fieldType>DISPLAY</fieldType>
-                <length>6</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>tot_intro</fieldName>
-                <fieldType>DISPLAY</fieldType>
-                <length>6</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>rej_i</fieldName>
-                <fieldType>DISPLAY</fieldType>
-                <length>6</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>cwd_i</fieldName>
-                <fieldType>DISPLAY</fieldType>
-                <length>6</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>inq_i</fieldName>
-                <fieldType>DISPLAY</fieldType>
-                <length>6</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>tfr_i</fieldName>
-                <fieldType>DISPLAY</fieldType>
-                <length>6</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>utp_i</fieldName>
-                <fieldType>DISPLAY</fieldType>
-                <length>6</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>tot_inter</fieldName>
-                <fieldType>DISPLAY</fieldType>
-                <length>6</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>tot_atm</fieldName>
-                <fieldType>DISPLAY</fieldType>
-                <length>6</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>tot_no</fieldName>
-                <fieldType>DISPLAY</fieldType>
-                <length>4</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>avg_brno</fieldName>
-                <fieldType>DISPLAY</fieldType>
-                <length>6</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>avg_no</fieldName>
-                <fieldType>DISPLAY</fieldType>
-                <length>4</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>dep_i</fieldName>
-                <fieldType>DISPLAY</fieldType>
-                <length>6</length>
-                <decimal>0</decimal>
-            </field>
-        </body>
-        <footer>
-        </footer>
-    </data>
-    <data fileName="FasFpA116600">
-        <header>
-        </header>
-        <body>
-            <field>
-                <fieldName>atmno</fieldName>
-                <fieldType>DISPLAY</fieldType>
-                <length>3</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>cdwsno</fieldName>
-                <fieldType>DISPLAY</fieldType>
-                <length>2</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>brno-merge</fieldName>
-                <fieldType>X</fieldType>
-                <length>27</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>atm-counter</fieldName>
-                <fieldType>X</fieldType>
-                <length>3</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>4</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>servtime-i</fieldName>
-                <fieldType>X</fieldType>
-                <length>6</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>servtime-f</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>5</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>realtime-i</fieldName>
-                <fieldType>X</fieldType>
-                <length>6</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>realtime-f</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>7</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>rate-i</fieldName>
-                <fieldType>X</fieldType>
-                <length>4</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>rate-f</fieldName>
-                <fieldType>X</fieldType>
-                <length>2</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>5</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>jour-i</fieldName>
-                <fieldType>X</fieldType>
-                <length>4</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>jour-f</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>7</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>rcpt-i</fieldName>
-                <fieldType>X</fieldType>
-                <length>4</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>rcpt-f</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>7</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>disp-i</fieldName>
-                <fieldType>X</fieldType>
-                <length>4</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>disp-f</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>7</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>comm-i</fieldName>
-                <fieldType>X</fieldType>
-                <length>4</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>comm-f</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>5</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>card-i</fieldName>
-                <fieldType>X</fieldType>
-                <length>4</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>card-f</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>7</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>power-i</fieldName>
-                <fieldType>X</fieldType>
-                <length>4</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>power-f</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>5</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>sort</fieldName>
-                <fieldType>X</fieldType>
-                <length>3</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>7</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>avg-counter-i</fieldName>
-                <fieldType>X</fieldType>
-                <length>5</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>avg-counter-f</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>17</length>
-                <decimal>0</decimal>
-            </field>
-        </body>
-        <footer>
-        </footer>
-    </data>
-    <data fileName="FasFpA116699">
-        <header>
-        </header>
-        <body>
-            <field>
-                <fieldName>atmno</fieldName>
-                <fieldType>DISPLAY</fieldType>
-                <length>3</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>cdwsno</fieldName>
-                <fieldType>DISPLAY</fieldType>
-                <length>2</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>brno-merge</fieldName>
-                <fieldType>X</fieldType>
-                <length>27</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>atm-counter</fieldName>
-                <fieldType>X</fieldType>
-                <length>3</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>4</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>servtime-i</fieldName>
-                <fieldType>X</fieldType>
-                <length>6</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>servtime-f</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>5</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>realtime-i</fieldName>
-                <fieldType>X</fieldType>
-                <length>6</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>realtime-f</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>7</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>rate-i</fieldName>
-                <fieldType>X</fieldType>
-                <length>4</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>rate-f</fieldName>
-                <fieldType>X</fieldType>
-                <length>2</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>5</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>jour-i</fieldName>
-                <fieldType>X</fieldType>
-                <length>4</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>jour-f</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>7</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>rcpt-i</fieldName>
-                <fieldType>X</fieldType>
-                <length>4</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>rcpt-f</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>7</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>disp-i</fieldName>
-                <fieldType>X</fieldType>
-                <length>4</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>disp-f</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>7</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>comm-i</fieldName>
-                <fieldType>X</fieldType>
-                <length>4</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>comm-f</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>5</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>card-i</fieldName>
-                <fieldType>X</fieldType>
-                <length>4</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>card-f</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>7</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>power-i</fieldName>
-                <fieldType>X</fieldType>
-                <length>4</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>power-f</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>5</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>sort</fieldName>
-                <fieldType>X</fieldType>
-                <length>3</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>7</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>atm-rate</fieldName>
-                <fieldType>X</fieldType>
-                <length>17</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>avg-counter-i</fieldName>
-                <fieldType>X</fieldType>
-                <length>3</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>avg-counter-f</fieldName>
-                <fieldType>X</fieldType>
-                <length>1</length>
                 <decimal>0</decimal>
             </field>
         </body>
@@ -20487,6 +19586,7 @@
                 <fieldType>X</fieldType>
                 <length>10</length>
                 <decimal>0</decimal>
+                <maskType>1</maskType>
             </field>
             <field>
                 <fieldName>relid_1</fieldName>
@@ -20505,6 +19605,7 @@
                 <fieldType>X</fieldType>
                 <length>10</length>
                 <decimal>0</decimal>
+                <maskType>1</maskType>
             </field>
             <field>
                 <fieldName>relid_2</fieldName>
@@ -20523,6 +19624,7 @@
                 <fieldType>X</fieldType>
                 <length>10</length>
                 <decimal>0</decimal>
+                <maskType>1</maskType>
             </field>
             <field>
                 <fieldName>relid_3</fieldName>
@@ -20541,6 +19643,7 @@
                 <fieldType>X</fieldType>
                 <length>10</length>
                 <decimal>0</decimal>
+                <maskType>1</maskType>
             </field>
             <field>
                 <fieldName>relid_4</fieldName>
@@ -20559,6 +19662,7 @@
                 <fieldType>X</fieldType>
                 <length>10</length>
                 <decimal>0</decimal>
+                <maskType>1</maskType>
             </field>
             <field>
                 <fieldName>relid_5</fieldName>
@@ -22524,338 +21628,242 @@
             <field>
                 <fieldName>yy</fieldName>
                 <fieldType>string</fieldType>
-                <format>000</format>
                 <length>3</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>mm</fieldName>
                 <fieldType>string</fieldType>
-                <format>00</format>
                 <length>2</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>brno</fieldName>
                 <fieldType>string</fieldType>
-                <format>000</format>
                 <length>3</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>atm</fieldName>
                 <fieldType>string</fieldType>
-                <format>00</format>
                 <length>2</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>rej</fieldName>
                 <fieldType>string</fieldType>
-                <format>000000</format>
                 <length>6</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>cwd</fieldName>
                 <fieldType>string</fieldType>
-                <format>000000</format>
                 <length>6</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>inq</fieldName>
                 <fieldType>string</fieldType>
-                <format>000000</format>
                 <length>6</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>tfr</fieldName>
                 <fieldType>string</fieldType>
-                <format>000000</format>
                 <length>6</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>pin</fieldName>
                 <fieldType>string</fieldType>
-                <format>000000</format>
                 <length>6</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>dep</fieldName>
                 <fieldType>string</fieldType>
-                <format>000000</format>
                 <length>6</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>fwd</fieldName>
                 <fieldType>string</fieldType>
-                <format>000000</format>
                 <length>6</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>nbf</fieldName>
                 <fieldType>string</fieldType>
-                <format>000000</format>
                 <length>6</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>utp</fieldName>
                 <fieldType>string</fieldType>
-                <format>000000</format>
                 <length>6</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>tot_intro</fieldName>
                 <fieldType>string</fieldType>
-                <format>000000</format>
                 <length>6</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>rej_i</fieldName>
                 <fieldType>string</fieldType>
-                <format>000000</format>
                 <length>6</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>cwd_i</fieldName>
                 <fieldType>string</fieldType>
-                <format>000000</format>
                 <length>6</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>inq_i</fieldName>
                 <fieldType>string</fieldType>
-                <format>000000</format>
                 <length>6</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>tfr_i</fieldName>
                 <fieldType>string</fieldType>
-                <format>000000</format>
                 <length>6</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>utp_i</fieldName>
                 <fieldType>string</fieldType>
-                <format>000000</format>
                 <length>6</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>tot_inter</fieldName>
                 <fieldType>string</fieldType>
-                <format>000000</format>
                 <length>6</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>tot_atm</fieldName>
                 <fieldType>string</fieldType>
-                <format>000000</format>
                 <length>6</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>tot_no</fieldName>
                 <fieldType>string</fieldType>
-                <format>0000</format>
                 <length>4</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>avg_brno</fieldName>
                 <fieldType>string</fieldType>
-                <format>000000</format>
                 <length>6</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>avg_no</fieldName>
                 <fieldType>string</fieldType>
-                <format>0000</format>
                 <length>4</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>dep_i</fieldName>
                 <fieldType>string</fieldType>
-                <format>000000</format>
                 <length>6</length>
-                <align>right</align>
             </field>
         </body>
         <footer></footer>
@@ -22869,366 +21877,262 @@
             <field>
                 <fieldName>yy</fieldName>
                 <fieldType>string</fieldType>
-                <format>000</format>
                 <length>3</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>mm</fieldName>
                 <fieldType>string</fieldType>
-                <format>00</format>
                 <length>2</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>atmno</fieldName>
                 <fieldType>string</fieldType>
-                <format>000</format>
                 <length>3</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>cdwsno</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>2</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>brno</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>24</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>atm_counter</fieldName>
                 <fieldType>string</fieldType>
-                <format>000</format>
                 <length>3</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>servtime_i</fieldName>
                 <fieldType>string</fieldType>
-                <format>000000</format>
                 <length>6</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>dot</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>servtime_f</fieldName>
                 <fieldType>string</fieldType>
-                <format>0</format>
                 <length>1</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>realtime_i</fieldName>
                 <fieldType>string</fieldType>
-                <format>000000</format>
                 <length>6</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>dot</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>realtime_f</fieldName>
                 <fieldType>string</fieldType>
-                <format>0</format>
                 <length>1</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>rate_i</fieldName>
                 <fieldType>string</fieldType>
-                <format>0000</format>
                 <length>4</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>filler</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>rate_f</fieldName>
                 <fieldType>string</fieldType>
-                <format>00</format>
                 <length>2</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>jour_i</fieldName>
                 <fieldType>string</fieldType>
-                <format>0000</format>
                 <length>4</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>dot</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>jour_f</fieldName>
                 <fieldType>string</fieldType>
-                <format>0</format>
                 <length>1</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>rcpt_i</fieldName>
                 <fieldType>string</fieldType>
-                <format>0000</format>
                 <length>4</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>dot</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>rcpt_f</fieldName>
                 <fieldType>string</fieldType>
-                <format>0</format>
                 <length>1</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>disp_i</fieldName>
                 <fieldType>string</fieldType>
-                <format>0000</format>
                 <length>4</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>dot</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>disp_f</fieldName>
                 <fieldType>string</fieldType>
-                <format>0</format>
                 <length>1</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>comm_i</fieldName>
                 <fieldType>string</fieldType>
-                <format>0000</format>
                 <length>4</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>dot</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>comm_f</fieldName>
                 <fieldType>string</fieldType>
-                <format>0</format>
                 <length>1</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>card_i</fieldName>
                 <fieldType>string</fieldType>
-                <format>0000</format>
                 <length>4</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>filler</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>card_f</fieldName>
                 <fieldType>string</fieldType>
-                <format>0</format>
                 <length>1</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>power_i</fieldName>
                 <fieldType>string</fieldType>
-                <format>0000</format>
                 <length>4</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>dot</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>power_f</fieldName>
                 <fieldType>string</fieldType>
-                <format>0</format>
                 <length>1</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>sort</fieldName>
                 <fieldType>string</fieldType>
-                <format>000</format>
                 <length>3</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>avg_counter_i</fieldName>
                 <fieldType>string</fieldType>
-                <format>00000</format>
                 <length>5</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>dot</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>avg_counter_f</fieldName>
                 <fieldType>string</fieldType>
-                <format>0</format>
                 <length>1</length>
-                <align>right</align>
             </field>
         </body>
         <footer>
@@ -23244,371 +22148,266 @@
             <field>
                 <fieldName>yy</fieldName>
                 <fieldType>string</fieldType>
-                <format>000</format>
                 <length>3</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>mm</fieldName>
                 <fieldType>string</fieldType>
-                <format>00</format>
                 <length>2</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>atmno</fieldName>
                 <fieldType>string</fieldType>
-                <format>000</format>
                 <length>3</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>brno</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>24</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>atm_counter</fieldName>
                 <fieldType>string</fieldType>
-                <format>000</format>
                 <length>3</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>servtime_i</fieldName>
                 <fieldType>string</fieldType>
-                <format>000000</format>
                 <length>6</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>dot</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>servtime_f</fieldName>
                 <fieldType>string</fieldType>
-                <format>0</format>
                 <length>1</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>realtime_i</fieldName>
                 <fieldType>string</fieldType>
-                <format>000000</format>
                 <length>6</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>dot</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>realtime_f</fieldName>
                 <fieldType>string</fieldType>
-                <format>0</format>
                 <length>1</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>rate_i</fieldName>
                 <fieldType>string</fieldType>
-                <format>0000</format>
                 <length>4</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>dot</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>rate_f</fieldName>
                 <fieldType>string</fieldType>
-                <format>00</format>
                 <length>2</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>jour_i</fieldName>
                 <fieldType>string</fieldType>
-                <format>0000</format>
                 <length>4</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>dot</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>jour_f</fieldName>
                 <fieldType>string</fieldType>
-                <format>0</format>
                 <length>1</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>rcpt_i</fieldName>
                 <fieldType>string</fieldType>
-                <format>0000</format>
                 <length>4</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>dot</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>rcpt_f</fieldName>
                 <fieldType>string</fieldType>
-                <format>0</format>
                 <length>1</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>disp_i</fieldName>
                 <fieldType>string</fieldType>
-                <format>0000</format>
                 <length>4</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>dot</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>disp_f</fieldName>
                 <fieldType>string</fieldType>
-                <format>0</format>
                 <length>1</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>comm_i</fieldName>
                 <fieldType>string</fieldType>
-                <format>0000</format>
                 <length>4</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>filler</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>comm_f</fieldName>
                 <fieldType>string</fieldType>
-                <format>0</format>
                 <length>1</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>card_i</fieldName>
                 <fieldType>string</fieldType>
-                <format>0000</format>
                 <length>4</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>dot</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>card_f</fieldName>
                 <fieldType>string</fieldType>
-                <format>0</format>
                 <length>1</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>power_i</fieldName>
                 <fieldType>string</fieldType>
-                <format>0000</format>
                 <length>4</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>dot</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>power_f</fieldName>
                 <fieldType>string</fieldType>
-                <format>0</format>
                 <length>1</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>sort</fieldName>
                 <fieldType>string</fieldType>
-                <format>000</format>
                 <length>3</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>atm_rate</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>17</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>separator</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>avg_counter_i</fieldName>
                 <fieldType>string</fieldType>
-                <format>000</format>
                 <length>3</length>
-                <align>right</align>
             </field>
             <field>
                 <fieldName>dot</fieldName>
                 <fieldType>string</fieldType>
-                <format></format>
                 <length>1</length>
-                <align>left</align>
             </field>
             <field>
                 <fieldName>avg_counter_f</fieldName>
                 <fieldType>string</fieldType>
-                <format>0</format>
                 <length>1</length>
-                <align>right</align>
             </field>
         </body>
         <footer>
             <separator></separator>
         </footer>
     </data>
-
 </file>

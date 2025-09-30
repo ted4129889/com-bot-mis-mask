@@ -13,9 +13,7 @@ import com.bot.mask.util.xml.vo.XmlData;
 import com.bot.mask.util.xml.vo.XmlField;
 import com.bot.mask.util.xml.vo.XmlFile;
 import com.bot.txcontrol.util.parse.Parse;
-
 import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,6 +42,10 @@ public class MaskDataFileService {
 
     @Value("${localFile.mis.xml.output.def}")
     private String botMaskXmlFilePath;
+
+    @Value("${localFile.mis.xml.output.def2}")
+    private String botMaskXmlFilePath2;
+
     @Autowired
     private XmlParser xmlParser;
     @Autowired
@@ -65,19 +67,41 @@ public class MaskDataFileService {
     private static final String CHARSET_UTF8 = "UTF-8";
 
     public boolean exec() {
-        LogProcess.info(log,"執行資料檔案遮蔽處理...");
+        LogProcess.info(log, "執行資料檔案遮蔽處理...");
         //允許的路徑
         String tbotOutputPath = FilenameUtils.normalize(inputPath);
         String tbotMaskXmlFilePath = FilenameUtils.normalize(botMaskXmlFilePath);
-
+        String tbotMaskXmlFilePath2 = FilenameUtils.normalize(botMaskXmlFilePath2);
         XmlFile xmlFile;
         List<XmlData> xmlDataList = new ArrayList<>();
+        List<XmlData> xmlDataListD = new ArrayList<>();
+        List<XmlData> xmlDataListM = new ArrayList<>();
         List<String> fileNames = new ArrayList<>();
         try {
-            LogProcess.info(log,"output def file = " + tbotMaskXmlFilePath);
+            LogProcess.info(log, "output def file = " + tbotMaskXmlFilePath);
             xmlFile = xmlParser.parseXmlFile2(tbotMaskXmlFilePath);
 
-            xmlDataList = xmlFile.getDataList();
+            xmlDataListD = xmlFile.getDataList();
+//
+            LogProcess.info(log, "xmlDataListD.size = " + xmlDataListD.size());
+//            LogProcess.info(log, "xmlDataListD = " + xmlDataListD);
+
+            xmlDataList.addAll(xmlDataListD);
+
+            LogProcess.info(log, "output def file = " + tbotMaskXmlFilePath2);
+            xmlFile = xmlParser.parseXmlFile2(tbotMaskXmlFilePath2);
+
+            xmlDataListM = xmlFile.getDataList();
+
+            LogProcess.info(log, "xmlDataListM.size = " + xmlDataListM.size());
+//            LogProcess.info(log, "xmlDataListM = " + xmlDataListM);
+
+            xmlDataList.addAll(xmlDataListM);
+
+
+            LogProcess.info(log, "xmlDataList.size = " + xmlDataList.size());
+//            LogProcess.info(log, "xmlDataList = " + xmlDataList);
+
 //            LogProcess.info(log,"xmlDataList = " + xmlDataList);
 
             fileNames = xmlDataList.stream()
@@ -85,16 +109,16 @@ public class MaskDataFileService {
                     .collect(Collectors.toList());
 
         } catch (IOException e) {
-            LogProcess.info(log,"xml 讀取問題");
+            LogProcess.error(log, "xml 讀取問題 = {}",e);
 
         }
-        LogProcess.info(log,"讀取 external-config/xml/bot_output 資料夾下的 DailyBatchFileDefinition.xml 定義檔內有" + xmlDataList.size() + "組 <data> 格式，檔名清單如下...");
-        LogProcess.info(log,fileNames.toString());
+        LogProcess.info(log, "讀取 external-config/xml/bot_output 資料夾下的 DailyBatchFileDefinition.xml 定義檔內有" + xmlDataList.size() + "組 <data> 格式，檔名清單如下...");
+        LogProcess.info(log, fileNames.toString());
         int calcuTotal = 0;
         //台銀原檔案路徑
         List<String> folderList = getFilePaths(tbotOutputPath);
-        LogProcess.info(log,"在batch-file/input資料夾內的檔案有" + folderList.size() + "個，清單如下...");
-        LogProcess.info(log,folderList.toString());
+        LogProcess.info(log, "在batch-file/input資料夾內的檔案有" + folderList.size() + "個，清單如下...");
+        LogProcess.info(log, folderList.toString());
         for (String inputFilePath : folderList) {
             //允許路徑，若有txt去除
             inputFilePath = FilenameUtils.normalize(inputFilePath.replace(TXT_EXTENSION, ""));
@@ -108,7 +132,7 @@ public class MaskDataFileService {
 
                     if (fileNameUtil.isFileNameMatch(inputFileName, xmlFileName)) {
 
-                        LogProcess.info(log,"inputFilePath = " + inputFilePath);
+                        LogProcess.info(log, "inputFilePath = " + inputFilePath);
                         //設好要輸出的路徑
                         String outputFilePath = inputFilePath.replace("input", "output_mask_datafile");
 
@@ -136,23 +160,23 @@ public class MaskDataFileService {
 
                         //特殊處理的中間檔
                         if (inputFileName.toLowerCase().contains("faslnclfl")) {
-                            LogProcess.info(log,"performMasking2 inputFilePath = " + inputFilePath);
+                            LogProcess.info(log, "performMasking2 inputFilePath = " + inputFilePath);
                             outputData = performMasking2(inputFilePath, xmlData);
 
                             //處理中間檔
                         } else if (inputFileName.toLowerCase().startsWith("fas") || inputFileName.toLowerCase().startsWith("misbh_fas")) {
                             //XML 有Conv 開頭的表示資料轉檔(一次性用) 需特殊處理
                             if (xmlFileName.contains("Conv")) {
-                                LogProcess.info(log,"performMasking4 inputFilePath = " + inputFilePath);
+                                LogProcess.info(log, "performMasking4 inputFilePath = " + inputFilePath);
                                 outputData = performMasking4(inputFilePath, xmlData);
                             } else {
 
-                                LogProcess.info(log,"performMasking3 inputFilePath = " + inputFilePath);
+                                LogProcess.info(log, "performMasking3 inputFilePath = " + inputFilePath);
                                 outputData = performMasking3(inputFilePath, xmlData);
                             }
                             //處理外送檔
                         } else {
-                            LogProcess.info(log,"performMasking inputFilePath = " + inputFilePath);
+                            LogProcess.info(log, "performMasking inputFilePath = " + inputFilePath);
 
                             outputData = performMasking(inputFilePath, xmlData);
 
@@ -168,19 +192,19 @@ public class MaskDataFileService {
                         //輸出檔案
                         textFileUtil.writeFileContent(outputFilePath, outputData, CHARSET_BIG5);
 
-                        LogProcess.info(log,"output file path = " + outputFilePath);
+                        LogProcess.info(log, "output file path = " + outputFilePath);
 
                         calcuTotal++;
                     }
                 }
 
             } catch (Exception e) {
-                LogProcess.info(log,"XmlToInsertGenerator.sqlConvInsertTxt error");
-                LogProcess.info(log,"error=" + e.getMessage());
+                LogProcess.info(log, "XmlToInsertGenerator.sqlConvInsertTxt error");
+                LogProcess.info(log, "error=" + e.getMessage());
             }
         }
 
-        LogProcess.info(log,"產出遮蔽後的檔案在 batch-file/output_mask_datafile 資料夾,有" + calcuTotal + "個檔案");
+        LogProcess.info(log, "產出遮蔽後的檔案在 batch-file/output_mask_datafile 資料夾,有" + calcuTotal + "個檔案");
 
         return true;
     }
@@ -201,8 +225,8 @@ public class MaskDataFileService {
                     .collect(Collectors.toList());
 
         } catch (IOException e) {
-            LogProcess.info(log,"Error reading files");
-            LogProcess.info(log,"error=" + e.getMessage());
+            LogProcess.info(log, "Error reading files");
+            LogProcess.info(log, "error=" + e.getMessage());
         }
         return sqlFilePaths;
     }
@@ -266,14 +290,14 @@ public class MaskDataFileService {
                     }
 
                 }
-                LogProcess.info(log,"result after masking count = " + index);
+                LogProcess.info(log, "result after masking count = " + index);
             } else {
-                LogProcess.info(log,"not allowed to read  = " + fileName);
+                LogProcess.info(log, "not allowed to read  = " + fileName);
             }
 
         } catch (Exception e) {
-            LogProcess.info(log,"XmlToReadFile.exec error");
-            LogProcess.info(log,"error=" + e.getMessage());
+            LogProcess.info(log, "XmlToReadFile.exec error");
+            LogProcess.error(log, "error={}", e);
         }
 
         return outputData;
@@ -308,11 +332,12 @@ public class MaskDataFileService {
             }
 
 
-            LogProcess.info(log,"result after masking count = " + result.size());
+            LogProcess.info(log, "result after masking count = " + result.size());
 
         } catch (Exception e) {
-            LogProcess.info(log,"XmlToReadFile.exec error");
-            LogProcess.info(log,"error=" + e.getMessage());
+            LogProcess.info(log, "XmlToReadFile.exec error");
+            LogProcess.error(log, "error={}", e);
+
         }
 
         return result;
@@ -348,7 +373,7 @@ public class MaskDataFileService {
                 index++;
                 firstChar = s.substring(0, 1);
                 try {
-                    LogProcess.debug(log,"fileName:{},line data = {}", fileName, s);
+                    LogProcess.debug(log, "fileName:{},line data = {}", fileName, s);
                     switch (firstChar) {
                         case "0":
                             result.add(processField2(xmlFieldHeaderList, s));
@@ -362,14 +387,15 @@ public class MaskDataFileService {
                     }
 
                 } catch (Exception e) {
-                    LogProcess.info(log,"XmlToReadFile.exec error");
-                    LogProcess.error(log,"error = {}" + e);
+                    LogProcess.info(log, "XmlToReadFile.exec error");
+                    LogProcess.error(log, "error={}", e);
+
                 }
 
             }
-            LogProcess.info(log,"result after masking count = " + index);
+            LogProcess.info(log, "result after masking count = " + index);
         } else {
-            LogProcess.info(log,"not allowed to read  = " + fileName);
+            LogProcess.info(log, "not allowed to read  = " + fileName);
         }
 
 
@@ -403,11 +429,12 @@ public class MaskDataFileService {
             }
 
 
-            LogProcess.info(log,"result after masking count = " + result.size());
+            LogProcess.info(log, "result after masking count = " + result.size());
 
         } catch (Exception e) {
-            LogProcess.info(log,"XmlToReadFile.exec error");
-            LogProcess.info(log,"error=" + e.getMessage());
+            LogProcess.info(log, "XmlToReadFile.exec error");
+            LogProcess.error(log, "error={}", e);
+
         }
 
         return result;
@@ -476,7 +503,7 @@ public class MaskDataFileService {
                     try {
                         return dataMasker.applyMask(v, maskType);
                     } catch (IOException e) {
-                        LogProcess.error(log,"error = {}" + e);
+                        LogProcess.error(log, "error = {}" + e);
                     }
                     return v;
                 });
@@ -555,7 +582,7 @@ public class MaskDataFileService {
                     try {
                         return dataMasker.applyMask(v, maskType);
                     } catch (IOException e) {
-                        LogProcess.error(log,"error = {}", e);
+                        LogProcess.error(log, "error = {}", e);
                     }
                     return v;
                 });
@@ -593,7 +620,8 @@ public class MaskDataFileService {
         int dataLength = sLine.length;
         //先比對檔案資料長度是否與定義檔加總一致
         if (xmlColumnCnt != dataLength) {
-            LogProcess.debug(log,"xml length = " + xmlColumnCnt + " VS data length = " + dataLength);
+            LogProcess.debug(log, "xml length = " + xmlColumnCnt + " VS data length = " + dataLength);
+
             return line;
         }
         //起始位置
@@ -613,7 +641,7 @@ public class MaskDataFileService {
                     try {
                         return dataMasker.applyMask(v, maskType);
                     } catch (IOException e) {
-                        LogProcess.error(log,"error = {}", e);
+                        LogProcess.error(log, "error = {}", e);
                     }
                     return v;
                 });
@@ -652,7 +680,7 @@ public class MaskDataFileService {
         int dataLength = sLine.length;
         //先比對檔案資料長度是否與定義檔加總一致
         if (xmlColumnCnt != dataLength) {
-            LogProcess.debug(log,"xml length = " + xmlColumnCnt + " VS data length = " + dataLength);
+            LogProcess.debug(log, "xml length = " + xmlColumnCnt + " VS data length = " + dataLength);
             return line;
         }
         //起始位置
@@ -672,7 +700,7 @@ public class MaskDataFileService {
                     try {
                         return dataMasker.applyMask(v, maskType);
                     } catch (IOException e) {
-                        LogProcess.error(log,"error = {}", e);
+                        LogProcess.error(log, "error = {}", e);
                     }
                     return v;
                 });
@@ -731,13 +759,12 @@ public class MaskDataFileService {
 
             }
         } else {
-            LogProcess.info(log,"not allowed to read  = {}", fileName);
+            LogProcess.info(log, "not allowed to read  = {}", fileName);
         }
 
         return outputData;
 
     }
-
 
 
     /**
@@ -750,7 +777,7 @@ public class MaskDataFileService {
      * @return 回傳遮罩後的資料
      */
     private List<String> processFileData2(String fileName, List<XmlField> xmlFieldListH, List<XmlField> xmlFieldListB, List<XmlField> xmlFieldListF, int headerCnt, int footerCnt) {
-        LogProcess.info(log,"processFileData2 ... (Conv)");
+        LogProcess.info(log, "processFileData2 ... (Conv)");
         //輸出資料
         List<String> outputData = new ArrayList<>();
 
@@ -780,7 +807,7 @@ public class MaskDataFileService {
 
             }
         } else {
-            LogProcess.info(log,"not allowed to read  = {}", fileName);
+            LogProcess.info(log, "not allowed to read  = {}", fileName);
         }
 
         return outputData;

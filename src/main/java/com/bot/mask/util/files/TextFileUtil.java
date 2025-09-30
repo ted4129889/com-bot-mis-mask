@@ -54,18 +54,20 @@ public class TextFileUtil {
 
         List<String> fileContents = new ArrayList<>();
 
-        Charset charset= null;
-            if ("UTF-8".equalsIgnoreCase(charsetName)) {
-                charset = StandardCharsets.UTF_8;
-            } else if ("BIG5".equalsIgnoreCase(charsetName)) {
-                charset = Charset.forName("Big5");
-            } else {
-                charset = Charset.forName(charsetName);
-            }
+        Charset charset = null;
+        if ("UTF-8".equalsIgnoreCase(charsetName)) {
+            charset = StandardCharsets.UTF_8;
+        } else if ("BIG5".equalsIgnoreCase(charsetName)) {
+            charset = Charset.forName("Big5");
+        } else {
+            charset = Charset.forName(charsetName);
+        }
         CharsetDecoder decoder = charset.newDecoder()
-                .onMalformedInput(CodingErrorAction.REPLACE)      // Big5 編碼的中文都是兩個byte一組不是的話就會有問題，會以 � 代替。
-                .onUnmappableCharacter(CodingErrorAction.REPLACE);// 找不到Unicode 字元的 byte 組合時，也用 � 代替。
-
+                .onMalformedInput(CodingErrorAction.REPLACE)
+                .onUnmappableCharacter(CodingErrorAction.REPLACE);
+        //CodingErrorAction.REPORT 只顯示警告錯誤的字串
+        //CodingErrorAction.REPLACE 將錯誤的字串替換成�
+//        decoder.replaceWith("");
         int lineCount = 0;
         try (InputStream rawIn = Files.newInputStream(path);
 
@@ -77,7 +79,8 @@ public class TextFileUtil {
                 lineCount++;
                 // 簡單偵測：若這行包含替代字元，打警告，之後再決定是否回頭抓原始 HEX
                 if (line.indexOf('\uFFFD') >= 0) {
-                    LogProcess.warn(log, "Line {} has invalid bytes (shown as �) => {}", lineCount,line);
+                    LogProcess.warn(log, "Line {} has invalid bytes  => {}", lineCount, line);
+                    LogProcess.warn(log, "Line {} has invalid bytes  => {}", lineCount, line.length());
                 }
                 fileContents.add(line);
             }
