@@ -112,6 +112,7 @@ public class TextFileUtil {
 
         return lines;
     }
+
     //第一版讀檔案
     public List<String> readFileContent2(String filePath, String charsetName) {
 
@@ -349,29 +350,32 @@ public class TextFileUtil {
         for (byte b : bytes) sb.append(String.format("%02X", b));
         return sb.toString();
     }
+
     // Big5 ：抓第一個不合法位置（回傳 -1 代表看起來都合法或純 ASCII）
-    private int firstIllegalBig5Index(byte[] b){
-        for(int i=0;i<b.length;i++){
-            int x=b[i]&0xFF;
-            if(x>=0x81 && x<=0xFE){       // lead
-                if(i+1>=b.length) return i;                // 尾端殘缺
-                int y=b[i+1]&0xFF;
-                boolean ok=(y>=0x40&&y<=0x7E)||(y>=0xA1&&y<=0xFE);
-                if(!ok) return i; else i++;  // 合法雙位元組，跳過第二個
+    private int firstIllegalBig5Index(byte[] b) {
+        for (int i = 0; i < b.length; i++) {
+            int x = b[i] & 0xFF;
+            if (x >= 0x81 && x <= 0xFE) {       // lead
+                if (i + 1 >= b.length) return i;                // 尾端殘缺
+                int y = b[i + 1] & 0xFF;
+                boolean ok = (y >= 0x40 && y <= 0x7E) || (y >= 0xA1 && y <= 0xFE);
+                if (!ok) return i;
+                else i++;  // 合法雙位元組，跳過第二個
             } // 其他 ASCII 直接過
         }
         return -1;
     }
 
     //判斷： EBCDIC
-    private boolean looksLikeEbcdic(byte[] b){
-        int d=0,l=0,so=0;
-        for(byte v:b){ int x=v&0xFF;
-            if(x>=0xF0 && x<=0xF9) d++;                  // '0'..'9'
-            if(x==0x0E || x==0x0F) so++;                 // SO/SI
-            if((x>=0xC1 && x<=0xE9)) l++;                // A..Z/a..z
+    private boolean looksLikeEbcdic(byte[] b) {
+        int d = 0, l = 0, so = 0;
+        for (byte v : b) {
+            int x = v & 0xFF;
+            if (x >= 0xF0 && x <= 0xF9) d++;                  // '0'..'9'
+            if (x == 0x0E || x == 0x0F) so++;                 // SO/SI
+            if ((x >= 0xC1 && x <= 0xE9)) l++;                // A..Z/a..z
         }
-        return (d+l)>=4 || so>0;
+        return (d + l) >= 4 || so > 0;
     }
 //    // 判斷： Big5/MS950 (lead/trail 合法性)
 //    private boolean looksLikeBig5(byte[] b) {
@@ -399,6 +403,7 @@ public class TextFileUtil {
 
         return readFileContentWithHex(filePath, charsetName, false);
     }
+
     //20251002版 讀檔案
     public List<String> readFileContentWithHex(String filePath, String charsetName, boolean strictMode) {
         String normalizedPath = FilenameUtils.normalize(filePath);
@@ -431,49 +436,72 @@ public class TextFileUtil {
                 .onUnmappableCharacter(CodingErrorAction.REPLACE)
                 .replaceWith("?");
         //拋錯使用
-        CharsetDecoder decStrict  = cs.newDecoder()
+        CharsetDecoder decStrict = cs.newDecoder()
                 .onMalformedInput(CodingErrorAction.REPORT)
                 .onUnmappableCharacter(CodingErrorAction.REPORT);
 
         List<String> out = new ArrayList<>();
         int lineNo = 0;
 
-        try (BufferedInputStream in = new BufferedInputStream(Files.newInputStream(path), 64*1024)) {
+        try (BufferedInputStream in = new BufferedInputStream(Files.newInputStream(path), 64 * 1024)) {
             ByteArrayOutputStream buf = new ByteArrayOutputStream(4096);
-            int prev=-1, c;
+            int prev = -1, c;
 
-            while ((c=in.read())!=-1) {
-                if (c=='\n') {
+            while ((c = in.read()) != -1) {
+                if (c == '\n') {
                     byte[] bytes = buf.toByteArray();
-                    if (prev=='\r' && bytes.length>0) bytes = Arrays.copyOf(bytes, bytes.length-1);
+                    if (prev == '\r' && bytes.length > 0) bytes = Arrays.copyOf(bytes, bytes.length - 1);
                     buf.reset();
                     lineNo++;
 
                     //放進 List
                     String s;
-                    try { s = decLenient.decode(ByteBuffer.wrap(bytes)).toString(); }
-                    finally { decLenient.reset(); }
-                    if (lineNo==1 && !s.isEmpty() && s.charAt(0)=='\uFEFF') s = s.substring(1);
+                    try {
+                        s = decLenient.decode(ByteBuffer.wrap(bytes)).toString();
+                    } finally {
+                        decLenient.reset();
+                    }
+                    if (lineNo == 1 && !s.isEmpty() && s.charAt(0) == '\uFEFF') s = s.substring(1);
                     out.add(s);
 
                     //若失敗或出現替代字，記錄錯誤
                     boolean bad = false;
-                    try { decStrict.decode(ByteBuffer.wrap(bytes)); }
-                    catch (CharacterCodingException ex) { bad = true; }
-                    finally { decStrict.reset(); }
+                    try {
+                        decStrict.decode(ByteBuffer.wrap(bytes));
+                    } catch (CharacterCodingException ex) {
+                        bad = true;
+                    } finally {
+                        decStrict.reset();
+                    }
 
                     // Big5  & EBCDIC
                     int illegalAt = firstIllegalBig5Index(bytes);
                     boolean maybeEbcdic = looksLikeEbcdic(bytes);
+                    boolean hasBadStrict = bad;
+                    boolean hasReplacement = s.indexOf('\uFFFD') >= 0 || s.indexOf('?') >= 0;
+                    boolean hasIllegalBig5 = illegalAt >= 0;
+                    boolean hasEbcdicLike = maybeEbcdic;
 
-                    if (bad || s.indexOf('\uFFFD')>=0 || s.indexOf('?')>=0 || illegalAt>=0 || maybeEbcdic) {
-                        // 取一段視窗，避免 log 太長
-                        int start = Math.max(0, (illegalAt>=0?illegalAt:0) - 8);
-                        int end   = Math.min(bytes.length, start + 32);
+                    // 只有其中任一條件成立才顯示
+                    if (hasBadStrict || hasReplacement || hasIllegalBig5 || hasEbcdicLike) {
+                        // 取 HEX 視窗（避免太長）
+                        int start = Math.max(0, (illegalAt >= 0 ? illegalAt : 0) - 8);
+                        int end = Math.min(bytes.length, start + 32);
                         String window = bytesToHex(Arrays.copyOfRange(bytes, start, end));
-                        LogProcess.debug(log,
-                                "Line {} suspicious. badStrict={} illegalBig5At={} maybeEbcdic={} HEX[..]={}",
-                                lineNo, bad, illegalAt, maybeEbcdic, window);
+
+                        // 分別顯示原因，讓 log 更明確
+                        if (hasBadStrict) {
+                            LogProcess.warn(log, "[Line {}] ⚠️ 嚴格解碼失敗 (badStrict=true) HEX[..]={}", lineNo, window);
+                        }
+                        if (hasReplacement) {
+                            LogProcess.warn(log, "[Line {}] ⚠️ 出現替代字 (� 或 ?) HEX[..]={}", lineNo, window);
+                        }
+                        if (hasIllegalBig5) {
+                            LogProcess.warn(log, "[Line {}] ⚠️ 非法 Big5 位元組 (illegalAt={}) HEX[..]={}", lineNo, illegalAt, window);
+                        }
+                        if (hasEbcdicLike) {
+//                            LogProcess.warn(log, "[Line {}] ⚠️ 疑似 EBCDIC 編碼 HEX[..]={}", lineNo, window);
+                        }
                     }
                 } else {
                     buf.write(c);
@@ -482,27 +510,55 @@ public class TextFileUtil {
             }
 
             // 結尾最後一筆（沒有換行符）
-            if (buf.size()>0) {
+            if (buf.size() > 0) {
                 byte[] bytes = buf.toByteArray();
                 lineNo++;
 
                 String s;
-                try { s = decLenient.decode(ByteBuffer.wrap(bytes)).toString(); }
-                finally { decLenient.reset(); }
-                if (lineNo==1 && !s.isEmpty() && s.charAt(0)=='\uFEFF') s = s.substring(1);
+                try {
+                    s = decLenient.decode(ByteBuffer.wrap(bytes)).toString();
+                } finally {
+                    decLenient.reset();
+                }
+                if (lineNo == 1 && !s.isEmpty() && s.charAt(0) == '\uFEFF') s = s.substring(1);
                 out.add(s);
 
-                boolean bad=false;
-                try { decStrict.decode(ByteBuffer.wrap(bytes)); }
-                catch (CharacterCodingException ex){ bad=true; }
-                finally { decStrict.reset(); }
+                boolean bad = false;
+                try {
+                    decStrict.decode(ByteBuffer.wrap(bytes));
+                } catch (CharacterCodingException ex) {
+                    bad = true;
+                } finally {
+                    decStrict.reset();
+                }
 
                 int illegalAt = firstIllegalBig5Index(bytes);
                 boolean maybeEbcdic = looksLikeEbcdic(bytes);
-                if (bad || s.indexOf('\uFFFD')>=0 || s.indexOf('?')>=0 || illegalAt>=0 || maybeEbcdic) {
-                    String window = bytesToHex(Arrays.copyOfRange(bytes, Math.max(0,(illegalAt>=0?illegalAt:0)-8), Math.min(bytes.length, 32)));
-                    LogProcess.debug(log, "Line {} suspicious. badStrict={} illegalBig5At={} maybeEbcdic={} HEX[..]={}",
-                            lineNo, bad, illegalAt, maybeEbcdic, window);
+                boolean hasBadStrict = bad;
+                boolean hasReplacement = s.indexOf('\uFFFD') >= 0 || s.indexOf('?') >= 0;
+                boolean hasIllegalBig5 = illegalAt >= 0;
+                boolean hasEbcdicLike = maybeEbcdic;
+
+                // 只有其中任一條件成立才顯示
+                if (hasBadStrict || hasReplacement || hasIllegalBig5 || hasEbcdicLike) {
+                    // 取 HEX 視窗（避免太長）
+                    int start = Math.max(0, (illegalAt >= 0 ? illegalAt : 0) - 8);
+                    int end = Math.min(bytes.length, start + 32);
+                    String window = bytesToHex(Arrays.copyOfRange(bytes, start, end));
+
+                    // 分別顯示原因，讓 log 更明確
+                    if (hasBadStrict) {
+                        LogProcess.warn(log, "[Line {}] ⚠️ 嚴格解碼失敗 (badStrict=true) HEX[..]={}", lineNo, window);
+                    }
+                    if (hasReplacement) {
+                        LogProcess.warn(log, "[Line {}] ⚠️ 出現替代字 (� 或 ?) HEX[..]={}", lineNo, window);
+                    }
+                    if (hasIllegalBig5) {
+                        LogProcess.warn(log, "[Line {}] ⚠️ 非法 Big5 位元組 (illegalAt={}) HEX[..]={}", lineNo, illegalAt, window);
+                    }
+                    if (hasEbcdicLike) {
+//                        LogProcess.warn(log, "[Line {}] ⚠️ 疑似 EBCDIC 編碼 HEX[..]={}", lineNo, window);
+                    }
                 }
             }
 //            LogProcess.info(log, "out out out = {}", out);
