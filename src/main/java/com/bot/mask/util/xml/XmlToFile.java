@@ -115,12 +115,6 @@ public class XmlToFile {
 
             ApLogHelper.info(
                     log, false, LogType.NORMAL.getCode(), "read input file = {}", inputPath);
-//            ApLogHelper.info(log,
-//                    log,
-//                    false,
-//                    LogType.NORMAL.getCode(),
-//                    "read output file = {}",
-//                    outputConvert);
 
             // 判斷檔案型態使用
             byte[] fileBytes = new byte[0];
@@ -144,7 +138,7 @@ public class XmlToFile {
                     outputConvert);
 
         } catch (Exception e) {
-            LogProcess.error(log,"readreadCobolFile error");
+            LogProcess.error(log,"readCobolFile error = {}",e);
         }
 
     }

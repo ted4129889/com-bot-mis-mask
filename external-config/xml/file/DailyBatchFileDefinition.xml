@@ -4373,6 +4373,8 @@
                 <length>15</length>
             </field>
         </body>
+        <footer>
+        </footer>
     </data>
     <data fileName="OBUFX">
         <header></header>
@@ -18731,11 +18733,12 @@
                 <fieldType>X</fieldType>
                 <length>120</length>
                 <decimal>0</decimal>
+                <maskType>4</maskType>
             </field>
             <field>
                 <fieldName>bkindb</fieldName>
                 <fieldType>X</fieldType>
-                <length>7</length>
+                <length>6</length>
                 <decimal>0</decimal>
             </field>
             <field>

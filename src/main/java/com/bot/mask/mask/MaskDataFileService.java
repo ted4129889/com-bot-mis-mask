@@ -64,6 +64,7 @@ public class MaskDataFileService {
     private XmlToFile xmlToFile;
     private final String TXT_EXTENSION = ".txt";
     private static final String CHARSET_BIG5 = "Big5";
+    private static final String CHARSET_CP950 = "CP950";
     private static final String CHARSET_UTF8 = "UTF-8";
 
     public boolean exec() {
@@ -145,6 +146,7 @@ public class MaskDataFileService {
                                 //Conv 輸入及輸出的檔名就不用動
                                 outputFilePath = inputFilePath.replace("input", "output_mask_datafile");
                             } else {
+                                //只有中間檔(Fas開頭的檔案)，需要先轉檔
                                 xmlToFile.readCobolFileConvToTextFile(inputFilePath, xmlData);
                                 //這是給轉檔後要讀檔及寫檔的路徑
                                 inputFilePath = inputFilePath + ".Conv";
@@ -365,7 +367,7 @@ public class MaskDataFileService {
         // 確認檔案路徑 是否與 允許的路徑匹配
         if (CheakSafePathUtil.isSafeFilePath(allowedPath, fileName)) {
             // 讀取檔案內容
-            List<String> lines = textFileUtil.readFileContent(fileName, CHARSET_BIG5);
+            List<String> lines = textFileUtil.readFileContentWithHex(fileName, CHARSET_BIG5);
 
             String firstChar = "";
             int index = 0;
@@ -373,7 +375,7 @@ public class MaskDataFileService {
                 index++;
                 firstChar = s.substring(0, 1);
                 try {
-                    LogProcess.debug(log, "fileName:{},line data = {}", fileName, s);
+                    LogProcess.debug(log, "data = {}",s);
                     switch (firstChar) {
                         case "0":
                             result.add(processField2(xmlFieldHeaderList, s));
@@ -449,7 +451,7 @@ public class MaskDataFileService {
      * @return 回傳遮罩後的資料
      */
     private String processField(List<XmlField> xmlFieldList, String line) {
-        Charset charset = Charset.forName("Big5");
+        Charset charset = Charset.forName(CHARSET_CP950);
         Charset charset2 = Charset.forName("UTF-8");
 
         int xmlLength = 0;
@@ -525,7 +527,7 @@ public class MaskDataFileService {
      * @return 回傳遮罩後的資料
      */
     private String processField2(List<XmlField> xmlFieldList, String line) {
-        Charset charset = Charset.forName("Big5");
+        Charset charset = Charset.forName(CHARSET_CP950);
         Charset charset2 = Charset.forName("UTF-8");
 
         int xmlLength = 0;
@@ -608,7 +610,7 @@ public class MaskDataFileService {
      * @return 回傳遮罩後的資料
      */
     private String processField3(List<XmlField> xmlFieldList, String line) {
-        Charset charset = Charset.forName("Big5");
+        Charset charset = Charset.forName(CHARSET_CP950);
         Charset charset2 = Charset.forName("UTF-8");
 
         int xmlColumnCnt = 0;
@@ -667,7 +669,7 @@ public class MaskDataFileService {
      * @return 回傳遮罩後的資料
      */
     private String processFieldCobol(List<XmlField> xmlFieldList, String line) {
-        Charset charset = Charset.forName("Big5");
+        Charset charset = Charset.forName(CHARSET_CP950);
         Charset charset2 = Charset.forName("UTF-8");
 
         int xmlColumnCnt = 0;
@@ -739,9 +741,12 @@ public class MaskDataFileService {
         // 確認檔案路徑 是否與 允許的路徑匹配
         if (CheakSafePathUtil.isSafeFilePath(allowedPath, fileName)) {
             // 讀取檔案內容
-            List<String> lines = textFileUtil.readFileContent(fileName, CHARSET_BIG5);
+
+            List<String> lines = textFileUtil.readFileContentWithHex(fileName, CHARSET_BIG5);
+//            List<String> lines = textFileUtil.readFileContent(fileName, CHARSET_BIG5);
             int index = 0;
             for (String s : lines) {
+
                 index++;
                 if (headerCnt == 1 && headerCnt == index) {
                     outputData.add(processField(xmlFieldListH, s));
