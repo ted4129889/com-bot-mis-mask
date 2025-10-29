@@ -40,10 +40,10 @@ public class MaskDataFileService {
     @Value("${localFile.mis.batch.output}")
     private String outputPath;
 
-    @Value("${localFile.mis.xml.output.def}")
+    @Value("${localFile.mis.xml.file_def}")
     private String botMaskXmlFilePath;
 
-    @Value("${localFile.mis.xml.output.def2}")
+    @Value("${localFile.mis.xml.file_def2}")
     private String botMaskXmlFilePath2;
 
     @Autowired
@@ -87,7 +87,7 @@ public class MaskDataFileService {
             LogProcess.info(log, "xmlDataListD.size = " + xmlDataListD.size());
 //            LogProcess.info(log, "xmlDataListD = " + xmlDataListD);
 
-            xmlDataList.addAll(xmlDataListD);
+                xmlDataList.addAll(xmlDataListD);
 
             LogProcess.info(log, "output def file = " + tbotMaskXmlFilePath2);
             xmlFile = xmlParser.parseXmlFile2(tbotMaskXmlFilePath2);

@@ -3,10 +3,10 @@ package com.bot.mask.util.xml.mask.allowedTable;
 
 public enum AllowedProdTableName {
     // 正式環境
+    BOTSDDB_DB_ACHMR_DDS("botsddb.dbo.db_achmr_dds"),
+    BOTSRDB_DB_FDMR_DDS("botsrdb.dbo.db_fdmr_dds"),
     BOTFDDB_DB_107M_DDS("botfddb.dbo.db_107m_dds"),
-
     BOTFDDB_DB_GAIN_DDS("botfddb.dbo.db_gain_dds"),
-
     BOTLDDB_DB_IHTX_DDS("botlddb.dbo.db_ihtx_dds"),
 
     BOTLDDB_DB_LCON_DDS("botlddb.dbo.db_lcon_dds"),

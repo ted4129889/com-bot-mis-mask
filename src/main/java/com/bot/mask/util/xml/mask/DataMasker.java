@@ -292,7 +292,7 @@ public class DataMasker {
     private String maskPhoneNumber(String value) {
         // 前四個字不遮蔽，其餘以9代替
         return value.length() > 4
-                ? value.substring(0, 4) + "9".repeat(value.length() - 4)
+                ? value.substring(0, 4) + "9".repeat(value.trim().length() - 4)
                 : value;
     }
 

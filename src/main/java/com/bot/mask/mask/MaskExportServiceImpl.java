@@ -77,12 +77,14 @@ public class MaskExportServiceImpl implements MaskExportService {
 
 
         } catch (IOException e) {
-            LogProcess.info(log,"讀取TABLE XML 格式錯誤 :" +xmlFileName  );
+            LogProcess.info(log, "讀取TABLE XML 格式錯誤 :" + xmlFileName);
         }
 
         if ("prod".equals(env)) {
 
-            allowedTable = buildTableName(xmlData.getTable().getTableName(),readConfigXmlGetDbSuffix());
+            allowedTable = buildTableName(xmlData.getTable().getTableName(), readConfigXmlGetDbSuffix());
+        } else {
+            allowedTable = xmlData.getTable().getTableName();
         }
 
         String sql = getSql(param, allowedTable, xmlData);
@@ -99,7 +101,7 @@ public class MaskExportServiceImpl implements MaskExportService {
 
                 // 無資料則跳過
                 if (!rs.isBeforeFirst()) {
-                    LogProcess.info(log,"No data found for table: " + allowedTable);
+                    LogProcess.info(log, "No data found for table: " + allowedTable);
                     return false;
                 } else {
 //                    LogProcess.info(log,"The data exists for table: " + allowedTable);
@@ -141,13 +143,13 @@ public class MaskExportServiceImpl implements MaskExportService {
                 //統計耗時
                 duration += (System.nanoTime() - start) / 1_000_000_000.0;
 
-                LogProcess.info(log,"產生SQL檔案 = " + outputFilePath + allowedTable + SQL_EXTENSION + ",耗時: " + duration + "s");
+                LogProcess.info(log, "產生SQL檔案 = " + outputFilePath + allowedTable + SQL_EXTENSION + ",耗時: " + duration + "s");
 
 
             }
         } catch (SQLException | IOException e) {
 
-            LogProcess.warn(log,"Invalid object name '" + allowedTable + "'");
+            LogProcess.warn(log, "Invalid object name '" + allowedTable + "'");
 //            LogProcess.warn(log,"Error executing exportMaskedFile", e);
             return false;
         }
@@ -155,12 +157,14 @@ public class MaskExportServiceImpl implements MaskExportService {
     }
 
     private static String getSql(String param, String allowedTable, XmlData xmlData) {
-        String sql = "SELECT * FROM " + allowedTable;
+
+
+        String sql = "SELECT * FROM " + xmlData.getTable().getTableName();
 
         String paramCol = "";
         if (xmlData.getParamDate() != null) {
             paramCol = xmlData.getParamDate();
-            sql = "SELECT * FROM " + allowedTable + " WHERE (" +
+            sql = "SELECT * FROM " + xmlData.getTable().getTableName() + " WHERE (" +
                     "    CASE " +
                     "        WHEN LEN(CAST(" + paramCol + " AS VARCHAR)) = 7 THEN " +
                     " CAST(CAST(LEFT(CAST(" + paramCol + "  AS VARCHAR), 3) AS INT) + 1911 AS VARCHAR(4)) + RIGHT(CAST(" + paramCol + "  AS VARCHAR), 4)" +
@@ -248,7 +252,7 @@ public class MaskExportServiceImpl implements MaskExportService {
     private String validXmlFile(String xmlTableName, String tableName, String env) {
         String xmlFullPath = FilenameUtils.normalize(maskXmlFilePath + xmlTableName + ".xml");
         if (!pathValidator.isSafe(FilenameUtils.normalize(maskXmlFilePath), xmlFullPath)) {
-            LogProcess.info(log,"檔案路徑不安全，無法允許");
+            LogProcess.info(log, "檔案路徑不安全，無法允許");
             return null;
         }
         try {
@@ -262,7 +266,7 @@ public class MaskExportServiceImpl implements MaskExportService {
             }
             return allowed;
         } catch (Exception e) {
-            LogProcess.warn(log,"xml file parsing fail");
+            LogProcess.warn(log, "xml file parsing fail");
             return null;
         }
     }
@@ -278,18 +282,18 @@ public class MaskExportServiceImpl implements MaskExportService {
         return val.toString();
     }
 
-    private String readConfigXmlGetDbSuffix(){
+    private String readConfigXmlGetDbSuffix() {
         XmlData xmlData = null;
 
         String dbSuffix = "";
         try {
             xmlData = xmlParser.parseXmlFile(
-                    FilenameUtils.normalize(maskXmlConfig ));
+                    FilenameUtils.normalize(maskXmlConfig));
 
             dbSuffix = xmlData.getSuffix();
 
         } catch (IOException e) {
-            LogProcess.info(log,"讀取TABLE XML 格式錯誤 :" +maskXmlConfig);
+            LogProcess.info(log, "讀取TABLE XML 格式錯誤 :" + maskXmlConfig);
         }
 
         return dbSuffix;

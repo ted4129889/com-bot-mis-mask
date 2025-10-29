@@ -4,11 +4,9 @@ package com.bot.mask.util.files;
 import com.bot.mask.log.LogProcess;
 import com.bot.txcontrol.config.logger.ApLogHelper;
 import com.bot.txcontrol.eum.LogType;
-import lombok.extern.slf4j.Slf4j;
+import com.bot.txcontrol.exception.LogicException;
+import com.bot.txcontrol.util.dump.ExceptionDump;
 import org.apache.commons.io.FilenameUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -23,6 +21,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
+
 
 @Slf4j
 @Component
@@ -47,6 +50,124 @@ public class TextFileUtil {
      *                    charsets are "UTF-8" and "BIG5".
      * @return List of strings where each string is a line read from the file specified by filePath.
      */
+    /**
+     * 以指定的位元組長度分段讀取檔案內容，保持包含 CR (0x0D) 與 LF (0x0A) 字元。
+     *
+     * <p>將檔案分段讀取，每段長度約為 {@code length} 位元組，並依序存入 {@code List<byte[]>} 中回傳。
+     * 若最後一段未滿長度，仍會以指定長度填充（可能含多餘資料）。
+     *
+     * @param filePath 要讀取之檔案完整路徑字串。
+     * @param length 要讀取的位元組長度（包含 CR LF 符號），每次讀取的 buffer 大小。
+     * @return List<byte[]> 讀取後的檔案內容清單，每筆元素長度固定為 {@code length} 位元組。
+     */
+    public List<byte[]> readFileByByte(String filePath, int length) {
+        ApLogHelper.info(log, false, LogType.NORMAL.getCode(), "readFileByByte");
+        ApLogHelper.info(log, false, LogType.NORMAL.getCode(), "filePath = {}", filePath);
+        byte[] buffer = new byte[length];
+        int bytesRead;
+        List<byte[]> fileContents = new ArrayList<>();
+        try (FileInputStream inputStream = new FileInputStream(Paths.get(filePath).toFile())) {
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                byte[] completeRecord = new byte[length];
+                System.arraycopy(buffer, 0, completeRecord, 0, length);
+                fileContents.add(completeRecord);
+            }
+        } catch (Exception e) {
+            ApLogHelper.error(log, false, LogType.NORMAL.getCode(), "readFileByByte error");
+            ApLogHelper.error(
+                    log, false, LogType.NORMAL.getCode(), ExceptionDump.exception2String(e));
+        }
+        return fileContents;
+    }
+
+    /** 處理檔案結尾可能存在的不完整記錄，確保每一筆讀取到的資料都是獨立且正確的。 * */
+    public List<byte[]> readFileByByte2(String filePath, int recordLength) {
+        ApLogHelper.info(log, false, LogType.NORMAL.getCode(), "readFileByByte");
+        ApLogHelper.info(log, false, LogType.NORMAL.getCode(), "filePath = {}", filePath);
+
+        List<byte[]> fileContents = new ArrayList<>();
+        try (FileInputStream inputStream = new FileInputStream(Paths.get(filePath).toFile())) {
+            byte[] buffer = new byte[recordLength]; // 創建一個緩衝區，大小為每筆記錄的長度
+            int bytesRead;
+
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                // 在此處處理每一筆記錄
+                // 檢查是否讀到了完整的記錄長度
+                if (bytesRead == recordLength) {
+                    // 如果讀到了完整的記錄，直接加入清單
+                    byte[] completeRecord = new byte[recordLength];
+                    System.arraycopy(buffer, 0, completeRecord, 0, recordLength);
+                    fileContents.add(completeRecord);
+                } else {
+                    // 如果讀取到的位元組數小於記錄長度，表示已經到達檔案結尾
+                    byte[] partialRecord = new byte[bytesRead];
+                    System.arraycopy(buffer, 0, partialRecord, 0, bytesRead);
+                    fileContents.add(partialRecord);
+                }
+            }
+        } catch (Exception e) {
+            ApLogHelper.error(log, false, LogType.NORMAL.getCode(), "readFileByByte error");
+            ApLogHelper.error(
+                    log, false, LogType.NORMAL.getCode(), ExceptionDump.exception2String(e));
+        }
+        return fileContents;
+    }
+
+    /**
+     * Reads the contents of the specified file and returns it as a list of strings, with each
+     * string representing a line from the file. The file is read using the specified charset.
+     *
+     * @param filePath The path to the file whose contents are to be read.
+     * @param charsetName The name of the charset to use for decoding the file content. Supported
+     *     charsets are "UTF-8" and "BIG5".
+     * @return List of strings where each string is a line read from the file specified by filePath.
+     * @throws LogicException if an I/O error occurs during reading of the file.
+     */
+//    public List<String> readFileContent(String filePath, String charsetName) throws LogicException {
+//        ApLogHelper.info(log, false, LogType.NORMAL.getCode(), "readFileContent");
+//        ApLogHelper.info(log, false, LogType.NORMAL.getCode(), "filePath = {}", filePath);
+//        ApLogHelper.info(log, false, LogType.NORMAL.getCode(), "charsetName = {}", charsetName);
+//        Path path = Paths.get(filePath);
+//        Charset charset;
+//        List<String> fileContents = new ArrayList<>();
+//
+//        if ("UTF-8".equalsIgnoreCase(charsetName)) {
+//            charset = StandardCharsets.UTF_8;
+//        } else if ("BIG5".equalsIgnoreCase(charsetName)) {
+//            charset = Charset.forName("CP950");
+//        } else if ("CP950".equalsIgnoreCase(charsetName)) {
+//            charset = Charset.forName("CP950");
+//        } else {
+//            throw new LogicException("E999", "Unsupported charset:" + charsetName);
+//        }
+//
+//        try (BufferedReader reader = Files.newBufferedReader(path, charset)) {
+//            String line;
+//            while ((line = reader.readLine()) != null) fileContents.add(line);
+//
+//            while (!fileContents.isEmpty()
+//                    && fileContents.get(fileContents.size() - 1).trim().isEmpty()) {
+//                fileContents.remove(fileContents.size() - 1);
+//            }
+//        } catch (IOException e) {
+//            ApLogHelper.error(
+//                    log, false, LogType.NORMAL.getCode(), ExceptionDump.exception2String(e));
+//            //            if ("BIG5".equalsIgnoreCase(charsetName)) {
+//            //                fileContents.clear();
+//            //                fileContents.addAll(this.readFileContent(filePath, "CP950"));
+//            //            } else
+//            // Appropriately handle the exception
+//            throw new LogicException("E999", "Error reading file");
+//        }
+//        ApLogHelper.info(
+//                log,
+//                false,
+//                LogType.NORMAL.getCode(),
+//                "fileContents.size = {}",
+//                fileContents.size());
+//        return fileContents;
+//    }
+
     //第二版讀檔案20250918
     public List<String> readFileContent(String filePath, String charsetName) {
         String normalizedPath = FilenameUtils.normalize(filePath);
@@ -377,7 +498,8 @@ public class TextFileUtil {
         }
         return (d + l) >= 4 || so > 0;
     }
-//    // 判斷： Big5/MS950 (lead/trail 合法性)
+
+    //    // 判斷： Big5/MS950 (lead/trail 合法性)
 //    private boolean looksLikeBig5(byte[] b) {
 //        int pairs = 0, bad = 0;
 //        for (int i = 0; i < b.length; i++) {
@@ -397,12 +519,11 @@ public class TextFileUtil {
 //        }
 //        return pairs > 0 && bad == 0;
 //    }
-
-
     public List<String> readFileContentWithHex(String filePath, String charsetName) {
 
         return readFileContentWithHex(filePath, charsetName, false);
     }
+
 
     //20251002版 讀檔案
     public List<String> readFileContentWithHex(String filePath, String charsetName, boolean strictMode) {

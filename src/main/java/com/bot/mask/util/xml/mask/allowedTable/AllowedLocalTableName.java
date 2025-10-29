@@ -27,7 +27,8 @@ public enum AllowedLocalTableName {
     BOTSDDB_DB_PBHMR_DDS("botsddb.dbo.db_pbhmr_dds"),
 
     BOTSMDB_DB_LCTHTR_DDS("botsmdb.dbo.db_lcthtr_dds"),
-
+    BOTSDDB_DB_ACHMR_DDS("botsddb.dbo.db_achmr_dds"),
+    BOTSRDB_DB_FDMR_DDS("botsrdb.dbo.db_fdmr_dds"),
     BOTSRDB_DB_ACCMR_DDS("botsrdb.dbo.db_accmr_dds"),
 
     BOTSRDB_DB_ACTCMP_DDS("botsrdb.dbo.db_actcmp_dds"),

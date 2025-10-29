@@ -26,10 +26,9 @@ public enum AllowedDevTableName {
 
     BOTSDDB_DB_OBURPT_DDS("MISBH_DB.botsddb.db_oburpt_dds"),
     BOTSDDB_DB_PBHMR_DDS("MISBH_DB.botsddb.db_pbhmr_dds"),
-
-
+    BOTSDDB_DB_ACHMR_DDS("MISBH_DB.botsddb.db_achmr_dds"),
     BOTSMDB_DB_LCTHTR_DDS("MISBH_DB.botsmdb.db_lcthtr_dds"),
-
+    BOTSRDB_DB_FDMR_DDS("MISBH_DB.botsrdb.db_fdmr_dds"),
     BOTSRDB_DB_ACCMR_DDS("MISBH_DB.botsrdb.db_accmr_dds"),
 
     BOTSRDB_DB_ACTCMP_DDS("MISBH_DB.botsrdb.db_actcmp_dds"),
