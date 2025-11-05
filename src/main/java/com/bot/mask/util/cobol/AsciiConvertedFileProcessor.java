@@ -80,14 +80,6 @@ public class AsciiConvertedFileProcessor implements CobolFileProcessor {
             int headerCnt,
             int footerCnt) {
 
-        //        Function<byte[], Map<String, String>> decodeFunction =
-        //                charset.name().equalsIgnoreCase("MS950")
-        //                        ? bytes -> decoder.decodeAsciiMs950(bytes, layoutBody)
-        //                        : bytes -> decoder.decodeAscii(bytes, layoutBody);
-//        LogProcess.info(log, "layoutHeader = {}", layoutHeader);
-//        LogProcess.info(log, "layoutBody = {}", layoutBody);
-//        LogProcess.info(log, "layoutFooter = {}", layoutFooter);
-////        LogProcess.info(log, "data = {}", data);
         LogProcess.info(log, "useMs950Handle = {}", useMs950Handle);
         LogProcess.info(log, "總長度 = {}", data.length);
         LogProcess.info(log, "HeaderLen = {},BodyLen = {},FooterLen = {}", layoutHeader.size(),layoutBody.size(),layoutFooter.size());
@@ -157,35 +149,7 @@ public class AsciiConvertedFileProcessor implements CobolFileProcessor {
                     footerConsumer.accept(decoder.decodeAsciiMs950(tailBytes, layoutFooter));
                 }
             }
-            //            // 處理表頭
-            //            if (layoutHeader != null && !layoutHeader.isEmpty() && total >= 1) {
-            //                byte[] headBytes = decoder.hexToBytes(hexRecords[0]);
-            //                headerConsumer.accept(decoder.decodeAsciiMs950(headBytes,
-            // layoutHeader));
-            //                start = 1;
-            //            }
-            //
-            //            // 處理表尾
-            //            if (layoutFooter != null && !layoutFooter.isEmpty() && total >= 2) {
-            //                end = total - 1;
-            //            }
-            //
-            //            for (int i = start; i < end; i++) {
-            //                String hexLine = hexRecords[i].trim();
-            //                if (hexLine.isEmpty()) continue;
-            //
-            //                byte[] lineBytes = decoder.hexToBytes(hexLine);
-            //                bodyConsumer.accept(decoder.decodeAsciiMs950(lineBytes, layoutBody));
-            //                //
-            // bodyConsumer.accept(decodeFunction.apply(lineBytes)); // << 用
-            //                // decodeFunction
-            //            }
-            //
-            //            if (layoutFooter != null && !layoutFooter.isEmpty() && total >= 2) {
-            //                byte[] tailBytes = decoder.hexToBytes(hexRecords[total - 1]);
-            //                footerConsumer.accept(decoder.decodeAsciiMs950(tailBytes,
-            // layoutFooter));
-            //            }
+
 
         } else {
             // ========= 定長切割 ==========

@@ -53,8 +53,8 @@ localFile:
       output:
         directory: "${xmlPath}output/"
         bot_directory: "${xmlPath}bot_output/"
-        def: "${xmlPath}file/DailyBatchFileDefinition.xml"
-        def2: "${xmlPath}file/MonthlyBatchFileDefinition.xml"
+      file_def: "${xmlPath}file/DailyBatchFileDefinition.xml"
+      file_def2: "${xmlPath}file/MonthlyBatchFileDefinition.xml"
       mask:
         directory: "${xmlPath}mask/"
         convert: "${xmlPath}mask/convert/"

@@ -85,14 +85,6 @@ public class XmlToFile {
             List<XmlField> xmlFieldBodyList = safeGetFields(xmlData.getBody());
             List<XmlField> xmlFieldFooterList = safeGetFields(xmlData.getFooter());
 
-//            LogProcess.info(log,
-//                    "read xmlFieldHeader = {}",
-//                    xmlFieldHeaderList);
-//            LogProcess.info(log,"read xmlFieldBody = {}", xmlFieldBodyList);
-//            LogProcess.info(log,
-//                    "read xmlFieldFooter = {}",
-//                    xmlFieldFooterList);
-
             // TXT檔案路徑 讀取
 
             Path inputPath = Path.of(fileName);
@@ -264,8 +256,7 @@ public class XmlToFile {
         List<CobolField> layoutBody = convertXmlToCobolFields(xmlFieldBody);
         List<CobolField> layoutFooter = convertXmlToCobolFields(xmlFieldFooter);
 
-        // 分批資料處理
-        List<Map<String, String>> parsedBatch = new ArrayList<>();
+
 
         EncodingType type = detectEncodingType(fileBytes);
         LogProcess.info(log,"type = {}", type);
@@ -282,6 +273,8 @@ public class XmlToFile {
         }
 
 
+        // 分批資料處理
+        List<Map<String, String>> parsedBatch = new ArrayList<>(BATCH_LIMIT);
         processor.parseCobolWithOptionalHeaderFooter(
                 fileBytes,
                 layoutHeader,
@@ -289,40 +282,35 @@ public class XmlToFile {
                 layoutFooter,
                 useMs950Handle,
                 headRow -> {
-//                    ApLogHelper.info(log,log, false, LogType.NORMAL.getCode(), "表頭: {}", headRow);
+                    // 表頭：通常很少，直接寫
                     if (!headRow.isEmpty()) {
-                        parsedBatch.add(headRow);
-                        writeFileCobolToText(parsedBatch, outputConvertFile, true);
-                        parsedBatch.clear();
+                        // 傳入 copy 避免 write 內部非同步時被 clear 影響
+                        writeFileCobolToText(List.of(headRow), outputConvertFile, true);
                     }
-
                 },
                 detailRow -> {
-//                    ApLogHelper.info(log,log, false, LogType.NORMAL.getCode(), "表身: {}", detailRow);
-
+                    // 表身：分批累積
                     parsedBatch.add(detailRow);
                     if (parsedBatch.size() >= BATCH_LIMIT) {
                         writeFileCobolToText(parsedBatch, outputConvertFile, true);
                         parsedBatch.clear();
                     }
-
+                },
+                tailRow -> {
+                    // 表尾來之前，可能還有殘批沒寫 → 先 flush
                     if (!parsedBatch.isEmpty()) {
                         writeFileCobolToText(parsedBatch, outputConvertFile, true);
                         parsedBatch.clear();
                     }
-                },
-                tailRow -> {
-//                    ApLogHelper.info(log,log, false, LogType.NORMAL.getCode(), "表尾: {}", tailRow);
-                    if (tailRow.size() > 0) {
-                        parsedBatch.add(tailRow);
-                        writeFileCobolToText(parsedBatch, outputConvertFile, true);
-                        parsedBatch.clear();
+                    // 再寫表尾
+                    if (!tailRow.isEmpty()) {
+                        writeFileCobolToText(List.of(tailRow), outputConvertFile, true);
                     }
-
-                }
-                ,
+                },
                 1,
-                1);
+                1
+        );
+
 
         // 檢查剩下的資料還沒寫
         if (!parsedBatch.isEmpty()) {

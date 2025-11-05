@@ -33,12 +33,6 @@ public class XmlField {
     @JacksonXmlProperty(localName = "align")
     private String align;
 
-//    @JacksonXmlProperty(localName = "oTableName")
-//    private String oTableName;
-//
-//    @JacksonXmlProperty(localName = "oFieldName")
-//    private String oFieldName;
-
     @JacksonXmlProperty(localName = "maskType")
     private String maskType;
 

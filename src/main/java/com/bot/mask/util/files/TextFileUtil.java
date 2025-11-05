@@ -6,7 +6,11 @@ import com.bot.txcontrol.config.logger.ApLogHelper;
 import com.bot.txcontrol.eum.LogType;
 import com.bot.txcontrol.exception.LogicException;
 import com.bot.txcontrol.util.dump.ExceptionDump;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -16,15 +20,10 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-import org.springframework.beans.factory.annotation.Value;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -57,8 +56,8 @@ public class TextFileUtil {
      * 若最後一段未滿長度，仍會以指定長度填充（可能含多餘資料）。
      *
      * @param filePath 要讀取之檔案完整路徑字串。
-     * @param length 要讀取的位元組長度（包含 CR LF 符號），每次讀取的 buffer 大小。
-     * @return List<byte[]> 讀取後的檔案內容清單，每筆元素長度固定為 {@code length} 位元組。
+     * @param length   要讀取的位元組長度（包含 CR LF 符號），每次讀取的 buffer 大小。
+     * @return List<byte [ ]> 讀取後的檔案內容清單，每筆元素長度固定為 {@code length} 位元組。
      */
     public List<byte[]> readFileByByte(String filePath, int length) {
         ApLogHelper.info(log, false, LogType.NORMAL.getCode(), "readFileByByte");
@@ -80,7 +79,9 @@ public class TextFileUtil {
         return fileContents;
     }
 
-    /** 處理檔案結尾可能存在的不完整記錄，確保每一筆讀取到的資料都是獨立且正確的。 * */
+    /**
+     * 處理檔案結尾可能存在的不完整記錄，確保每一筆讀取到的資料都是獨立且正確的。 *
+     */
     public List<byte[]> readFileByByte2(String filePath, int recordLength) {
         ApLogHelper.info(log, false, LogType.NORMAL.getCode(), "readFileByByte");
         ApLogHelper.info(log, false, LogType.NORMAL.getCode(), "filePath = {}", filePath);
@@ -117,9 +118,9 @@ public class TextFileUtil {
      * Reads the contents of the specified file and returns it as a list of strings, with each
      * string representing a line from the file. The file is read using the specified charset.
      *
-     * @param filePath The path to the file whose contents are to be read.
+     * @param filePath    The path to the file whose contents are to be read.
      * @param charsetName The name of the charset to use for decoding the file content. Supported
-     *     charsets are "UTF-8" and "BIG5".
+     *                    charsets are "UTF-8" and "BIG5".
      * @return List of strings where each string is a line read from the file specified by filePath.
      * @throws LogicException if an I/O error occurs during reading of the file.
      */
@@ -466,14 +467,14 @@ public class TextFileUtil {
 
 
     // byte[] -> HEX
-    private String bytesToHex(byte[] bytes) {
+    public String bytesToHex(byte[] bytes) {
         StringBuilder sb = new StringBuilder(bytes.length * 2);
         for (byte b : bytes) sb.append(String.format("%02X", b));
         return sb.toString();
     }
 
     // Big5 ：抓第一個不合法位置（回傳 -1 代表看起來都合法或純 ASCII）
-    private int firstIllegalBig5Index(byte[] b) {
+    public int firstIllegalBig5Index(byte[] b) {
         for (int i = 0; i < b.length; i++) {
             int x = b[i] & 0xFF;
             if (x >= 0x81 && x <= 0xFE) {       // lead
@@ -488,7 +489,7 @@ public class TextFileUtil {
     }
 
     //判斷： EBCDIC
-    private boolean looksLikeEbcdic(byte[] b) {
+    public boolean looksLikeEbcdic(byte[] b) {
         int d = 0, l = 0, so = 0;
         for (byte v : b) {
             int x = v & 0xFF;
@@ -682,6 +683,7 @@ public class TextFileUtil {
                     }
                 }
             }
+
 //            LogProcess.info(log, "out out out = {}", out);
 
             LogProcess.info(log, "source data count = {}", lineNo);
@@ -692,4 +694,116 @@ public class TextFileUtil {
 
         return out;
     }
+
+    /**
+     * 複製或移動檔案(複製或移動)
+     *
+     * @param srcDir    來源路徑
+     * @param dstDir    目的路徑
+     * @param fileNames 指定處理的檔案名稱(空為全部檔案)
+     * @param move      true:移動 / false:複製 <br>
+     *                  移動指定資料夾內的檔案至目的資料夾<br>
+     *                  transferFiles("C:/inbox", "C:/outbox", List.of("A.txt", "C.DAT"), true);<br>
+     *                  複製資料夾全部的檔案至目的資料夾 <br>
+     *                  transferFiles("C:/inbox", "C:/outbox",Collections.emptyList(), false); <br>
+     */
+    public void transferFiles(String srcDir, String dstDir, List<String> fileNames, boolean move)
+            throws IOException {
+        Path src = Paths.get(srcDir);
+        Path dst = Paths.get(dstDir);
+        Files.createDirectories(dst);
+
+        Set<String> includes =
+                (fileNames == null || fileNames.isEmpty())
+                        ? null
+                        : fileNames.stream()
+                        .filter(Objects::nonNull)
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty())
+                        .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(src)) {
+            for (Path p : stream) {
+                if (!Files.isRegularFile(p)) continue;
+
+                String name = p.getFileName().toString();
+
+                // 若有指定清單：只處理清單內的檔案
+                if (includes != null && !includes.contains(name)) continue;
+
+                Path target = dst.resolve(name);
+
+                if (move) {
+                    try {
+                        Files.move(
+                                p,
+                                target,
+                                StandardCopyOption.REPLACE_EXISTING,
+                                StandardCopyOption.ATOMIC_MOVE);
+                    } catch (AtomicMoveNotSupportedException e) {
+                        Files.move(p, target, StandardCopyOption.REPLACE_EXISTING);
+                    }
+                } else {
+                    Files.copy(
+                            p,
+                            target,
+                            StandardCopyOption.REPLACE_EXISTING,
+                            StandardCopyOption.COPY_ATTRIBUTES);
+                }
+            }
+        }
+    }
+
+    /**
+     * 複製或移動「單一檔案」
+     *
+     * @param srcFile 完整來源檔案路徑（含檔名）
+     * @param dstFile 完整目的檔案路徑（含檔名）
+     * @param move    true=移動；false=複製
+     * @throws IOException 當來源不存在、非檔案或 I/O 發生錯誤時
+     */
+    public  void transferFile(String srcFile, String dstFile, boolean move) throws IOException {
+        Path src = Paths.get(srcFile);
+        Path dst = Paths.get(dstFile);
+
+        LogProcess.info(log, "src path = {} , dst path = {}",src,dst );
+
+
+        // 來源檢查
+        if (!Files.exists(src)) {
+            throw new NoSuchFileException("來源檔案不存在: " + src.toAbsolutePath());
+        }
+        if (!Files.isRegularFile(src)) {
+            throw new NotDirectoryException("來源不是一般檔案: " + src.toAbsolutePath());
+        }
+
+        // 自動建立目的資料夾（若存在則不動作）
+        Path parent = dst.getParent();
+        if (parent != null) {
+            Files.createDirectories(parent);
+        }
+
+        // 若來源與目的相同，直接略過
+//        if (Files.isSameFile(src, dst)) {
+//            return;
+//        }
+
+        if (move) {
+            try {
+                Files.move(src, dst,
+                        StandardCopyOption.REPLACE_EXISTING,
+                        StandardCopyOption.ATOMIC_MOVE);
+            } catch (AtomicMoveNotSupportedException e) {
+                Files.move(src, dst, StandardCopyOption.REPLACE_EXISTING);
+            }
+        } else {
+            Files.copy(src, dst,
+                    StandardCopyOption.REPLACE_EXISTING,
+                    StandardCopyOption.COPY_ATTRIBUTES);
+        }
+    }
+
+
+
+
 }

@@ -53,13 +53,18 @@ public class FileNameUtil {
 
 
 //        if(tmpFileName.trim().equals(xmlFileName.trim().toLowerCase())){
-//            System.out.println("xmlFileName = " + xmlFileName.toLowerCase());
-//            System.out.println("tmpFileName = " + tmpFileName);
+
 //
 //        }
         //如果XML裡面的fileName命名是有包含Conv，表示為轉檔(一次性)，相比時要截掉Conv
         if(xmlFileName.contains("Conv")) {
+            //XML要先去除掉CONV
             xmlFileName = xmlFileName.substring(4);
+            //檔案名稱要去掉底線數字或日期
+            tmpFileName = tmpFileName.replace( ".[yyyymmdd]","");
+            tmpFileName = tmpFileName.replaceAll("_(?:[1-9]|1[0-2])$", "");
+//            System.out.println("xmlFileName = " + xmlFileName.toLowerCase());
+//            System.out.println("tmpFileName = " + tmpFileName);
         }
 
         return tmpFileName.trim().equals(xmlFileName.trim().toLowerCase());

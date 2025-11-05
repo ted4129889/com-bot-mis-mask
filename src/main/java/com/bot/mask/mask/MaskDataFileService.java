@@ -19,12 +19,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.ByteBuffer;
+import java.nio.charset.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
@@ -67,6 +71,9 @@ public class MaskDataFileService {
     private static final String CHARSET_CP950 = "CP950";
     private static final String CHARSET_UTF8 = "UTF-8";
 
+    private int headerCnt = 0;
+    private int footerCnt = 0;
+
     public boolean exec() {
         LogProcess.info(log, "執行資料檔案遮蔽處理...");
         //允許的路徑
@@ -85,9 +92,8 @@ public class MaskDataFileService {
             xmlDataListD = xmlFile.getDataList();
 //
             LogProcess.info(log, "xmlDataListD.size = " + xmlDataListD.size());
-//            LogProcess.info(log, "xmlDataListD = " + xmlDataListD);
 
-                xmlDataList.addAll(xmlDataListD);
+            xmlDataList.addAll(xmlDataListD);
 
             LogProcess.info(log, "output def file = " + tbotMaskXmlFilePath2);
             xmlFile = xmlParser.parseXmlFile2(tbotMaskXmlFilePath2);
@@ -110,10 +116,10 @@ public class MaskDataFileService {
                     .collect(Collectors.toList());
 
         } catch (IOException e) {
-            LogProcess.error(log, "xml 讀取問題 = {}",e);
+            LogProcess.error(log, "xml 讀取問題 = {}", e);
 
         }
-        LogProcess.info(log, "讀取 external-config/xml/bot_output 資料夾下的 DailyBatchFileDefinition.xml 定義檔內有" + xmlDataList.size() + "組 <data> 格式，檔名清單如下...");
+        LogProcess.info(log, "讀取 external-config/xml/bot_output 資料夾下的 日批及月批 定義檔內有" + xmlDataList.size() + "組 <data> 格式，檔名清單如下...");
         LogProcess.info(log, fileNames.toString());
         int calcuTotal = 0;
         //台銀原檔案路徑
@@ -131,7 +137,29 @@ public class MaskDataFileService {
                 for (XmlData xmlData : xmlDataList) {
                     String xmlFileName = xmlData.getFileName();
 
+                    //先匹配 XML內的fileName檔案名稱 和 讀取檔案的名稱相同
                     if (fileNameUtil.isFileNameMatch(inputFileName, xmlFileName)) {
+
+                        //補:如果不需要遮蔽的話就直接搬檔案即可
+                        List<XmlField> xmlFieldListH = xmlData.getHeader().getFieldList();
+                        List<XmlField> xmlFieldListB = xmlData.getBody().getFieldList();
+                        List<XmlField> xmlFieldListF = xmlData.getFooter().getFieldList();
+                        boolean hasMaskTypeH = xmlFieldListH.stream()
+                                .anyMatch(f -> f.getMaskType() != null && !f.getMaskType().isBlank());
+                        boolean hasMaskTypeB = xmlFieldListB.stream()
+                                .anyMatch(f -> f.getMaskType() != null && !f.getMaskType().isBlank());
+                        boolean hasMaskTypeF = xmlFieldListF.stream()
+                                .anyMatch(f -> f.getMaskType() != null && !f.getMaskType().isBlank());
+
+                        boolean resultHasMaskType = true;
+
+                        if (hasMaskTypeH || hasMaskTypeB || hasMaskTypeF) {
+                            LogProcess.info(log, "{} 此檔案有遮蔽欄位，進行遮蔽流程", inputFileName);
+                            resultHasMaskType = true;
+                        } else {
+                            LogProcess.info(log, "{} 此檔案無須遮蔽欄位，進行搬檔流程", inputFileName);
+                            resultHasMaskType = false;
+                        }
 
                         LogProcess.info(log, "inputFilePath = " + inputFilePath);
                         //設好要輸出的路徑
@@ -160,49 +188,57 @@ public class MaskDataFileService {
                         }
                         List<String> outputData = new ArrayList<>();
 
-                        //特殊處理的中間檔
-                        if (inputFileName.toLowerCase().contains("faslnclfl")) {
-                            LogProcess.info(log, "performMasking2 inputFilePath = " + inputFilePath);
-                            outputData = performMasking2(inputFilePath, xmlData);
-
-                            //處理中間檔
-                        } else if (inputFileName.toLowerCase().startsWith("fas") || inputFileName.toLowerCase().startsWith("misbh_fas")) {
-                            //XML 有Conv 開頭的表示資料轉檔(一次性用) 需特殊處理
-                            if (xmlFileName.contains("Conv")) {
-                                LogProcess.info(log, "performMasking4 inputFilePath = " + inputFilePath);
-                                outputData = performMasking4(inputFilePath, xmlData);
-                            } else {
-
-                                LogProcess.info(log, "performMasking3 inputFilePath = " + inputFilePath);
-                                outputData = performMasking3(inputFilePath, xmlData);
-                            }
-                            //處理外送檔
-                        } else {
-                            LogProcess.info(log, "performMasking inputFilePath = " + inputFilePath);
-
-                            outputData = performMasking(inputFilePath, xmlData);
-
-                            outputFilePath = outputFilePath.replace("Misbh_", "");
-                        }
-
                         //確認允許路徑
-                        outputFilePath = FilenameUtils.normalize(outputFilePath);
+                        outputFilePath = FilenameUtils.normalize(outputFilePath.replace("Misbh_", ""));
 
                         //刪除原檔案
                         textFileUtil.deleteFile(outputFilePath);
 
-                        //輸出檔案
-                        textFileUtil.writeFileContent(outputFilePath, outputData, CHARSET_BIG5);
 
-                        LogProcess.info(log, "output file path = " + outputFilePath);
+                        if (resultHasMaskType) {
 
-                        calcuTotal++;
+                            //特殊處理的中間檔
+                            if (inputFileName.toLowerCase().contains("faslnclfl")) {
+                                LogProcess.info(log, "performMasking2 inputFilePath = " + inputFilePath);
+                                performMasking2(inputFilePath, xmlData, outputFilePath);
+
+                                //處理中間檔
+                            } else if (inputFileName.toLowerCase().startsWith("fas") || inputFileName.toLowerCase().startsWith("misbh_fas")) {
+                                //XML 有Conv 開頭的表示資料轉檔(一次性用) 需特殊處理
+                                if (xmlFileName.contains("Conv")) {
+                                    LogProcess.info(log, "performMasking4 inputFilePath = " + inputFilePath);
+//                                    outputData = performMasking4(inputFilePath, xmlData);
+                                    //調整批次處理
+                                    performMasking4(inputFilePath, xmlData, outputFilePath);
+
+                                } else {
+                                    //調整批次處理
+                                    LogProcess.info(log, "performMasking3 inputFilePath = " + inputFilePath);
+                                    performMasking3(inputFilePath, xmlData, outputFilePath);
+                                }
+                                //處理外送檔
+                            } else {
+                                LogProcess.info(log, "performMasking inputFilePath = " + inputFilePath);
+                                //調整批次處理
+                                performMasking(inputFilePath, xmlData, outputFilePath);
+                            }
+
+                            //輸出檔案
+//                            textFileUtil.writeFileContent(outputFilePath, outputData, CHARSET_BIG5);
+
+
+                            calcuTotal++;
+                        } else {
+
+                            //搬檔案
+                            textFileUtil.transferFile(inputFilePath, outputFilePath, false);
+                            calcuTotal++;
+                        }
                     }
                 }
 
             } catch (Exception e) {
-                LogProcess.info(log, "XmlToInsertGenerator.sqlConvInsertTxt error");
-                LogProcess.info(log, "error=" + e.getMessage());
+                LogProcess.error(log, "XmlToInsertGenerator.sqlConvInsertTxt error = " + e);
             }
         }
 
@@ -233,89 +269,21 @@ public class MaskDataFileService {
         return sqlFilePaths;
     }
 
+
     /**
-     * 執行遮蔽資料處理(蔽用於遮蔽程式使用) 分區處理
+     * 執行外送檔遮蔽資料處理
      *
-     * @param fileName 讀取txt檔案(含路徑)
-     * @param xmlData  定義檔內容
-     * @return List<String> 輸出內容
+     * @param inputFileName  讀取讀檔(含路徑)
+     * @param xmlData        定義檔內容
+     * @param outputFileName 輸出檔案(含路徑)
      */
+    public void performMasking(String inputFileName, XmlData xmlData, String outputFileName) {
+        LogProcess.info(log, "performMasking... ");
 
-    private int headerCnt = 0;
-    private int footerCnt = 0;
-
-    public List<String> performMasking3(String fileName, XmlData xmlData) {
-
-        //輸出資料
-        List<String> outputData = new ArrayList<>();
-        try {
-
-            String allowedPath = FilenameUtils.normalize(inputPath);
-            List<XmlField> xmlFieldListH = new ArrayList<>();
-            List<XmlField> xmlFieldListB = new ArrayList<>();
-            List<XmlField> xmlFieldListF = new ArrayList<>();
-            xmlFieldListH = xmlData.getHeader().getFieldList();
-            xmlFieldListB = xmlData.getBody().getFieldList();
-            xmlFieldListF = xmlData.getFooter().getFieldList();
-//            LogProcess.info(log,"lines xmlFieldListH  = " + xmlFieldListH.size());
-//            LogProcess.info(log,"lines xmlFieldListB  = " + xmlFieldListB.size());
-//            LogProcess.info(log,"lines xmlFieldListF  = " + xmlFieldListF.size());
-//            LogProcess.info(log,"fileName fileName = " + fileName);
-
-
-            // 確認檔案路徑 是否與 允許的路徑匹配
-            if (CheakSafePathUtil.isSafeFilePath(allowedPath, fileName)) {
-                // 讀取檔案內容
-                List<String> lines = textFileUtil.readFileContent(fileName, CHARSET_BIG5);
-                int index = 0;
-//                LogProcess.info(log,"lines size  = " + lines.size());
-
-
-                for (String s : lines) {
-                    index++;
-
-
-                    // header處理...
-                    if (!xmlFieldListH.isEmpty() && index == 1) {
-                        outputData.add(processFieldCobol(xmlFieldListH, s));
-                        continue;
-                    }
-
-                    // body處理...
-                    if (!xmlFieldListB.isEmpty() && lines.size() - footerCnt >= index) {
-                        outputData.add(processFieldCobol(xmlFieldListB, s));
-                    }
-                    // footer處理...
-
-                    if (!xmlFieldListF.isEmpty() && lines.size() == index) {
-                        outputData.add(processFieldCobol(xmlFieldListF, s));
-                    }
-
-                }
-                LogProcess.info(log, "result after masking count = " + index);
-            } else {
-                LogProcess.info(log, "not allowed to read  = " + fileName);
-            }
-
-        } catch (Exception e) {
-            LogProcess.info(log, "XmlToReadFile.exec error");
-            LogProcess.error(log, "error={}", e);
-        }
-
-        return outputData;
-    }
-
-
-    public List<String> performMasking(String fileName, XmlData xmlData) {
-
-        List<String> result = new ArrayList<>();
-//        LogProcess.info(log,"fileName = " + fileName);
-//        LogProcess.info(log,"xmlData = " + xmlData);
         int header = 0;
         int footer = 0;
         try {
             // 解析XML檔案格式
-
             // header處理...
             List<XmlField> xmlFieldListH = xmlData.getHeader().getFieldList();
             if (!xmlFieldListH.isEmpty()) {
@@ -329,90 +297,104 @@ public class MaskDataFileService {
 
             // body處理...
             List<XmlField> xmlFieldListB = xmlData.getBody().getFieldList();
-            if (!xmlFieldListB.isEmpty()) {
-                result.addAll(processFileData(fileName, xmlFieldListH, xmlFieldListB, xmlFieldListF, header, footer));
-            }
+//            if (!xmlFieldListB.isEmpty()) {
+//                result.addAll(processFileData(inputFileName, xmlFieldListH, xmlFieldListB, xmlFieldListF, header, footer, outputFIleName));
+//            }
 
+            fileToFileBatch(inputFileName, CHARSET_BIG5, xmlFieldListH, xmlFieldListB, xmlFieldListF, header, footer, outputFileName);
 
-            LogProcess.info(log, "result after masking count = " + result.size());
+//            LogProcess.info(log, "result after masking count = " + result.size());
 
         } catch (Exception e) {
-            LogProcess.info(log, "XmlToReadFile.exec error");
-            LogProcess.error(log, "error={}", e);
+            LogProcess.error(log, "performMasking error =" + e);
 
         }
 
-        return result;
     }
 
     /**
      * 個案處理
      * 執行遮蔽資料處理(蔽用於遮蔽程式使用) 根據資料串處理
      *
-     * @param fileName 讀取txt檔案(含路徑)
-     * @param xmlData  定義檔內容
-     * @return List<String> 輸出內容
+     * @param inputFileName  讀取讀檔(含路徑)
+     * @param xmlData        定義檔內容
+     * @param outputFileName 輸出檔案(含路徑)
      */
 
-    public List<String> performMasking2(String fileName, XmlData xmlData) {
+    public List<String> performMasking2(String inputFileName, XmlData xmlData, String outputFileName) {
+        LogProcess.info(log, "performMasking2... ");
 
         List<XmlField> xmlFieldHeaderList = xmlData.getHeader().getFieldList();
         List<XmlField> xmlFieldBodyList = xmlData.getBody().getFieldList();
         List<XmlField> xmlFieldFooterList = xmlData.getFooter().getFieldList();
 
         List<String> result = new ArrayList<>();
+        try {
+            String allowedPath = FilenameUtils.normalize(inputPath);
 
-        String allowedPath = FilenameUtils.normalize(inputPath);
+            // 確認檔案路徑 是否與 允許的路徑匹配
+            if (CheakSafePathUtil.isSafeFilePath(allowedPath, inputFileName)) {
+                // 讀取檔案內容
+                List<String> lines = textFileUtil.readFileContentWithHex(inputFileName, CHARSET_BIG5);
 
-        // 確認檔案路徑 是否與 允許的路徑匹配
-        if (CheakSafePathUtil.isSafeFilePath(allowedPath, fileName)) {
-            // 讀取檔案內容
-            List<String> lines = textFileUtil.readFileContentWithHex(fileName, CHARSET_BIG5);
+                String firstChar = "";
+                int index = 0;
+                for (String s : lines) {
+                    index++;
+                    firstChar = s.substring(0, 1);
+                    try {
 
-            String firstChar = "";
-            int index = 0;
-            for (String s : lines) {
-                index++;
-                firstChar = s.substring(0, 1);
-                try {
-                    LogProcess.debug(log, "data = {}",s);
-                    switch (firstChar) {
-                        case "0":
-                            result.add(processField2(xmlFieldHeaderList, s));
-                            break;
-                        case "1":
-                            result.add(processField2(xmlFieldBodyList, s));
-                            break;
-                        case "2":
-                            result.add(processField2(xmlFieldFooterList, s));
-                            break;
+                        switch (firstChar) {
+                            case "0":
+                                result.add(processField2(xmlFieldHeaderList, s));
+                                break;
+                            case "1":
+                                result.add(processField2(xmlFieldBodyList, s));
+                                break;
+                            case "2":
+                                result.add(processField2(xmlFieldFooterList, s));
+                                break;
+                        }
+
+                    } catch (Exception e) {
+                        LogProcess.error(log, "performMasking2 error = " + e);
+
                     }
 
-                } catch (Exception e) {
-                    LogProcess.info(log, "XmlToReadFile.exec error");
-                    LogProcess.error(log, "error={}", e);
-
                 }
+                //暫時不使用批次讀取
+                textFileUtil.writeFileContent(outputFileName, result, CHARSET_BIG5);
 
+                LogProcess.debug(log, "data output file = {}", index);
+
+            } else {
+                LogProcess.info(log, "not allowed to read  = " + outputFileName);
             }
-            LogProcess.info(log, "result after masking count = " + index);
-        } else {
-            LogProcess.info(log, "not allowed to read  = " + fileName);
+        } catch (Exception e) {
+            LogProcess.error(log, "performMasking3 error =" + e);
         }
-
 
         return result;
     }
 
+    /**
+     * 執行中間檔遮蔽資料處理
+     *
+     * @param inputFileName  讀取讀檔(含路徑)
+     * @param xmlData        定義檔內容
+     * @param outputFileName 輸出檔案(含路徑)
+     */
 
-    public List<String> performMasking4(String fileName, XmlData xmlData) {
+    public List<String> performMasking3(String inputFileName, XmlData xmlData, String outputFileName) {
+        LogProcess.info(log, "performMasking3... ");
 
-        List<String> result = new ArrayList<>();
         int header = 0;
         int footer = 0;
+        //輸出資料
+        List<String> outputData = new ArrayList<>();
         try {
-            // 解析XML檔案格式
 
+            // 解析XML檔案格式
             // header處理...
             List<XmlField> xmlFieldListH = xmlData.getHeader().getFieldList();
             if (!xmlFieldListH.isEmpty()) {
@@ -423,19 +405,59 @@ public class MaskDataFileService {
             if (!xmlFieldListF.isEmpty()) {
                 footer = 1;
             }
-
             // body處理...
             List<XmlField> xmlFieldListB = xmlData.getBody().getFieldList();
-            if (!xmlFieldListB.isEmpty()) {
-                result.addAll(processFileData2(fileName, xmlFieldListH, xmlFieldListB, xmlFieldListF, header, footer));
-            }
 
 
-            LogProcess.info(log, "result after masking count = " + result.size());
+            fileToFileBatch3(inputFileName, CHARSET_BIG5, xmlFieldListH, xmlFieldListB, xmlFieldListF, header, footer, outputFileName);
 
         } catch (Exception e) {
-            LogProcess.info(log, "XmlToReadFile.exec error");
-            LogProcess.error(log, "error={}", e);
+            LogProcess.error(log, "performMasking3 error =" + e);
+        }
+
+        return outputData;
+    }
+
+    /**
+     * 執行資料轉換檔案遮蔽資料處理
+     *
+     * @param inputFileName  讀取讀檔(含路徑)
+     * @param xmlData        定義檔內容
+     * @param outputFileName 輸出檔案(含路徑)
+     */
+
+    public List<String> performMasking4(String inputFileName, XmlData xmlData, String outputFileName) {
+        LogProcess.info(log, "performMasking4... ");
+
+        List<String> result = new ArrayList<>();
+        int header = 0;
+        int footer = 0;
+        try {
+            // 解析XML檔案格式
+
+            // 解析XML檔案格式
+            // header處理...
+            List<XmlField> xmlFieldListH = xmlData.getHeader().getFieldList();
+            if (!xmlFieldListH.isEmpty()) {
+                header = 1;
+            }
+            // footer處理...
+            List<XmlField> xmlFieldListF = xmlData.getFooter().getFieldList();
+            if (!xmlFieldListF.isEmpty()) {
+                footer = 1;
+            }
+            // body處理...
+            List<XmlField> xmlFieldListB = xmlData.getBody().getFieldList();
+//            if (!xmlFieldListB.isEmpty()) {
+//                result.addAll(processFileData2(fileName, xmlFieldListH, xmlFieldListB, xmlFieldListF, header, footer));
+//            }
+            fileToFileBatch4(inputFileName, CHARSET_BIG5, xmlFieldListH, xmlFieldListB, xmlFieldListF, header, footer, outputFileName);
+
+//            LogProcess.info(log, "result after masking count = " + result.size());
+
+        } catch (Exception e) {
+            LogProcess.error(log, "performMasking4 error =" + e);
+
 
         }
 
@@ -455,12 +477,12 @@ public class MaskDataFileService {
         Charset charset2 = Charset.forName("UTF-8");
 
         int xmlLength = 0;
-        for (XmlField xmlField : xmlFieldList) {
+//        for (XmlField xmlField : xmlFieldList) {
 //            LogProcess.info(log,"xmlLength = " + xmlField.getLength() +" , fieldName = " + xmlField.getFieldName());
-            xmlLength = xmlLength + parse.string2Integer(xmlField.getLength());
-        }
-        byte[] bytes = line.getBytes(charset);
-        int dataLength = bytes.length;
+//            xmlLength = xmlLength + parse.string2Integer(xmlField.getLength());
+//        }
+//        byte[] bytes = line.getBytes(charset);
+//        int dataLength = bytes.length;
 
 
         //先比對檔案資料長度是否與定義檔加總一致
@@ -609,7 +631,7 @@ public class MaskDataFileService {
      * @param line         單筆資料串
      * @return 回傳遮罩後的資料
      */
-    private String processField3(List<XmlField> xmlFieldList, String line) {
+    private String processField4(List<XmlField> xmlFieldList, String line) {
         Charset charset = Charset.forName(CHARSET_CP950);
         Charset charset2 = Charset.forName("UTF-8");
 
@@ -636,6 +658,9 @@ public class MaskDataFileService {
 
             String maskType = xmlField.getMaskType();
             String value = sLine[i];
+
+//            LogProcess.info(log, "xmlFieldh = " + xmlField + ",value = " + value);
+
             i++;
 
             if (maskType != null) {
@@ -725,13 +750,14 @@ public class MaskDataFileService {
     /**
      * 匹配單筆資料定義檔欄位，並將資料做遮蔽處理
      *
-     * @param fileName      檔案名稱(用於確認路徑)
-     * @param xmlFieldListH 定義檔欄位(表頭)
-     * @param xmlFieldListB 定義檔欄位(內容)
-     * @param xmlFieldListF 定義檔欄位(表尾)
+     * @param inputFileName  讀取檔案名稱(用於確認路徑)
+     * @param xmlFieldListH  定義檔欄位(表頭)
+     * @param xmlFieldListB  定義檔欄位(內容)
+     * @param xmlFieldListF  定義檔欄位(表尾)
+     * @param outputFileName 輸出檔案名稱(用於確認路徑)
      * @return 回傳遮罩後的資料
      */
-    private List<String> processFileData(String fileName, List<XmlField> xmlFieldListH, List<XmlField> xmlFieldListB, List<XmlField> xmlFieldListF, int headerCnt, int footerCnt) {
+    private List<String> processFileData(String inputFileName, List<XmlField> xmlFieldListH, List<XmlField> xmlFieldListB, List<XmlField> xmlFieldListF, int headerCnt, int footerCnt, String outputFileName) {
 
         //輸出資料
         List<String> outputData = new ArrayList<>();
@@ -739,10 +765,10 @@ public class MaskDataFileService {
         String allowedPath = FilenameUtils.normalize(inputPath);
 
         // 確認檔案路徑 是否與 允許的路徑匹配
-        if (CheakSafePathUtil.isSafeFilePath(allowedPath, fileName)) {
+        if (CheakSafePathUtil.isSafeFilePath(allowedPath, inputFileName)) {
             // 讀取檔案內容
 
-            List<String> lines = textFileUtil.readFileContentWithHex(fileName, CHARSET_BIG5);
+            List<String> lines = textFileUtil.readFileContentWithHex(inputFileName, CHARSET_BIG5);
 //            List<String> lines = textFileUtil.readFileContent(fileName, CHARSET_BIG5);
             int index = 0;
             for (String s : lines) {
@@ -764,7 +790,7 @@ public class MaskDataFileService {
 
             }
         } else {
-            LogProcess.info(log, "not allowed to read  = {}", fileName);
+            LogProcess.info(log, "not allowed to read  = {}", inputFileName);
         }
 
         return outputData;
@@ -797,16 +823,16 @@ public class MaskDataFileService {
             for (String s : lines) {
                 index++;
                 if (headerCnt == 1 && headerCnt == index) {
-                    outputData.add(processField3(xmlFieldListH, s));
+                    outputData.add(processField4(xmlFieldListH, s));
                     continue;
                 }
                 //總筆數減去表尾 要大於等於 計算中筆數
                 if (lines.size() - footerCnt >= index) {
-                    outputData.add(processField3(xmlFieldListB, s));
+                    outputData.add(processField4(xmlFieldListB, s));
                 }
 
                 if (footerCnt == 1 && lines.size() == index) {
-                    outputData.add(processField3(xmlFieldListF, s));
+                    outputData.add(processField4(xmlFieldListF, s));
                 }
 
 
@@ -862,5 +888,729 @@ public class MaskDataFileService {
     private static boolean isWrapSymbol(char ch) {
         return ch == '"' || ch == '\'' || ch == '*' || ch == '$' || ch == '(' || ch == ')' || ch == '!';
     }
+
+    /**
+     * 批次讀寫檔案(外送檔案遮蔽)
+     */
+    public void fileToFileBatch(String inputFilePath, String charsetName, List<XmlField> xmlFieldListH, List<XmlField> xmlFieldListB, List<XmlField> xmlFieldListF, int headerCnt, int footerCnt, String outputFile) {
+        String normalizedPath = FilenameUtils.normalize(inputFilePath);
+        Path path = Paths.get(normalizedPath);
+
+        // 選字集：BIG5 一律用 MS950；其他照你的參數
+        Charset cs;
+        if (charsetName == null || "UTF-8".equalsIgnoreCase(charsetName)) {
+            cs = StandardCharsets.UTF_8;
+        } else if ("BIG5".equalsIgnoreCase(charsetName) || "MS950".equalsIgnoreCase(charsetName) || "CP950".equalsIgnoreCase(charsetName)) {
+            cs = Charset.forName("MS950");
+        } else if ("CP1047".equalsIgnoreCase(charsetName) || "CP037".equalsIgnoreCase(charsetName) || "CP500".equalsIgnoreCase(charsetName) || "CP937".equalsIgnoreCase(charsetName)) {
+            cs = Charset.forName(charsetName); // EBCDIC （依實際來源決定）
+        } else {
+            cs = Charset.forName(charsetName);
+        }
+
+//        CharsetDecoder decoder = cs.newDecoder();
+//        if (strictMode) {
+//            decoder.onMalformedInput(CodingErrorAction.REPORT)
+//                    .onUnmappableCharacter(CodingErrorAction.REPORT);
+//        } else {
+//            decoder.onMalformedInput(CodingErrorAction.REPLACE)
+//                    .onUnmappableCharacter(CodingErrorAction.REPLACE)
+//                    .replaceWith("?"); // 需要固定欄寬可改成 "□" 或全形空白 "　"
+//        }
+        //置換使用
+        CharsetDecoder decLenient = cs.newDecoder()
+                .onMalformedInput(CodingErrorAction.REPLACE)
+                .onUnmappableCharacter(CodingErrorAction.REPLACE)
+                .replaceWith("?");
+        //拋錯使用
+        CharsetDecoder decStrict = cs.newDecoder()
+                .onMalformedInput(CodingErrorAction.REPORT)
+                .onUnmappableCharacter(CodingErrorAction.REPORT);
+
+        int headerLen = 0;
+        int bodyLen = 0;
+        int footerLen = 0;
+        for (XmlField xmlField : xmlFieldListH) {
+            headerLen = headerLen + parse.string2Integer(xmlField.getLength());
+        }
+        for (XmlField xmlField : xmlFieldListB) {
+            bodyLen = bodyLen + parse.string2Integer(xmlField.getLength());
+        }
+        for (XmlField xmlField : xmlFieldListF) {
+            footerLen = footerLen + parse.string2Integer(xmlField.getLength());
+        }
+
+        LogProcess.info(log, "headerLen = {} ,bodyLen = {} , footerLen = {} , headerCnt = {} , footerCnt = {}", headerLen, bodyLen, footerLen, headerCnt, footerCnt);
+
+
+        List<String> outputData = new ArrayList<>();
+        int lineNo = 0;
+        int totalCnt = 0;
+
+        try (BufferedInputStream in = new BufferedInputStream(Files.newInputStream(path), 64 * 1024)) {
+            ByteArrayOutputStream buf = new ByteArrayOutputStream(4096);
+            int prev = -1, c;
+
+            while ((c = in.read()) != -1) {
+                if (c == '\n') {
+                    byte[] bytes = buf.toByteArray();
+
+                    if (prev == '\r' && bytes.length > 0) bytes = Arrays.copyOf(bytes, bytes.length - 1);
+                    buf.reset();
+
+                    int dataLength = bytes.length;
+                    //放進 List
+                    String s;
+                    try {
+                        s = decLenient.decode(ByteBuffer.wrap(bytes)).toString();
+                    } finally {
+                        decLenient.reset();
+                    }
+                    if (lineNo == 1 && !s.isEmpty() && s.charAt(0) == '\uFEFF') s = s.substring(1);
+//                    outputData.add(s);
+                    lineNo++;
+
+//                    LogProcess.info(log, "lineNo =  {} ,dataLength = {} ",lineNo, dataLength);
+
+
+                    if (headerCnt == 1 && headerLen == dataLength && lineNo == 1) {
+                        outputData.add(processField(xmlFieldListH, s));
+                        continue;
+                    }
+                    //總筆數減去表尾 要大於等於 計算中筆數
+                    if (bodyLen == dataLength && lineNo > 0) {
+                        outputData.add(processField(xmlFieldListB, s));
+                    }
+
+                    if (footerCnt == 1 && footerLen == dataLength) {
+                        outputData.add(processField(xmlFieldListF, s));
+                    }
+
+                    if (outputData.size() >= 5000) {
+                        textFileUtil.writeFileContent(outputFile, outputData, charsetName);
+                        totalCnt = totalCnt + outputData.size();
+                        outputData = new ArrayList<>();
+                    }
+
+                    if (totalCnt % 100000 == 0 && totalCnt > 0)  {
+                        LogProcess.info(log, "Number of entries already written = {} ", totalCnt);
+                    }
+
+                    //若失敗或出現替代字，記錄錯誤
+                    boolean bad = false;
+                    try {
+                        decStrict.decode(ByteBuffer.wrap(bytes));
+                    } catch (CharacterCodingException ex) {
+                        bad = true;
+                    } finally {
+                        decStrict.reset();
+                    }
+
+                    // Big5  & EBCDIC
+                    int illegalAt = textFileUtil.firstIllegalBig5Index(bytes);
+                    boolean maybeEbcdic = textFileUtil.looksLikeEbcdic(bytes);
+                    boolean hasBadStrict = bad;
+                    boolean hasReplacement = s.indexOf('\uFFFD') >= 0 || s.indexOf('?') >= 0;
+                    boolean hasIllegalBig5 = illegalAt >= 0;
+                    boolean hasEbcdicLike = maybeEbcdic;
+
+                    // 只有其中任一條件成立才顯示
+                    if (hasBadStrict || hasReplacement || hasIllegalBig5 || hasEbcdicLike) {
+                        // 取 HEX 視窗（避免太長）
+                        int start = Math.max(0, (illegalAt >= 0 ? illegalAt : 0) - 8);
+                        int end = Math.min(bytes.length, start + 32);
+                        String window = textFileUtil.bytesToHex(Arrays.copyOfRange(bytes, start, end));
+
+                        // 分別顯示原因，讓 log 更明確
+                        if (hasBadStrict) {
+                            LogProcess.warn(log, "[Line {}] ⚠️ 嚴格解碼失敗 (badStrict=true) HEX[..]={}", lineNo, window);
+                        }
+                        if (hasReplacement) {
+                            LogProcess.warn(log, "[Line {}] ⚠️ 出現替代字 (� 或 ?) HEX[..]={}", lineNo, window);
+                        }
+                        if (hasIllegalBig5) {
+                            LogProcess.warn(log, "[Line {}] ⚠️ 非法 Big5 位元組 (illegalAt={}) HEX[..]={}", lineNo, illegalAt, window);
+                        }
+                        if (hasEbcdicLike) {
+//                            LogProcess.warn(log, "[Line {}] ⚠️ 疑似 EBCDIC 編碼 HEX[..]={}", lineNo, window);
+                        }
+                    }
+                } else {
+                    buf.write(c);
+                }
+                prev = c;
+
+            }
+
+            // 結尾最後一筆（沒有換行符）
+            if (buf.size() > 0) {
+                byte[] bytes = buf.toByteArray();
+                lineNo++;
+
+                int dataLength = bytes.length;
+
+                String s;
+                try {
+                    s = decLenient.decode(ByteBuffer.wrap(bytes)).toString();
+                } finally {
+                    decLenient.reset();
+                }
+                if (lineNo == 1 && !s.isEmpty() && s.charAt(0) == '\uFEFF') s = s.substring(1);
+//                out.add(s);
+
+                if (headerCnt == 1 && headerLen == dataLength && lineNo == 1) {
+                    outputData.add(processField(xmlFieldListH, s));
+                }
+                //總筆數減去表尾 要大於等於 計算中筆數
+                if (bodyLen == dataLength && lineNo > 0) {
+                    outputData.add(processField(xmlFieldListB, s));
+                }
+
+                if (footerCnt == 1 && footerLen == dataLength) {
+                    outputData.add(processField(xmlFieldListF, s));
+                }
+
+                boolean bad = false;
+                try {
+                    decStrict.decode(ByteBuffer.wrap(bytes));
+                } catch (CharacterCodingException ex) {
+                    bad = true;
+                } finally {
+                    decStrict.reset();
+                }
+
+                int illegalAt = textFileUtil.firstIllegalBig5Index(bytes);
+                boolean maybeEbcdic = textFileUtil.looksLikeEbcdic(bytes);
+                boolean hasBadStrict = bad;
+                boolean hasReplacement = s.indexOf('\uFFFD') >= 0 || s.indexOf('?') >= 0;
+                boolean hasIllegalBig5 = illegalAt >= 0;
+                boolean hasEbcdicLike = maybeEbcdic;
+
+                // 只有其中任一條件成立才顯示
+                if (hasBadStrict || hasReplacement || hasIllegalBig5 || hasEbcdicLike) {
+                    // 取 HEX 視窗（避免太長）
+                    int start = Math.max(0, (illegalAt >= 0 ? illegalAt : 0) - 8);
+                    int end = Math.min(bytes.length, start + 32);
+                    String window = textFileUtil.bytesToHex(Arrays.copyOfRange(bytes, start, end));
+
+                    // 分別顯示原因，讓 log 更明確
+                    if (hasBadStrict) {
+                        LogProcess.warn(log, "[Line {}] ⚠️ 嚴格解碼失敗 (badStrict=true) HEX[..]={}", lineNo, window);
+                    }
+                    if (hasReplacement) {
+                        LogProcess.warn(log, "[Line {}] ⚠️ 出現替代字 (� 或 ?) HEX[..]={}", lineNo, window);
+                    }
+                    if (hasIllegalBig5) {
+                        LogProcess.warn(log, "[Line {}] ⚠️ 非法 Big5 位元組 (illegalAt={}) HEX[..]={}", lineNo, illegalAt, window);
+                    }
+                    if (hasEbcdicLike) {
+//                        LogProcess.warn(log, "[Line {}] ⚠️ 疑似 EBCDIC 編碼 HEX[..]={}", lineNo, window);
+                    }
+                }
+            }
+
+
+            if (!outputData.isEmpty()) {
+                totalCnt = totalCnt + outputData.size();
+
+                LogProcess.info(log, "Number of entries already written = {} ", outputData.size());
+                textFileUtil.writeFileContent(outputFile, outputData, charsetName);
+                outputData = new ArrayList<>();
+            }
+
+            LogProcess.info(log, "Final number of data entries = {}", totalCnt);
+
+            if (totalCnt == 0) {
+                LogProcess.info(log, "no data output file = {}", outputFile);
+            } else {
+                LogProcess.info(log, "output file path = {}", outputFile);
+            }
+
+        } catch (IOException e) {
+            LogProcess.error(log, "I/O error after line {}: {}", lineNo, e.getMessage(), e);
+        }
+
+    }
+
+
+    /**
+     * 批次讀寫檔案(中間檔案遮蔽)
+     */
+    public void fileToFileBatch3(String inputFilePath, String charsetName, List<XmlField> xmlFieldListH, List<XmlField> xmlFieldListB, List<XmlField> xmlFieldListF, int headerCnt, int footerCnt, String outputFile) {
+        String normalizedPath = FilenameUtils.normalize(inputFilePath);
+        Path path = Paths.get(normalizedPath);
+
+        // 選字集：BIG5 一律用 MS950；其他照你的參數
+        Charset cs;
+        if (charsetName == null || "UTF-8".equalsIgnoreCase(charsetName)) {
+            cs = StandardCharsets.UTF_8;
+        } else if ("BIG5".equalsIgnoreCase(charsetName) || "MS950".equalsIgnoreCase(charsetName) || "CP950".equalsIgnoreCase(charsetName)) {
+            cs = Charset.forName("MS950");
+        } else if ("CP1047".equalsIgnoreCase(charsetName) || "CP037".equalsIgnoreCase(charsetName) || "CP500".equalsIgnoreCase(charsetName) || "CP937".equalsIgnoreCase(charsetName)) {
+            cs = Charset.forName(charsetName); // EBCDIC （依實際來源決定）
+        } else {
+            cs = Charset.forName(charsetName);
+        }
+
+//        CharsetDecoder decoder = cs.newDecoder();
+//        if (strictMode) {
+//            decoder.onMalformedInput(CodingErrorAction.REPORT)
+//                    .onUnmappableCharacter(CodingErrorAction.REPORT);
+//        } else {
+//            decoder.onMalformedInput(CodingErrorAction.REPLACE)
+//                    .onUnmappableCharacter(CodingErrorAction.REPLACE)
+//                    .replaceWith("?"); // 需要固定欄寬可改成 "□" 或全形空白 "　"
+//        }
+        //置換使用
+        CharsetDecoder decLenient = cs.newDecoder()
+                .onMalformedInput(CodingErrorAction.REPLACE)
+                .onUnmappableCharacter(CodingErrorAction.REPLACE)
+                .replaceWith("?");
+        //拋錯使用
+        CharsetDecoder decStrict = cs.newDecoder()
+                .onMalformedInput(CodingErrorAction.REPORT)
+                .onUnmappableCharacter(CodingErrorAction.REPORT);
+
+        int headerLen = 0;
+        int bodyLen = 0;
+        int footerLen = 0;
+        for (XmlField xmlField : xmlFieldListH) {
+            headerLen = headerLen + 1;
+        }
+        for (XmlField xmlField : xmlFieldListB) {
+            bodyLen = bodyLen + 1;
+        }
+        for (XmlField xmlField : xmlFieldListF) {
+            footerLen = footerLen + 1;
+        }
+
+        LogProcess.info(log, "headerLen = {} ,bodyLen = {} , footerLen = {} , headerCnt = {} , footerCnt = {}", headerLen, bodyLen, footerLen, headerCnt, footerCnt);
+
+
+        List<String> outputData = new ArrayList<>();
+        int lineNo = 0;
+        int totalCnt = 0;
+
+        try (BufferedInputStream in = new BufferedInputStream(Files.newInputStream(path), 64 * 1024)) {
+            ByteArrayOutputStream buf = new ByteArrayOutputStream(4096);
+            int prev = -1, c;
+
+            while ((c = in.read()) != -1) {
+                if (c == '\n') {
+                    byte[] bytes = buf.toByteArray();
+
+                    if (prev == '\r' && bytes.length > 0) bytes = Arrays.copyOf(bytes, bytes.length - 1);
+                    buf.reset();
+
+                    int dataLength = bytes.length;
+                    //放進 List
+                    String s;
+                    try {
+                        s = decLenient.decode(ByteBuffer.wrap(bytes)).toString();
+                    } finally {
+                        decLenient.reset();
+                    }
+                    if (lineNo == 1 && !s.isEmpty() && s.charAt(0) == '\uFEFF') s = s.substring(1);
+//                    outputData.add(s);
+                    lineNo++;
+
+//                    LogProcess.info(log, "lineNo =  {} ,dataLength = {} ",lineNo, dataLength);
+
+
+                    if (headerCnt == 1 && headerLen > 0 && lineNo == 1) {
+                        outputData.add(processFieldCobol(xmlFieldListH, s));
+                        continue;
+                    }
+                    //總筆數減去表尾 要大於等於 計算中筆數
+                    if (bodyLen > 0 && lineNo > 0) {
+                        outputData.add(processFieldCobol(xmlFieldListB, s));
+                    }
+
+                    if (footerCnt == 1 && footerLen > 0) {
+                        outputData.add(processFieldCobol(xmlFieldListF, s));
+                    }
+
+                    if (outputData.size() >= 5000) {
+                        textFileUtil.writeFileContent(outputFile, outputData, charsetName);
+                        totalCnt = totalCnt + outputData.size();
+                        outputData = new ArrayList<>();
+                    }
+                    if (totalCnt % 100000 == 0 && totalCnt > 0) {
+                        LogProcess.info(log, "Number of entries already written = {} ", totalCnt);
+                    }
+
+                    //若失敗或出現替代字，記錄錯誤
+                    boolean bad = false;
+                    try {
+                        decStrict.decode(ByteBuffer.wrap(bytes));
+                    } catch (CharacterCodingException ex) {
+                        bad = true;
+                    } finally {
+                        decStrict.reset();
+                    }
+
+                    // Big5  & EBCDIC
+                    int illegalAt = textFileUtil.firstIllegalBig5Index(bytes);
+                    boolean maybeEbcdic = textFileUtil.looksLikeEbcdic(bytes);
+                    boolean hasBadStrict = bad;
+                    boolean hasReplacement = s.indexOf('\uFFFD') >= 0 || s.indexOf('?') >= 0;
+                    boolean hasIllegalBig5 = illegalAt >= 0;
+                    boolean hasEbcdicLike = maybeEbcdic;
+
+                    // 只有其中任一條件成立才顯示
+                    if (hasBadStrict || hasReplacement || hasIllegalBig5 || hasEbcdicLike) {
+                        // 取 HEX 視窗（避免太長）
+                        int start = Math.max(0, (illegalAt >= 0 ? illegalAt : 0) - 8);
+                        int end = Math.min(bytes.length, start + 32);
+                        String window = textFileUtil.bytesToHex(Arrays.copyOfRange(bytes, start, end));
+
+                        // 分別顯示原因，讓 log 更明確
+                        if (hasBadStrict) {
+                            LogProcess.warn(log, "[Line {}] ⚠️ 嚴格解碼失敗 (badStrict=true) HEX[..]={}", lineNo, window);
+                        }
+                        if (hasReplacement) {
+                            LogProcess.warn(log, "[Line {}] ⚠️ 出現替代字 (� 或 ?) HEX[..]={}", lineNo, window);
+                        }
+                        if (hasIllegalBig5) {
+                            LogProcess.warn(log, "[Line {}] ⚠️ 非法 Big5 位元組 (illegalAt={}) HEX[..]={}", lineNo, illegalAt, window);
+                        }
+                        if (hasEbcdicLike) {
+//                            LogProcess.warn(log, "[Line {}] ⚠️ 疑似 EBCDIC 編碼 HEX[..]={}", lineNo, window);
+                        }
+                    }
+                } else {
+                    buf.write(c);
+                }
+                prev = c;
+
+            }
+
+            // 結尾最後一筆（沒有換行符）
+            if (buf.size() > 0) {
+                byte[] bytes = buf.toByteArray();
+                lineNo++;
+
+                String s;
+                try {
+                    s = decLenient.decode(ByteBuffer.wrap(bytes)).toString();
+                } finally {
+                    decLenient.reset();
+                }
+                if (lineNo == 1 && !s.isEmpty() && s.charAt(0) == '\uFEFF') s = s.substring(1);
+//                out.add(s);
+
+                if (headerCnt == 1 && headerLen > 0 && lineNo == 1) {
+                    outputData.add(processFieldCobol(xmlFieldListH, s));
+                }
+                //總筆數減去表尾 要大於等於 計算中筆數
+                if (bodyLen > 0 && lineNo > 0) {
+                    outputData.add(processFieldCobol(xmlFieldListB, s));
+                }
+
+                if (footerCnt == 1 && footerLen > 0) {
+                    outputData.add(processFieldCobol(xmlFieldListF, s));
+                }
+
+                boolean bad = false;
+                try {
+                    decStrict.decode(ByteBuffer.wrap(bytes));
+                } catch (CharacterCodingException ex) {
+                    bad = true;
+                } finally {
+                    decStrict.reset();
+                }
+
+                int illegalAt = textFileUtil.firstIllegalBig5Index(bytes);
+                boolean maybeEbcdic = textFileUtil.looksLikeEbcdic(bytes);
+                boolean hasBadStrict = bad;
+                boolean hasReplacement = s.indexOf('\uFFFD') >= 0 || s.indexOf('?') >= 0;
+                boolean hasIllegalBig5 = illegalAt >= 0;
+                boolean hasEbcdicLike = maybeEbcdic;
+
+                // 只有其中任一條件成立才顯示
+                if (hasBadStrict || hasReplacement || hasIllegalBig5 || hasEbcdicLike) {
+                    // 取 HEX 視窗（避免太長）
+                    int start = Math.max(0, (illegalAt >= 0 ? illegalAt : 0) - 8);
+                    int end = Math.min(bytes.length, start + 32);
+                    String window = textFileUtil.bytesToHex(Arrays.copyOfRange(bytes, start, end));
+
+                    // 分別顯示原因，讓 log 更明確
+                    if (hasBadStrict) {
+                        LogProcess.warn(log, "[Line {}] ⚠️ 嚴格解碼失敗 (badStrict=true) HEX[..]={}", lineNo, window);
+                    }
+                    if (hasReplacement) {
+                        LogProcess.warn(log, "[Line {}] ⚠️ 出現替代字 (� 或 ?) HEX[..]={}", lineNo, window);
+                    }
+                    if (hasIllegalBig5) {
+                        LogProcess.warn(log, "[Line {}] ⚠️ 非法 Big5 位元組 (illegalAt={}) HEX[..]={}", lineNo, illegalAt, window);
+                    }
+                    if (hasEbcdicLike) {
+//                        LogProcess.warn(log, "[Line {}] ⚠️ 疑似 EBCDIC 編碼 HEX[..]={}", lineNo, window);
+                    }
+                }
+            }
+
+
+            if (!outputData.isEmpty()) {
+                totalCnt = totalCnt + outputData.size();
+
+                LogProcess.info(log, "Number of entries already written = {} ", outputData.size());
+                textFileUtil.writeFileContent(outputFile, outputData, charsetName);
+                outputData = new ArrayList<>();
+            }
+
+            LogProcess.info(log, "Final number of data entries = {}", totalCnt);
+
+            if (totalCnt == 0) {
+                LogProcess.info(log, "no data output file = {}", outputFile);
+            } else {
+                LogProcess.info(log, "output file path = {}", outputFile);
+            }
+        } catch (IOException e) {
+            LogProcess.error(log, "I/O error after line {}: {}", lineNo, e.getMessage(), e);
+        }
+
+    }
+
+
+    /**
+     * 處理轉檔資料檔案
+     */
+    public void fileToFileBatch4(String inputFilePath, String charsetName, List<XmlField> xmlFieldListH, List<XmlField> xmlFieldListB, List<XmlField> xmlFieldListF, int headerCnt, int footerCnt, String outputFile) {
+        String normalizedPath = FilenameUtils.normalize(inputFilePath);
+        Path path = Paths.get(normalizedPath);
+
+        // 選字集：BIG5 一律用 MS950；其他照你的參數
+        Charset cs;
+        if (charsetName == null || "UTF-8".equalsIgnoreCase(charsetName)) {
+            cs = StandardCharsets.UTF_8;
+        } else if ("BIG5".equalsIgnoreCase(charsetName) || "MS950".equalsIgnoreCase(charsetName) || "CP950".equalsIgnoreCase(charsetName)) {
+            cs = Charset.forName("MS950");
+        } else if ("CP1047".equalsIgnoreCase(charsetName) || "CP037".equalsIgnoreCase(charsetName) || "CP500".equalsIgnoreCase(charsetName) || "CP937".equalsIgnoreCase(charsetName)) {
+            cs = Charset.forName(charsetName); // EBCDIC （依實際來源決定）
+        } else {
+            cs = Charset.forName(charsetName);
+        }
+
+//        CharsetDecoder decoder = cs.newDecoder();
+//        if (strictMode) {
+//            decoder.onMalformedInput(CodingErrorAction.REPORT)
+//                    .onUnmappableCharacter(CodingErrorAction.REPORT);
+//        } else {
+//            decoder.onMalformedInput(CodingErrorAction.REPLACE)
+//                    .onUnmappableCharacter(CodingErrorAction.REPLACE)
+//                    .replaceWith("?"); // 需要固定欄寬可改成 "□" 或全形空白 "　"
+//        }
+        //置換使用
+        CharsetDecoder decLenient = cs.newDecoder()
+                .onMalformedInput(CodingErrorAction.REPLACE)
+                .onUnmappableCharacter(CodingErrorAction.REPLACE)
+                .replaceWith("?");
+        //拋錯使用
+        CharsetDecoder decStrict = cs.newDecoder()
+                .onMalformedInput(CodingErrorAction.REPORT)
+                .onUnmappableCharacter(CodingErrorAction.REPORT);
+
+        int headerLen = 0;
+        int bodyLen = 0;
+        int footerLen = 0;
+        for (XmlField xmlField : xmlFieldListH) {
+            headerLen = headerLen + parse.string2Integer(xmlField.getLength());
+        }
+        for (XmlField xmlField : xmlFieldListB) {
+            bodyLen = bodyLen + parse.string2Integer(xmlField.getLength());
+        }
+        for (XmlField xmlField : xmlFieldListF) {
+            footerLen = footerLen + parse.string2Integer(xmlField.getLength());
+        }
+
+        LogProcess.info(log, "headerLen = {} ,bodyLen = {} , footerLen = {} , headerCnt = {} , footerCnt = {}", headerLen, bodyLen, footerLen, headerCnt, footerCnt);
+
+
+        List<String> outputData = new ArrayList<>();
+        int lineNo = 0;
+        int totalCnt = 0;
+
+        try (BufferedInputStream in = new BufferedInputStream(Files.newInputStream(path), 64 * 1024)) {
+            ByteArrayOutputStream buf = new ByteArrayOutputStream(4096);
+            int prev = -1, c;
+
+            while ((c = in.read()) != -1) {
+                if (c == '\n') {
+                    byte[] bytes = buf.toByteArray();
+
+                    if (prev == '\r' && bytes.length > 0) bytes = Arrays.copyOf(bytes, bytes.length - 1);
+                    buf.reset();
+
+                    int dataLength = bytes.length;
+                    //放進 List
+                    String s;
+                    try {
+                        s = decLenient.decode(ByteBuffer.wrap(bytes)).toString();
+                    } finally {
+                        decLenient.reset();
+                    }
+                    if (lineNo == 1 && !s.isEmpty() && s.charAt(0) == '\uFEFF') s = s.substring(1);
+//                    outputData.add(s);
+                    lineNo++;
+
+//                    LogProcess.info(log, "lineNo = {},s =  {}  ",lineNo,s);
+
+
+                    if (headerCnt == 1 && headerLen > 0 && lineNo == 1) {
+                        outputData.add(processField4(xmlFieldListH, s));
+                        continue;
+                    }
+                    //總筆數減去表尾 要大於等於 計算中筆數
+                    if (bodyLen > 0 && lineNo > 0) {
+                        outputData.add(processField4(xmlFieldListB, s));
+                    }
+
+                    if (footerCnt == 1 && footerLen > 0) {
+                        outputData.add(processField4(xmlFieldListF, s));
+                    }
+
+                    if (outputData.size() >= 5000) {
+                        textFileUtil.writeFileContent(outputFile, outputData, charsetName);
+                        totalCnt = totalCnt + outputData.size();
+                        outputData = new ArrayList<>();
+                    }
+
+                    if (totalCnt % 100000 == 0 && totalCnt > 0) {
+                        LogProcess.info(log, "Number of entries already written = {} ", totalCnt);
+                    }
+                    //若失敗或出現替代字，記錄錯誤
+                    boolean bad = false;
+                    try {
+                        decStrict.decode(ByteBuffer.wrap(bytes));
+                    } catch (CharacterCodingException ex) {
+                        bad = true;
+                    } finally {
+                        decStrict.reset();
+                    }
+
+                    // Big5  & EBCDIC
+                    int illegalAt = textFileUtil.firstIllegalBig5Index(bytes);
+                    boolean maybeEbcdic = textFileUtil.looksLikeEbcdic(bytes);
+                    boolean hasBadStrict = bad;
+                    boolean hasReplacement = s.indexOf('\uFFFD') >= 0 || s.indexOf('?') >= 0;
+                    boolean hasIllegalBig5 = illegalAt >= 0;
+                    boolean hasEbcdicLike = maybeEbcdic;
+
+                    // 只有其中任一條件成立才顯示
+                    if (hasBadStrict || hasReplacement || hasIllegalBig5 || hasEbcdicLike) {
+                        // 取 HEX 視窗（避免太長）
+                        int start = Math.max(0, (illegalAt >= 0 ? illegalAt : 0) - 8);
+                        int end = Math.min(bytes.length, start + 32);
+                        String window = textFileUtil.bytesToHex(Arrays.copyOfRange(bytes, start, end));
+
+                        // 分別顯示原因，讓 log 更明確
+                        if (hasBadStrict) {
+                            LogProcess.warn(log, "[Line {}] ⚠️ 嚴格解碼失敗 (badStrict=true) HEX[..]={}", lineNo, window);
+                        }
+                        if (hasReplacement) {
+                            LogProcess.warn(log, "[Line {}] ⚠️ 出現替代字 (� 或 ?) HEX[..]={}", lineNo, window);
+                        }
+                        if (hasIllegalBig5) {
+                            LogProcess.warn(log, "[Line {}] ⚠️ 非法 Big5 位元組 (illegalAt={}) HEX[..]={}", lineNo, illegalAt, window);
+                        }
+                        if (hasEbcdicLike) {
+//                            LogProcess.warn(log, "[Line {}] ⚠️ 疑似 EBCDIC 編碼 HEX[..]={}", lineNo, window);
+                        }
+                    }
+                } else {
+                    buf.write(c);
+                }
+                prev = c;
+
+            }
+
+            // 結尾最後一筆（沒有換行符）
+            if (buf.size() > 0) {
+                byte[] bytes = buf.toByteArray();
+                lineNo++;
+
+                String s;
+                try {
+                    s = decLenient.decode(ByteBuffer.wrap(bytes)).toString();
+                } finally {
+                    decLenient.reset();
+                }
+                if (lineNo == 1 && !s.isEmpty() && s.charAt(0) == '\uFEFF') s = s.substring(1);
+//                out.add(s);
+
+                if (headerCnt == 1 && headerLen > 0 && lineNo == 1) {
+                    outputData.add(processField4(xmlFieldListH, s));
+                }
+                //總筆數減去表尾 要大於等於 計算中筆數
+                if (bodyLen > 0 && lineNo > 0) {
+                    outputData.add(processField4(xmlFieldListB, s));
+                }
+
+                if (footerCnt == 1 && footerLen > 0) {
+                    outputData.add(processField4(xmlFieldListF, s));
+                }
+
+                boolean bad = false;
+                try {
+                    decStrict.decode(ByteBuffer.wrap(bytes));
+                } catch (CharacterCodingException ex) {
+                    bad = true;
+                } finally {
+                    decStrict.reset();
+                }
+
+                int illegalAt = textFileUtil.firstIllegalBig5Index(bytes);
+                boolean maybeEbcdic = textFileUtil.looksLikeEbcdic(bytes);
+                boolean hasBadStrict = bad;
+                boolean hasReplacement = s.indexOf('\uFFFD') >= 0 || s.indexOf('?') >= 0;
+                boolean hasIllegalBig5 = illegalAt >= 0;
+                boolean hasEbcdicLike = maybeEbcdic;
+
+                // 只有其中任一條件成立才顯示
+                if (hasBadStrict || hasReplacement || hasIllegalBig5 || hasEbcdicLike) {
+                    // 取 HEX 視窗（避免太長）
+                    int start = Math.max(0, (illegalAt >= 0 ? illegalAt : 0) - 8);
+                    int end = Math.min(bytes.length, start + 32);
+                    String window = textFileUtil.bytesToHex(Arrays.copyOfRange(bytes, start, end));
+
+                    // 分別顯示原因，讓 log 更明確
+                    if (hasBadStrict) {
+                        LogProcess.warn(log, "[Line {}] ⚠️ 嚴格解碼失敗 (badStrict=true) HEX[..]={}", lineNo, window);
+                    }
+                    if (hasReplacement) {
+                        LogProcess.warn(log, "[Line {}] ⚠️ 出現替代字 (� 或 ?) HEX[..]={}", lineNo, window);
+                    }
+                    if (hasIllegalBig5) {
+                        LogProcess.warn(log, "[Line {}] ⚠️ 非法 Big5 位元組 (illegalAt={}) HEX[..]={}", lineNo, illegalAt, window);
+                    }
+                    if (hasEbcdicLike) {
+//                        LogProcess.warn(log, "[Line {}] ⚠️ 疑似 EBCDIC 編碼 HEX[..]={}", lineNo, window);
+                    }
+                }
+            }
+
+
+            if (!outputData.isEmpty()) {
+                totalCnt = totalCnt + outputData.size();
+
+                LogProcess.info(log, "Number of entries already written = {} ", outputData.size());
+                textFileUtil.writeFileContent(outputFile, outputData, charsetName);
+                outputData = new ArrayList<>();
+            }
+
+            LogProcess.info(log, "Final number of data entries = {}", totalCnt);
+
+            if (totalCnt == 0) {
+                LogProcess.info(log, "no data output file = {}", outputFile);
+            } else {
+                LogProcess.info(log, "output file path = {}", outputFile);
+            }
+        } catch (IOException e) {
+            LogProcess.error(log, "I/O error after line {}: {}", lineNo, e.getMessage(), e);
+        }
+
+    }
+
 
 }
