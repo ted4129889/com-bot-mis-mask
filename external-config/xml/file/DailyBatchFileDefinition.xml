@@ -3757,6 +3757,7 @@
                 <fieldType>X</fieldType>
                 <length>10</length>
                 <decimal>0</decimal>
+                <maskType>1</maskType>
             </field>
             <field>
                 <fieldName>actno</fieldName>
