@@ -97,10 +97,18 @@ public class CobolRecordDecoder {
                             } else if (looksLikeEBCDIC(fieldBytes)) {
                                 charset = Charset.forName("Cp1047");
                             } else {
-                                charset = Charset.forName("MS950"); // 或 UTF-8，看實際資料格式
+                                charset = Charset.forName("MS950");
                             }
 
                             value = new String(fieldBytes, charset).trim();
+
+                            if ("MS950".equalsIgnoreCase(charset.toString())) {
+                                value = this.astarUtils.utf8ToBIG5(value.toString());
+                            } else if ("BIG5".equalsIgnoreCase(charset.toString())) {
+                                value = this.astarUtils.utf8ToBIG5(value.toString());
+                            } else if ("BUR".equalsIgnoreCase(charset.toString())) {
+                                value = this.astarUtils.utf8ToBUR(value.toString());
+                            }
 
                             int diff = (int) field.digits - value.toString().length();
                             resultX = SPACE.repeat(diff) + value;
@@ -109,6 +117,8 @@ public class CobolRecordDecoder {
                         break;
                     default:
                         resultX = null;
+
+
                 }
                 resultVal = resultX;
                 result.put(field.name, resultX);
