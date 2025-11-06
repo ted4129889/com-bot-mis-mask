@@ -5030,14 +5030,7 @@
             <field>
                 <fieldName>cname</fieldName>
                 <fieldType>X</fieldType>
-                <length>12</length>
-                <decimal>0</decimal>
-                <maskType>4</maskType>
-            </field>
-            <field>
-                <fieldName>cname2</fieldName>
-                <fieldType>X</fieldType>
-                <length>42</length>
+                <length>54</length>
                 <decimal>0</decimal>
                 <maskType>4</maskType>
             </field>
