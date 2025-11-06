@@ -11526,6 +11526,7 @@
             <fieldType>string</fieldType>
             <length>3</length>
         </field>
+        </body>
         <footer></footer>
     </data>
 </file>
