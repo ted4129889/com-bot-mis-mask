@@ -109,7 +109,6 @@ public class CobolRecordDecoder {
                                 }
 
                             } else if ("BIG5".equalsIgnoreCase(charset.toString())) {
-                                value = this.astarUtils.utf8ToBIG5(value.toString());
                                 byte[] d =  this.astarUtils.utf8ToBIG5(value.toString());
                                 if (isBadBig5Bytes(d, value.toString())) {
                                     value = new String(fieldBytes, charset).trim();
