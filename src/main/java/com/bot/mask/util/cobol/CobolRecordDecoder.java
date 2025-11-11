@@ -103,9 +103,18 @@ public class CobolRecordDecoder {
                             value = new String(fieldBytes, charset).trim();
 
                             if ("MS950".equalsIgnoreCase(charset.toString())) {
-                                value = this.astarUtils.utf8ToBIG5(value.toString());
+                                byte[] d =  this.astarUtils.utf8ToBIG5(value.toString());
+                                if (isBadBig5Bytes(d, value.toString())) {
+                                    value = new String(fieldBytes, charset).trim();
+                                }
+
                             } else if ("BIG5".equalsIgnoreCase(charset.toString())) {
                                 value = this.astarUtils.utf8ToBIG5(value.toString());
+                                byte[] d =  this.astarUtils.utf8ToBIG5(value.toString());
+                                if (isBadBig5Bytes(d, value.toString())) {
+                                    value = new String(fieldBytes, charset).trim();
+                                }
+
                             } else if ("BUR".equalsIgnoreCase(charset.toString())) {
                                 value = this.astarUtils.utf8ToBUR(value.toString());
                             }
@@ -152,7 +161,7 @@ public class CobolRecordDecoder {
 
             String val = astarUtils.burToUTF8(fieldBytes);
             // 判斷數值正負號
-            String convertVal1 = decodeText(val, field.decimal);
+            String convertVal1 = decodeText(val, field.decimal, field.type);
             // 無法編碼的處理
             String convertVal2 = filterUnencodable(convertVal1);
             // 中文字補空白
@@ -201,7 +210,7 @@ public class CobolRecordDecoder {
                         "MS950 decode error: " + e.getMessage());
             }
 
-            String convertVal1 = decodeText(val, field.decimal).replace("　", "  ");
+            String convertVal1 = decodeText(val, field.decimal, field.type).replace("　", "  ");
 
             String convertVal2 = filterUnencodable(convertVal1);
 
@@ -219,9 +228,7 @@ public class CobolRecordDecoder {
         return result;
     }
 
-    /**
-     * COMP正負符號
-     */
+    /** COMP正負符號 */
     private boolean looksLikeComp3(String hex, int decimal) {
         String sign = hex.substring(0, 1);
 
@@ -231,9 +238,7 @@ public class CobolRecordDecoder {
         return false;
     }
 
-    /**
-     * 解開成實際(展開)字串
-     */
+    /** 解開成實際(展開)字串 */
     private String decodeComp3(String hex, int totalHexLen, int decimal) {
         hex = hex.toUpperCase();
         String signNibble = hex.substring(0, 1);
@@ -283,7 +288,7 @@ public class CobolRecordDecoder {
     /**
      * 解碼 COBOL 中的 有符號 Zoned Decimal 格式的數值欄位，可處理含小數位或純整數。
      *
-     * @param bytes         Zoned Decimal 編碼的 byte 陣列
+     * @param bytes Zoned Decimal 編碼的 byte 陣列
      * @param decimalPlaces 小數位數（若為 0 則回傳純整數）
      * @return 解碼後的字串，如 "-123.45" 或 "+789"，格式錯誤則回傳 null
      */
@@ -340,7 +345,7 @@ public class CobolRecordDecoder {
             int b = bytes[i] & 0xFF;
             int high = b & 0xF0;
 
-           LogProcess.debug(log,"[DEBUG FasXXXX FIle ] b:{},high:{}", b, high);
+            ApLogHelper.info(log, false, LogType.NORMAL.getCode(), "[DEBUG] b:{},high:{}", b, high);
 
             if (i < bytes.length - 1) {
                 // 中間位元應為 F0 ~ F9
@@ -353,9 +358,7 @@ public class CobolRecordDecoder {
         return true;
     }
 
-    /**
-     * 全部為可列印的 ASCII，就用 ASCII
-     */
+    /** 全部為可列印的 ASCII，就用 ASCII */
     private boolean allAsciiPrintable(byte[] bytes) {
         for (byte b : bytes) {
             int val = b & 0xFF;
@@ -364,9 +367,7 @@ public class CobolRecordDecoder {
         return true;
     }
 
-    /**
-     * 判斷來源檔案屬是否為ASCII(中文)
-     */
+    /** 判斷來源檔案屬是否為ASCII(中文) */
     private boolean looksLikeEBCDIC(byte[] bytes) {
         if (bytes == null || bytes.length == 0) return false;
 
@@ -415,14 +416,16 @@ public class CobolRecordDecoder {
     /**
      * 將包含尾碼符號（如正負號）的 COMP-3 類型文字欄位轉成正常字串，並加入小數點處理。
      *
-     * @param input   如 "123{", "999A" 等
+     * @param input 如 "123{", "999A" 等
      * @param decimal 小數位數（例如 2 表示變成 12.34；0 表示不處理）
      * @return 正常表示的字串，例如 "-123.45"
      */
-    private String decodeText(String input, int decimal) {
-        if (input == null || input.isEmpty() || input.length() < 3) {
+    private String decodeText(String input, int decimal, CobolField.Type type) {
+        if (input == null || input.isEmpty() || input.length() == 1) {
             return input;
         }
+        // 排除是文字型態
+        if (CobolField.Type.X.equals(type)) return input;
 
         char lastChar = input.charAt(input.length() - 1);
         String body = input.substring(0, input.length() - 1);
@@ -515,7 +518,8 @@ public class CobolRecordDecoder {
 
             default:
                 // 非尾碼符號，直接返回原始字串
-                return formatWithDecimal(input, decimal);
+                body = input;
+                //                return input;
         }
 
         String numeric = body + lastDigit;
@@ -528,36 +532,17 @@ public class CobolRecordDecoder {
         return sign + numeric;
     }
 
-    public String formatWithDecimal(String value, int decimal) {
-        if (decimal <= 0) {
-            return value;
-        }
-
-        if (decimal > value.length()) {
-            throw new IllegalArgumentException("Decimal places cannot be greater than the value length.");
-        }
-
-        String intPart = value.substring(0, value.length() - decimal);
-        String decimalPart = value.substring(value.length() - decimal);
-
-        String merge = intPart + decimalPart;
-        //TODO 需驗證是否調整正確
-        return merge.contains(".") ? merge : intPart + "." + decimalPart;
-    }
-
-    /**
-     * 判斷與剔除無法正常編碼的字元
-     */
+    /** 判斷與剔除無法正常編碼的字元 */
     private String filterUnencodable(String input) {
         // TODO 因為目前轉碼只有UTF8的版本，若astarUtils有更新BIG5 就可以不用這段
         Charset big5 = Charset.forName("BIG5");
         CharsetEncoder encoder = big5.newEncoder();
         StringBuilder sb = new StringBuilder();
-        //        ApLogHelper.info(log,log, false, LogType.NORMAL.getCode(), "[DEBUG FasXXXX FIle ] input {}", input);
+        //        ApLogHelper.info(log, false, LogType.NORMAL.getCode(), "[DEBUG] input {}", input);
 
         for (int i = 0; i < input.length(); i++) {
             char c = input.charAt(i);
-            //            ApLogHelper.info(log,log, false, LogType.NORMAL.getCode(), "[DEBUG FasXXXX FIle ] charAt
+            //            ApLogHelper.info(log, false, LogType.NORMAL.getCode(), "[DEBUG] charAt
             // :{}", c);
 
             if (encoder.canEncode(c)) {
@@ -567,8 +552,8 @@ public class CobolRecordDecoder {
             }
         }
 
-        //        ApLogHelper.info(log,
-        //                log, false, LogType.NORMAL.getCode(), "[DEBUG FasXXXX FIle ]sb.toString(): {}",
+        //        ApLogHelper.info(
+        //                log, false, LogType.NORMAL.getCode(), "[DEBUG]sb.toString(): {}",
         // sb.toString());
 
         return sb.toString();
@@ -577,7 +562,7 @@ public class CobolRecordDecoder {
     /**
      * 判斷 hex 字串是否以 2B 開頭、2C 結尾 若為 true，則在原始字串前後加上半形空白再回傳 否則回傳原字串
      *
-     * @param hex      十六進位字串（不分大小寫）
+     * @param hex 十六進位字串（不分大小寫）
      * @param original 原始文字字串
      * @return 若符合條件則加上半形空白後的字串，否則原樣回傳
      */
@@ -602,9 +587,9 @@ public class CobolRecordDecoder {
     /**
      * 根據字串內容計算半形長度（全形:2，半形:1）， 若長度不足預期長度，則補滿半形空白直到相同長度。
      *
-     * @param input        原始字串（可能含中日文或全形符號）
+     * @param input 原始字串（可能含中日文或全形符號）
      * @param targetLength 預期長度（以半形寬度為單位）
-     * @param type         Cobol的欄位型態
+     * @param type Cobol的欄位型態
      * @return 補滿後的字串
      */
     private String padToHalfWidthLength(String input, int targetLength, CobolField.Type type) {
@@ -638,9 +623,7 @@ public class CobolRecordDecoder {
         return result.toString();
     }
 
-    /**
-     * 判斷是否為全形字元（全形中文、全形英數、全形標點）
-     */
+    /** 判斷是否為全形字元（全形中文、全形英數、全形標點） */
     private boolean isFullWidth(char ch) {
         // 全形範圍：常見在 U+FF01 ~ U+FF60、U+FFE0 ~ U+FFE6
         // 以及中日韓常用字（U+4E00 ~ U+9FFF）
@@ -662,45 +645,34 @@ public class CobolRecordDecoder {
         return data;
     }
 
-    /**
-     * 將有控制瑪符號的檔案處理成字串
-     */
-    public String cleanHexAndDecode(byte[] originalBytes) throws Exception {
-        // 1. 原始 byte[] 轉 HEX 字串
-        String hex = bytesToHex(originalBytes);
 
-        // 2. 移除換行控制碼（0D0A）
-        hex = hex.replaceAll("0D0A", "");
-
-        // 3. HEX 字串轉回 byte[]
-        byte[] cleanedBytes = hexToBytes(hex);
-
-        // 4. 用 Big5 或 MS950 轉回字串
-        return new String(cleanedBytes, Charset.forName("MS950"));
-    }
-
-    /**
-     * 將有控制瑪符號的檔案處理成字串，存成List<String>
-     */
-    public List<String> cleanHexAndDecodeToList(byte[] originalBytes) {
-        List<String> resultList = new ArrayList<>();
-
-        // 1. 原始 byte[] 轉 HEX 字串
-        String hex = bytesToHex(originalBytes);
-
-        // 2. 依照換行符號 0D0A 切割成每一筆（注意大寫）
-        String[] hexRecords = hex.toUpperCase().split("0D0A");
-
-        // 3. 每筆資料再轉成 byte[] → 解碼成文字 → 加入 List
-        for (String hexLine : hexRecords) {
-            if (hexLine.trim().isEmpty()) continue; // 忽略空行
-
-            byte[] lineBytes = hexToBytes(hexLine);
-            String decoded = new String(lineBytes, Charset.forName("MS950"));
-
-            resultList.add(decoded);
+    private boolean isBadBig5Bytes(byte[] data, String original) {
+        if (original == null) return false; // 上層已處理 null/空行
+        if (data == null || data.length == 0) {
+            return !original.isEmpty(); // 有內容卻沒 bytes → 異常
         }
 
-        return resultList;
+        // 如果超過一半以上都是 0x00，很明顯不對
+        int nulCount = 0;
+        for (byte b : data) {
+            if (b == 0x00) nulCount++;
+        }
+        if (nulCount * 2 >= data.length) {
+            return true;
+        }
+
+        // 嘗試用 MS950 解回來，如果幾乎都是空白/不可見，但原字串不是，也視為異常
+        try {
+            String roundTrip = new String(data, "MS950");
+
+            // 都是空白/控制碼，但原本有實際字
+            if (!original.trim().isEmpty() && roundTrip.trim().isEmpty()) {
+                return true;
+            }
+        } catch (Exception e) {
+            return true; // 連解都解不了也當壞資料
+        }
+
+        return false;
     }
 }
