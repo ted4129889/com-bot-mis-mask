@@ -3,9 +3,7 @@ package com.bot.mask.mask;
 
 import com.bot.mask.log.LogProcess;
 import com.bot.mask.util.xml.mask.XmlParser;
-
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -37,7 +35,7 @@ public class MaskSqlWorkerService {
     @Autowired
     private XmlParser xmlParser;
 
-    private static final Charset CHARSET = Charset.forName("BIG5");
+    private static final Charset CHARSET = Charset.forName("MS950");
     private static final int BATCH_SIZE = 5000;
     private static final int LOG_INTERVAL = 10000;
 
@@ -45,19 +43,18 @@ public class MaskSqlWorkerService {
     public void runSql(String filePath, String env, String batchDate, Consumer<Boolean> onFinish) {
         try {
             boolean success;
-
             try (Connection conn = dataSource.getConnection()) {
                 conn.setAutoCommit(false);
                 long start = System.nanoTime();
                 int inserted = executeSqlFileWithProgress(conn, filePath, env, batchDate);
                 double duration = (System.nanoTime() - start) / 1_000_000_000.0;
-                LogProcess.info(log," SQL 檔案: " + filePath + " → 插入 " + inserted + " 筆 , 耗時: " + duration + " s");
+                LogProcess.info(log, " SQL 檔案: " + filePath + " → 插入 " + inserted + " 筆 , 耗時: " + duration + " s");
                 success = true;
             }
 
             onFinish.accept(success);
         } catch (Exception e) {
-            LogProcess.error(log," SQL 檔案執行失敗: " + filePath + " - " + e.getMessage(), e);
+            LogProcess.error(log, " SQL 檔案執行失敗: " + filePath + " - " + e.getMessage(), e);
             onFinish.accept(false);
         }
     }
@@ -97,13 +94,13 @@ public class MaskSqlWorkerService {
                         conn.commit();
                         firstDeleteExecuted = true;
 //                        LogProcess.info(log,"️ 已執行第一筆 DELETE: " + filePath);
-                        LogProcess.info(log,"️ 讀取檔案: " + filePath);
+                        LogProcess.info(log, "️ 讀取檔案: " + filePath);
                         continue;
                     }
 
                     //  僅允許 INSERT
                     if (!sql.matches("(?i)^insert\\s+.*")) {
-                        LogProcess.warn(log," 跳過不允許的語句：" + sql);
+                        LogProcess.warn(log, " 跳過不允許的語句：" + sql);
                         continue;
                     }
 
@@ -125,10 +122,10 @@ public class MaskSqlWorkerService {
                     if (processed >= nextLogThreshold) {
                         double percent = (totalInserts > 0) ? (processed * 100.0 / totalInserts) : -1;
                         if (percent >= 0) {
-                            LogProcess.info(log,String.format(" [%s] 已處理 %d / %d (%.2f%%)",
+                            LogProcess.info(log, String.format(" [%s] 已處理 %d / %d (%.2f%%)",
                                     Paths.get(filePath).getFileName(), processed, totalInserts, percent));
                         } else {
-                            LogProcess.info(log,String.format(" [%s] 已處理 %d 筆 (總筆數未知)",
+                            LogProcess.info(log, String.format(" [%s] 已處理 %d 筆 (總筆數未知)",
                                     Paths.get(filePath).getFileName(), processed));
                         }
                         nextLogThreshold += LOG_INTERVAL;
@@ -150,7 +147,7 @@ public class MaskSqlWorkerService {
                 conn.rollback();
             } catch (Exception ignored) {
             }
-            LogProcess.error(log," executeSqlFileWithProgress 失敗: " + filePath + " - " + e.getMessage(), e);
+            LogProcess.error(log, " executeSqlFileWithProgress 失敗: " + filePath + " - " + e.getMessage(), e);
         }
 
         return totalCount;
@@ -174,22 +171,30 @@ public class MaskSqlWorkerService {
                     })
                     .count();
         } catch (IOException e) {
-            LogProcess.warn(log," 無法計算總 INSERT 筆數，進度將以未知總量顯示。");
+            LogProcess.warn(log, " 無法計算總 INSERT 筆數，進度將以未知總量顯示。");
             return -1;
         }
     }
 
     private String processEnv(String line, String env, String batchDate) {
+
+
         if ("dev".equals(env)) {
             line = line.replaceAll("\\b(bot\\w*?db)_sync\\.dbo\\.", "misbh_db.$1.");
             line = line.replaceAll("\\b(bot\\w*?db)(?:_\\w+)?\\.dbo\\.", "misbh_db.$1.");
         } else if ("local".equals(env)) {
-            if (Objects.equals(batchDate, "")) {
-                line = line.replaceAll("\\b(bot\\w*?db)_\\d{8}\\b", "$1");
-            } else {
-                line = line.replaceAll("\\b(bot\\w*?db)_\\d{8}\\b", "$1_" + batchDate);
-            }
+//            if (batchDate == null || batchDate.isBlank()) {
+//                // 無日期 → 移除日期後綴
+//                line = line.replaceAll("\\b(bot\\w*?db)_\\d{8}\\b", "$1");
+//            } else {
+//                // 有日期 → 替換成指定日期
+//                line = line.replaceAll("\\b(bot\\w*?db)_\\d{8}\\b", "$1_" + batchDate);
+//            }
+            line = handleLine(line, batchDate);
         }
+//        LogProcess.info(log, "env = " + env);
+//        LogProcess.info(log, "batchDate = " + batchDate);
+//        LogProcess.info(log, "line sql = " + line);
         return line;
     }
 
@@ -204,6 +209,8 @@ public class MaskSqlWorkerService {
                 tableName = tableName.replaceAll("\\b(bot\\w*?db)_\\d{8}\\b", "$1_" + batchDate);
             }
         }
+
+
         return tableName;
     }
 
@@ -223,13 +230,13 @@ public class MaskSqlWorkerService {
 
         try {
             if (conn == null || conn.isClosed() || !conn.isValid(2)) {
-                LogProcess.warn(log," 偵測到連線失效，嘗試重新建立資料庫連線...");
+                LogProcess.warn(log, " 偵測到連線失效，嘗試重新建立資料庫連線...");
 
                 //  安全關閉舊連線
                 try {
                     if (conn != null) conn.close();
                 } catch (Exception e) {
-                    LogProcess.warn(log," 舊連線關閉時發生例外: " + e.getMessage());
+                    LogProcess.warn(log, " 舊連線關閉時發生例外: " + e.getMessage());
                 }
 
                 //  重新建立連線
@@ -240,10 +247,10 @@ public class MaskSqlWorkerService {
                 //  重新建立 Statement
                 stmt = conn.createStatement();
 
-                LogProcess.info(log," 資料庫連線已成功重新建立");
+                LogProcess.info(log, " 資料庫連線已成功重新建立");
             }
         } catch (SQLException ex) {
-            LogProcess.error(log," 重新建立資料庫連線失敗: " + ex.getMessage(), ex);
+            LogProcess.error(log, " 重新建立資料庫連線失敗: " + ex.getMessage(), ex);
             throw ex;
         }
 
@@ -272,7 +279,7 @@ public class MaskSqlWorkerService {
 
             String sql = sqlBuilder.toString();
             if (sql.isEmpty()) {
-                LogProcess.warn(log," 未找到任何 INSERT INTO 語法");
+                LogProcess.warn(log, " 未找到任何 INSERT INTO 語法");
                 return result;
             }
 
@@ -300,15 +307,41 @@ public class MaskSqlWorkerService {
 
             if (tableName != null) {
                 result.put(tableName, columns);
-                LogProcess.info(log," 解析到 Table: " + tableName + " 欄位數: " + columns.size());
+                LogProcess.info(log, " 解析到 Table: " + tableName + " 欄位數: " + columns.size());
             }
 
         } catch (IOException e) {
-            LogProcess.error(log," 讀檔錯誤: " + e.getMessage(), e);
+            LogProcess.error(log, " 讀檔錯誤: " + e.getMessage(), e);
         }
 
         return result;
     }
 
 
+    public String handleLine(String line, String batchDate) {
+        final Pattern DB_PATTERN = Pattern.compile("\\b(bot\\w*?db)(?:_(\\d{8}))?\\b");
+
+        Matcher m = DB_PATTERN.matcher(line);
+        StringBuffer sb = new StringBuffer();
+
+        while (m.find()) {
+            String dbName = m.group(1);
+            String existingDate = m.group(2);
+            String replacement;
+
+            if (existingDate == null) {
+                replacement = (batchDate != null && !batchDate.isBlank())
+                        ? dbName + "_" + batchDate
+                        : dbName;
+            } else {
+                replacement = (batchDate != null && !batchDate.isBlank())
+                        ? dbName + "_" + batchDate
+                        : dbName + "_" + existingDate;
+            }
+            m.appendReplacement(sb, replacement);
+        }
+        m.appendTail(sb);
+        return sb.toString();
+
+    }
 }
