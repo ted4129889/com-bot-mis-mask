@@ -7730,13 +7730,13 @@
             <field>
                 <fieldName>dinum1</fieldName>
                 <fieldType>COMP</fieldType>
-                <length>8.5</length>
+                <length>9</length>
                 <decimal>1</decimal>
             </field>
             <field>
                 <fieldName>dinum2</fieldName>
                 <fieldType>COMP</fieldType>
-                <length>8.5</length>
+                <length>9</length>
                 <decimal>1</decimal>
             </field>
             <field>
