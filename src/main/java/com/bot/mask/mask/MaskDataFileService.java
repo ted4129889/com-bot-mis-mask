@@ -1236,7 +1236,7 @@ public class MaskDataFileService {
                         outputData = new ArrayList<>();
                     }
                     if (totalCnt % 100000 == 0 && totalCnt > 0) {
-                        LogProcess.info(log, "Number of entries already written = {} ", totalCnt);
+//                        LogProcess.info(log, "Number of entries already written = {} ", totalCnt);
                     }
 
                     //若失敗或出現替代字，記錄錯誤
@@ -1354,12 +1354,12 @@ public class MaskDataFileService {
             if (!outputData.isEmpty()) {
                 totalCnt = totalCnt + outputData.size();
 
-                LogProcess.info(log, "Number of entries already written = {} ", outputData.size());
                 textFileUtil.writeFileContent(outputFile, outputData, charsetName);
                 outputData = new ArrayList<>();
             }
 
             LogProcess.info(log, "Final number of data entries = {}", totalCnt);
+
 
             if (totalCnt == 0) {
                 LogProcess.info(log, "no data output file = {}", outputFile);
@@ -1477,7 +1477,6 @@ public class MaskDataFileService {
                     }
 
                     if (totalCnt % 100000 == 0 && totalCnt > 0) {
-                        LogProcess.info(log, "Number of entries already written = {} ", totalCnt);
                     }
                     //若失敗或出現替代字，記錄錯誤
                     boolean bad = false;
@@ -1594,7 +1593,6 @@ public class MaskDataFileService {
             if (!outputData.isEmpty()) {
                 totalCnt = totalCnt + outputData.size();
 
-                LogProcess.info(log, "Number of entries already written = {} ", outputData.size());
                 textFileUtil.writeFileContent(outputFile, outputData, charsetName);
                 outputData = new ArrayList<>();
             }

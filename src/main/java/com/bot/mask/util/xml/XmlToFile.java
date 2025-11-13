@@ -130,7 +130,7 @@ public class XmlToFile {
                     outputConvert);
 
         } catch (Exception e) {
-            LogProcess.error(log,"readCobolFile error = {}",e);
+            LogProcess.error(log, "readCobolFile error = " + e.getMessage(),e);
         }
 
     }
@@ -257,9 +257,8 @@ public class XmlToFile {
         List<CobolField> layoutFooter = convertXmlToCobolFields(xmlFieldFooter);
 
 
-
         EncodingType type = detectEncodingType(fileBytes);
-        LogProcess.info(log,"type = {}", type);
+        LogProcess.info(log, "type = {}", type);
 
         boolean useMs950Handle = false;
         if (type == EncodingType.MS950) {
@@ -372,7 +371,7 @@ public class XmlToFile {
             try {
                 Files.createDirectories(path.getParent());
             } catch (IOException e) {
-                LogProcess.info(log,"資料夾建立失敗");
+                LogProcess.info(log, "資料夾建立失敗");
             }
         }
 
@@ -400,7 +399,7 @@ public class XmlToFile {
             }
 
         } catch (IOException e) {
-            LogProcess.info(log,"寫入失敗");
+            LogProcess.info(log, "寫入失敗");
         }
     }
 
@@ -465,7 +464,7 @@ public class XmlToFile {
                     targetFile);
             return true;
         } catch (IOException e) {
-            LogProcess.info(log,"copy file fail = {}", targetFile);
+            LogProcess.info(log, "copy file fail = {}", targetFile);
             return false;
         }
     }
