@@ -2600,7 +2600,7 @@
             <field>
                 <fieldName>yymm</fieldName>
                 <fieldType>string</fieldType>
-                <length>6</length>
+                <length>5</length>
             </field>
             <field>
                 <fieldName>separator</fieldName>
@@ -9973,6 +9973,7 @@
                 <length>6</length>
             </field>
         </body>
+        <footer></footer>
     </data>
     <data fileName="ConvFasCmsdbBkcas">
         <header></header>
