@@ -24,10 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -108,14 +105,30 @@ public class XmlToFile {
             ApLogHelper.info(
                     log, false, LogType.NORMAL.getCode(), "read input file = {}", inputPath);
 
-            // 判斷檔案型態使用
-            byte[] fileBytes = new byte[0];
-            // 格式讀取錯誤或是沒
-            try {
-                fileBytes = Files.readAllBytes(inputPath);
+//            // 判斷檔案型態使用
+//            byte[] fileBytes = new byte[0];
+//            // 格式讀取錯誤或是沒
+//            try {
+//                fileBytes = Files.readAllBytes(inputPath);
+//
+//            } catch (IOException e) {
+//                textFileUtil.createEmptyFileIfNotExist(outputConvert);
+//            }
 
+            int partDataSize = 4096;
+            byte[] fileBytes;
+
+            try (InputStream is = Files.newInputStream(inputPath)) {
+                byte[] buffer = new byte[partDataSize];
+                int bytesRead = is.read(buffer);
+                if (bytesRead > 0) {
+                    fileBytes = Arrays.copyOf(buffer, bytesRead);
+                } else {
+                    fileBytes = new byte[0];
+                }
             } catch (IOException e) {
                 textFileUtil.createEmptyFileIfNotExist(outputConvert);
+                fileBytes = new byte[0];
             }
 
             // 整批資料處理
