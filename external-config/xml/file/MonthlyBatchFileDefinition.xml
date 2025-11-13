@@ -3334,16 +3334,26 @@
             <separator></separator>
         </header>
         <body>
-            <separator></separator>
+            <separator>,</separator>
             <field>
                 <fieldName>brno</fieldName>
                 <fieldType>string</fieldType>
                 <length>3</length>
             </field>
             <field>
+                <fieldName>separator</fieldName>
+                <fieldType>string</fieldType>
+                <length>1</length>
+            </field>
+            <field>
                 <fieldName>order</fieldName>
                 <fieldType>string</fieldType>
                 <length>6</length>
+            </field>
+            <field>
+                <fieldName>separator</fieldName>
+                <fieldType>string</fieldType>
+                <length>1</length>
             </field>
             <field>
                 <fieldName>cusno</fieldName>
@@ -3352,9 +3362,19 @@
                 <maskType>1</maskType>
             </field>
             <field>
+                <fieldName>separator</fieldName>
+                <fieldType>string</fieldType>
+                <length>1</length>
+            </field>
+            <field>
                 <fieldName>imcnt</fieldName>
                 <fieldType>string</fieldType>
                 <length>6</length>
+            </field>
+            <field>
+                <fieldName>separator</fieldName>
+                <fieldType>string</fieldType>
+                <length>1</length>
             </field>
             <field>
                 <fieldName>imamt</fieldName>
@@ -3362,9 +3382,19 @@
                 <length>11</length>
             </field>
             <field>
+                <fieldName>separator</fieldName>
+                <fieldType>string</fieldType>
+                <length>1</length>
+            </field>
+            <field>
                 <fieldName>excnt</fieldName>
                 <fieldType>string</fieldType>
                 <length>6</length>
+            </field>
+            <field>
+                <fieldName>separator</fieldName>
+                <fieldType>string</fieldType>
+                <length>1</length>
             </field>
             <field>
                 <fieldName>examt</fieldName>
@@ -3372,9 +3402,19 @@
                 <length>11</length>
             </field>
             <field>
+                <fieldName>separator</fieldName>
+                <fieldType>string</fieldType>
+                <length>1</length>
+            </field>
+            <field>
                 <fieldName>orcnt</fieldName>
                 <fieldType>string</fieldType>
                 <length>6</length>
+            </field>
+            <field>
+                <fieldName>separator</fieldName>
+                <fieldType>string</fieldType>
+                <length>1</length>
             </field>
             <field>
                 <fieldName>oramt</fieldName>
@@ -3382,9 +3422,19 @@
                 <length>11</length>
             </field>
             <field>
+                <fieldName>separator</fieldName>
+                <fieldType>string</fieldType>
+                <length>1</length>
+            </field>
+            <field>
                 <fieldName>ircnt</fieldName>
                 <fieldType>string</fieldType>
                 <length>6</length>
+            </field>
+            <field>
+                <fieldName>separator</fieldName>
+                <fieldType>string</fieldType>
+                <length>1</length>
             </field>
             <field>
                 <fieldName>iramt</fieldName>
@@ -3392,19 +3442,24 @@
                 <length>11</length>
             </field>
             <field>
+                <fieldName>separator</fieldName>
+                <fieldType>string</fieldType>
+                <length>1</length>
+            </field>
+            <field>
                 <fieldName>totcnt</fieldName>
                 <fieldType>string</fieldType>
                 <length>6</length>
             </field>
             <field>
+                <fieldName>separator</fieldName>
+                <fieldType>string</fieldType>
+                <length>1</length>
+            </field>
+            <field>
                 <fieldName>totamt</fieldName>
                 <fieldType>string</fieldType>
                 <length>11</length>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>string</fieldType>
-                <length>3</length>
             </field>
         </body>
         <footer>
@@ -3416,16 +3471,26 @@
             <separator></separator>
         </header>
         <body>
-            <separator></separator>
+            <separator>,</separator>
             <field>
                 <fieldName>brno</fieldName>
                 <fieldType>string</fieldType>
                 <length>3</length>
             </field>
             <field>
+                <fieldName>separator</fieldName>
+                <fieldType>string</fieldType>
+                <length>1</length>
+            </field>
+            <field>
                 <fieldName>order</fieldName>
                 <fieldType>string</fieldType>
                 <length>6</length>
+            </field>
+            <field>
+                <fieldName>separator</fieldName>
+                <fieldType>string</fieldType>
+                <length>1</length>
             </field>
             <field>
                 <fieldName>cusno</fieldName>
@@ -3434,9 +3499,19 @@
                 <maskType>1</maskType>
             </field>
             <field>
+                <fieldName>separator</fieldName>
+                <fieldType>string</fieldType>
+                <length>1</length>
+            </field>
+            <field>
                 <fieldName>imcnt</fieldName>
                 <fieldType>string</fieldType>
                 <length>6</length>
+            </field>
+            <field>
+                <fieldName>separator</fieldName>
+                <fieldType>string</fieldType>
+                <length>1</length>
             </field>
             <field>
                 <fieldName>imamt</fieldName>
@@ -3444,9 +3519,19 @@
                 <length>11</length>
             </field>
             <field>
+                <fieldName>separator</fieldName>
+                <fieldType>string</fieldType>
+                <length>1</length>
+            </field>
+            <field>
                 <fieldName>excnt</fieldName>
                 <fieldType>string</fieldType>
                 <length>6</length>
+            </field>
+            <field>
+                <fieldName>separator</fieldName>
+                <fieldType>string</fieldType>
+                <length>1</length>
             </field>
             <field>
                 <fieldName>examt</fieldName>
@@ -3454,9 +3539,19 @@
                 <length>11</length>
             </field>
             <field>
+                <fieldName>separator</fieldName>
+                <fieldType>string</fieldType>
+                <length>1</length>
+            </field>
+            <field>
                 <fieldName>orcnt</fieldName>
                 <fieldType>string</fieldType>
                 <length>6</length>
+            </field>
+            <field>
+                <fieldName>separator</fieldName>
+                <fieldType>string</fieldType>
+                <length>1</length>
             </field>
             <field>
                 <fieldName>oramt</fieldName>
@@ -3464,9 +3559,19 @@
                 <length>11</length>
             </field>
             <field>
+                <fieldName>separator</fieldName>
+                <fieldType>string</fieldType>
+                <length>1</length>
+            </field>
+            <field>
                 <fieldName>ircnt</fieldName>
                 <fieldType>string</fieldType>
                 <length>6</length>
+            </field>
+            <field>
+                <fieldName>separator</fieldName>
+                <fieldType>string</fieldType>
+                <length>1</length>
             </field>
             <field>
                 <fieldName>iramt</fieldName>
@@ -3474,19 +3579,24 @@
                 <length>11</length>
             </field>
             <field>
+                <fieldName>separator</fieldName>
+                <fieldType>string</fieldType>
+                <length>1</length>
+            </field>
+            <field>
                 <fieldName>totcnt</fieldName>
                 <fieldType>string</fieldType>
                 <length>6</length>
             </field>
             <field>
+                <fieldName>separator</fieldName>
+                <fieldType>string</fieldType>
+                <length>1</length>
+            </field>
+            <field>
                 <fieldName>totamt</fieldName>
                 <fieldType>string</fieldType>
                 <length>11</length>
-            </field>
-            <field>
-                <fieldName>filler</fieldName>
-                <fieldType>string</fieldType>
-                <length>3</length>
             </field>
         </body>
         <footer>
@@ -4398,7 +4508,7 @@
             <field>
                 <fieldName>acxrt</fieldName>
                 <fieldType>string</fieldType>
-                <length>9</length>
+                <length>13</length>
             </field>
             <field>
                 <fieldName>separator</fieldName>
@@ -4408,7 +4518,7 @@
             <field>
                 <fieldName>xcus</fieldName>
                 <fieldType>string</fieldType>
-                <length>9</length>
+                <length>13</length>
             </field>
             <field>
                 <fieldName>separator</fieldName>
@@ -7535,7 +7645,7 @@
             <field>
                 <fieldName>bintr</fieldName>
                 <fieldType>COMP</fieldType>
-                <length>4</length>
+                <length>4.5</length>
                 <decimal>6</decimal>
             </field>
             <field>
@@ -7571,7 +7681,7 @@
             <field>
                 <fieldName>newintr</fieldName>
                 <fieldType>COMP</fieldType>
-                <length>4</length>
+                <length>4.5</length>
                 <decimal>6</decimal>
             </field>
             <field>
