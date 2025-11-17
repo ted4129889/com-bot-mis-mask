@@ -22,7 +22,8 @@ public interface CobolFileProcessor {
 
     /** 分批處理資料(含表頭表尾) */
     public void parseCobolWithOptionalHeaderFooter(
-            byte[] data,
+//            byte[] data,
+            String inputFile,
             List<CobolField> layoutHeader,
             List<CobolField> layoutDetail,
             List<CobolField> layoutFooter,

@@ -2,6 +2,7 @@
 package com.bot.mask.util.cobol;
 
 import com.bot.mask.log.LogProcess;
+import com.bot.mask.util.text.FormatData;
 import com.bot.txcontrol.config.logger.ApLogHelper;
 import com.bot.txcontrol.eum.LogType;
 import com.bot.txcontrol.util.text.astart.AstarUtils;
@@ -23,8 +24,10 @@ public class CobolRecordDecoder {
 
     @Autowired
     AstarUtils astarUtils;
-
+    @Autowired
+    FormatData formatData;
     private final String SPACE = " ";
+    private final String CHARSET_MS950 = "MS950";
 
     /**
      * 使用hex， 處理資料(Binary)
@@ -33,7 +36,7 @@ public class CobolRecordDecoder {
         Map<String, String> result = new LinkedHashMap<>();
         String hexStr = bytesToHex(data).replace(SPACE, "");
 
-        LogProcess.debug(log, "[DEBUG FasXXXX FIle ] decodeBinary bytesToHex : {}", hexStr);
+        LogProcess.debug(log, "[DEBUG decodeBinary FasXXXX FIle ] decodeBinary bytesToHex : {}", hexStr);
         int hexCursor = 0;
         double byteCursor = 0.0;
         int tmpType = 0;
@@ -49,7 +52,7 @@ public class CobolRecordDecoder {
             if (field.type == CobolField.Type.COMP) {
 
                 String hexSlice = hexStr.substring(hexCursor, hexCursor + hexLen);
-                LogProcess.debug(log, "[DEBUG FasXXXX FIle ] Field: {}, Type: {}, Length: {} , hexValue: {}", field.name, field.type, field.digits,hexSlice);
+                LogProcess.debug(log, "[DEBUG decodeBinary FasXXXX FIle ] Field: {}, Type: {}, Length: {} , hexValue: {}", field.name, field.type, field.digits,hexSlice);
 
                 String value;
 
@@ -74,7 +77,7 @@ public class CobolRecordDecoder {
                 byte[] fieldBytes =
                         Arrays.copyOfRange(
                                 data, (int) byteCursor, (int) (byteCursor + field.digits));
-                LogProcess.debug(log, "[DEBUG FasXXX FIle] Field: {}, Type: {}, Length: {} , fieldBytes: {}", field.name, field.type, field.digits,fieldBytes);
+                LogProcess.debug(log, "[DEBUG decodeBinary FasXXX FIle] Field: {}, Type: {}, Length: {} , fieldBytes: {}", field.name, field.type, field.digits,fieldBytes);
 
                 Object value;
                 String resultX = "";
@@ -94,32 +97,20 @@ public class CobolRecordDecoder {
                             Charset charset;
                             if (allAsciiPrintable(fieldBytes)) {
                                 charset = StandardCharsets.US_ASCII;
+                                value = new String(fieldBytes, charset).trim();
                             } else if (looksLikeEBCDIC(fieldBytes)) {
                                 charset = Charset.forName("Cp1047");
+                                value = new String(fieldBytes, charset).trim();
                             } else {
-                                charset = Charset.forName("MS950");
+                                charset = Charset.forName(CHARSET_MS950);
+                                value = new String(astarUtils.utf8ToBIG5(astarUtils.burToUTF8(fieldBytes)), charset);
                             }
 
-                            value = new String(fieldBytes, charset).trim();
+                            LogProcess.debug(log, "[DEBUG decodeBinary FasXXX FIle] field.digits: {} vs. Length: {} ", field.digits,formatData.getDisplayWidth(value.toString()));
 
-                            if ("MS950".equalsIgnoreCase(charset.toString())) {
-                                byte[] d =  this.astarUtils.utf8ToBIG5(value.toString());
-                                if (isBadBig5Bytes(d, value.toString())) {
-                                    value = new String(fieldBytes, charset).trim();
-                                }
-
-                            } else if ("BIG5".equalsIgnoreCase(charset.toString())) {
-                                byte[] d =  this.astarUtils.utf8ToBIG5(value.toString());
-                                if (isBadBig5Bytes(d, value.toString())) {
-                                    value = new String(fieldBytes, charset).trim();
-                                }
-
-                            } else if ("BUR".equalsIgnoreCase(charset.toString())) {
-                                value = this.astarUtils.utf8ToBUR(value.toString());
-                            }
-
-                            int diff = (int) field.digits - value.toString().length();
-                            resultX = SPACE.repeat(diff) + value;
+                            int diff = (int) field.digits - formatData.getDisplayWidth(value.toString());
+                            //通常結果為字串(空白往後補)
+                            resultX =  value + SPACE.repeat(diff);
 
                         }
                         break;
@@ -133,7 +124,7 @@ public class CobolRecordDecoder {
                 byteCursor += byteLen;
                 hexCursor = (int) (byteCursor * 2);
             }
-            LogProcess.debug(log,"[DEBUG FasXXXX FIle ] type = {},Value = {}",tmpType,resultVal);
+            LogProcess.debug(log,"[DEBUG decodeBinary FasXXXX FIle ] type = {},Value = {}",tmpType,resultVal);
 
         }
 
@@ -148,7 +139,7 @@ public class CobolRecordDecoder {
 
         Map<String, String> result = new LinkedHashMap<>();
         int cursor = 0;
-        LogProcess.debug(log, "[DEBUG FasXXXX FIle ] decodeAscii bytesToHex : {}",  bytesToHex(data).replace(SPACE, ""));
+        LogProcess.debug(log, "[DEBUG decodeAscii FasXXXX FIle ] decodeAscii bytesToHex : {}",  bytesToHex(data).replace(SPACE, ""));
 
         for (CobolField field : layout) {
             int len = (int) field.getDigits();
@@ -156,7 +147,7 @@ public class CobolRecordDecoder {
 
             String hexStr = bytesToHex(fieldBytes).replace(SPACE, "");
 
-            LogProcess.debug(log, "[DEBUG FasXXXX FIle ] Field: {}, Type: {}, Length: {} , hexValue: {}", field.name, field.type, field.digits,hexStr);
+            LogProcess.debug(log, "[DEBUG decodeAscii FasXXXX FIle ] Field: {}, Type: {}, Length: {} , hexValue: {}", field.name, field.type, field.digits,hexStr);
 
             String val = astarUtils.burToUTF8(fieldBytes);
             // 判斷數值正負號
@@ -167,14 +158,14 @@ public class CobolRecordDecoder {
             String convertVal3 = checkHexStartEndAndPad(hexStr, convertVal2);
             // 最後長度計算
             String convertVal4 = padToHalfWidthLength(convertVal3, (int) field.digits, field.type);
-            LogProcess.debug(log,  "[DEBUG FasXXXX FIle ] Convert Value Processing : {} => {} => {} => {}",  convertVal1,convertVal2,convertVal3,convertVal4);
+            LogProcess.debug(log,  "[DEBUG decodeAscii FasXXXX FIle ] Convert Value Processing : {} => {} => {} => {}",  convertVal1,convertVal2,convertVal3,convertVal4);
 
             result.put(field.getName(), convertVal4);
 
             cursor += len;
         }
 
-        LogProcess.debug(log,  "[DEBUG FasXXXX FIle ] Hex Conv Result:{}", result);
+        LogProcess.debug(log,  "[DEBUG decodeAscii FasXXXX FIle ] Hex Conv Result:{}", result);
 
         return result;
     }
@@ -197,9 +188,11 @@ public class CobolRecordDecoder {
             String hexStr = bytesToHex(fieldBytes).replace(SPACE, "");
             LogProcess.debug(log, "[DEBUG FasXXXX FIle ] Field: {}, Type: {}, Length: {} , hexValue: {}", field.name, field.type, field.digits,hexStr);
 
+
+
             String val;
             try {
-                val = new String(fieldBytes, "MS950");
+                val = new String(fieldBytes, CHARSET_MS950);
             } catch (Exception e) {
                 val = ""; // fallback
                 ApLogHelper.error(
@@ -253,7 +246,11 @@ public class CobolRecordDecoder {
             digits = hex;
             digitCount = totalHexLen;
         }
+        if(sign.length() == 1 && digits.length() == 0){
+            return " ";
+        }
 
+        ApLogHelper.info(log, false, LogType.NORMAL.getCode(), "[DEBUG] sign:{},digits:{}", sign, digits);
         BigDecimal result = new BigDecimal(sign + digits);
         result = result.movePointLeft(decimal);
 
@@ -533,7 +530,6 @@ public class CobolRecordDecoder {
 
     /** 判斷與剔除無法正常編碼的字元 */
     private String filterUnencodable(String input) {
-        // TODO 因為目前轉碼只有UTF8的版本，若astarUtils有更新BIG5 就可以不用這段
         Charset big5 = Charset.forName("BIG5");
         CharsetEncoder encoder = big5.newEncoder();
         StringBuilder sb = new StringBuilder();
@@ -644,34 +640,4 @@ public class CobolRecordDecoder {
         return data;
     }
 
-
-    private boolean isBadBig5Bytes(byte[] data, String original) {
-        if (original == null) return false; // 上層已處理 null/空行
-        if (data == null || data.length == 0) {
-            return !original.isEmpty(); // 有內容卻沒 bytes → 異常
-        }
-
-        // 如果超過一半以上都是 0x00，很明顯不對
-        int nulCount = 0;
-        for (byte b : data) {
-            if (b == 0x00) nulCount++;
-        }
-        if (nulCount * 2 >= data.length) {
-            return true;
-        }
-
-        // 嘗試用 MS950 解回來，如果幾乎都是空白/不可見，但原字串不是，也視為異常
-        try {
-            String roundTrip = new String(data, "MS950");
-
-            // 都是空白/控制碼，但原本有實際字
-            if (!original.trim().isEmpty() && roundTrip.trim().isEmpty()) {
-                return true;
-            }
-        } catch (Exception e) {
-            return true; // 連解都解不了也當壞資料
-        }
-
-        return false;
-    }
 }

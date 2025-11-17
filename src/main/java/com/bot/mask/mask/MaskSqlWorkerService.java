@@ -329,15 +329,15 @@ public class MaskSqlWorkerService {
             String existingDate = m.group(2);
             String replacement;
 
-            if (existingDate == null) {
-                replacement = (batchDate != null && !batchDate.isBlank())
-                        ? dbName + "_" + batchDate
-                        : dbName;
-            } else {
-                replacement = (batchDate != null && !batchDate.isBlank())
-                        ? dbName + "_" + batchDate
-                        : dbName + "_" + existingDate;
-            }
+//            if (existingDate == null) {
+//                replacement = (batchDate != null && !batchDate.isBlank())
+//                        ? dbName + "_" + batchDate
+//                        : dbName;
+//            } else {
+            replacement = (batchDate != null && !batchDate.isBlank())
+                    ? dbName + "_" + existingDate
+                    : dbName;
+//            }
             m.appendReplacement(sb, replacement);
         }
         m.appendTail(sb);

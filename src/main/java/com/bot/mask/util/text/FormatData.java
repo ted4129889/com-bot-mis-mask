@@ -171,7 +171,7 @@ public class FormatData {
     public int getDisplayWidth(String str) {
         int length = 0;
         for (char c : str.toCharArray()) {
-            if (isChinese(c) || isFullWidthSpace(c)) {
+            if (isChinese(c) || isFullWidthSpace(c) || isFullWidthChar(c)) {
                 length += 2;
             } else {
                 length += 1;
@@ -180,15 +180,8 @@ public class FormatData {
         return length;
     }
 
-    // 判斷是否為中文
-    public boolean isChinese(char c) {
-        Character.UnicodeBlock ub = Character.UnicodeBlock.of(c);
-        return ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS
-                || ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A
-                || ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B
-                || ub == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS
-                || ub == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS_SUPPLEMENT;
-    }
+
+
 
 
     /**
@@ -218,6 +211,16 @@ public class FormatData {
         }
 
         return result.toString();
+    }
+
+    // 判斷是否為中文
+    public boolean isChinese(char c) {
+        Character.UnicodeBlock ub = Character.UnicodeBlock.of(c);
+        return ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS
+                || ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A
+                || ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B
+                || ub == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS
+                || ub == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS_SUPPLEMENT;
     }
 
 

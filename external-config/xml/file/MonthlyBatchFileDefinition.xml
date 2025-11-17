@@ -7805,7 +7805,7 @@
                 <decimal>0</decimal>
             </field>
             <field>
-                <fieldName>filler</fieldName>
+                <fieldName>charcd2</fieldName>
                 <fieldType>COMP</fieldType>
                 <length>0.5</length>
                 <decimal>0</decimal>
@@ -7838,13 +7838,13 @@
             <field>
                 <fieldName>dinum1</fieldName>
                 <fieldType>COMP</fieldType>
-                <length>9</length>
+                <length>8.5</length>
                 <decimal>1</decimal>
             </field>
             <field>
                 <fieldName>dinum2</fieldName>
                 <fieldType>COMP</fieldType>
-                <length>9</length>
+                <length>8.5</length>
                 <decimal>1</decimal>
             </field>
             <field>
@@ -7880,63 +7880,45 @@
         </header>
         <body>
             <field>
+                <fieldName>swfcd</fieldName>
+                <fieldType>X</fieldType>
+                <length>11</length>
+                <decimal>0</decimal>
+            </field>
+            <field>
                 <fieldName>yymm</fieldName>
                 <fieldType>COMP</fieldType>
                 <length>3</length>
                 <decimal>0</decimal>
             </field>
             <field>
-                <fieldName>swfbkcd</fieldName>
-                <fieldType>X</fieldType>
-                <length>4</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>swfnal</fieldName>
-                <fieldType>X</fieldType>
-                <length>2</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>swfloc</fieldName>
-                <fieldType>X</fieldType>
-                <length>2</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>swfbrno</fieldName>
+                <fieldName>aptype</fieldName>
                 <fieldType>X</fieldType>
                 <length>3</length>
                 <decimal>0</decimal>
             </field>
             <field>
-                <fieldName>aptyp</fieldName>
+                <fieldName>aptypenm</fieldName>
                 <fieldType>X</fieldType>
-                <length>3</length>
+                <length>14</length>
                 <decimal>0</decimal>
             </field>
             <field>
-                <fieldName>curcd</fieldName>
+                <fieldName>apcode</fieldName>
                 <fieldType>COMP</fieldType>
-                <length>1</length>
-                <decimal>0</decimal>
-            </field>
-            <field>
-                <fieldName>amount</fieldName>
-                <fieldType>COMP</fieldType>
-                <length>7</length>
+                <length>0.5</length>
                 <decimal>0</decimal>
             </field>
             <field>
                 <fieldName>cnt</fieldName>
                 <fieldType>COMP</fieldType>
-                <length>4</length>
+                <length>3.5</length>
                 <decimal>0</decimal>
             </field>
             <field>
-                <fieldName>brno</fieldName>
+                <fieldName>amt</fieldName>
                 <fieldType>COMP</fieldType>
-                <length>1.5</length>
+                <length>5.5</length>
                 <decimal>0</decimal>
             </field>
             <field>
@@ -11423,7 +11405,7 @@
         </body>
         <footer></footer>
     </data>
-<!--    20251106 因為檔名給錯，這段先補上-->
+    <!--    20251106 因為檔名給錯，這段先補上-->
     <data fileName="ConvFasCmsdbMlynum">
         <header></header>
         <body>
@@ -11456,7 +11438,7 @@
         </body>
         <footer></footer>
     </data>
-<!--    單純轉檔用-->
+    <!--    單純轉檔用-->
     <data fileName="ConvFasPbckacno">
         <header></header>
         <body>
@@ -11556,86 +11538,86 @@
     <data fileName="ConvFasMisdbAptab">
         <header></header>
         <body>
-        <field>
-            <fieldName>acapno</fieldName>
-            <fieldType>string</fieldType>
-            <length>6</length>
-        </field>
-        <field>
-            <fieldName>acapnoch</fieldName>
-            <fieldType>string</fieldType>
-            <length>32</length>
-        </field>
-        <field>
-            <fieldName>acapno1ch</fieldName>
-            <fieldType>string</fieldType>
-            <length>30</length>
-        </field>
-        <field>
-            <fieldName>acapno2ch</fieldName>
-            <fieldType>string</fieldType>
-            <length>30</length>
-        </field>
-        <field>
-            <fieldName>item_1</fieldName>
-            <fieldType>string</fieldType>
-            <length>22</length>
-        </field>
-        <field>
-            <fieldName>item_2</fieldName>
-            <fieldType>string</fieldType>
-            <length>22</length>
-        </field>
-        <field>
-            <fieldName>item_3</fieldName>
-            <fieldType>string</fieldType>
-            <length>22</length>
-        </field>
-        <field>
-            <fieldName>maint</fieldName>
-            <fieldType>string</fieldType>
-            <length>1</length>
-        </field>
-        <field>
-            <fieldName>acapno1</fieldName>
-            <fieldType>string</fieldType>
-            <length>2</length>
-        </field>
-        <field>
-            <fieldName>acapno2</fieldName>
-            <fieldType>string</fieldType>
-            <length>2</length>
-        </field>
-        <field>
-            <fieldName>almapno1</fieldName>
-            <fieldType>string</fieldType>
-            <length>2</length>
-        </field>
-        <field>
-            <fieldName>almapno2</fieldName>
-            <fieldType>string</fieldType>
-            <length>2</length>
-        </field>
-        <field>
-            <fieldName>almapno3</fieldName>
-            <fieldType>string</fieldType>
-            <length>2</length>
-        </field>
-        <field>
-            <fieldName>pattern2</fieldName>
-            <fieldType>string</fieldType>
-            <length>2</length>
-        </field>
-        <field>
-            <fieldName>xval</fieldName>
-            <fieldType>string</fieldType>
-            <length>6</length>
-        </field>
-        <field>
-            <fieldName>yval</fieldName>
-            <fieldType>string</fieldType>
-            <length>3</length>
-        </field>
+            <field>
+                <fieldName>acapno</fieldName>
+                <fieldType>string</fieldType>
+                <length>6</length>
+            </field>
+            <field>
+                <fieldName>acapnoch</fieldName>
+                <fieldType>string</fieldType>
+                <length>32</length>
+            </field>
+            <field>
+                <fieldName>acapno1ch</fieldName>
+                <fieldType>string</fieldType>
+                <length>30</length>
+            </field>
+            <field>
+                <fieldName>acapno2ch</fieldName>
+                <fieldType>string</fieldType>
+                <length>30</length>
+            </field>
+            <field>
+                <fieldName>item_1</fieldName>
+                <fieldType>string</fieldType>
+                <length>22</length>
+            </field>
+            <field>
+                <fieldName>item_2</fieldName>
+                <fieldType>string</fieldType>
+                <length>22</length>
+            </field>
+            <field>
+                <fieldName>item_3</fieldName>
+                <fieldType>string</fieldType>
+                <length>22</length>
+            </field>
+            <field>
+                <fieldName>maint</fieldName>
+                <fieldType>string</fieldType>
+                <length>1</length>
+            </field>
+            <field>
+                <fieldName>acapno1</fieldName>
+                <fieldType>string</fieldType>
+                <length>2</length>
+            </field>
+            <field>
+                <fieldName>acapno2</fieldName>
+                <fieldType>string</fieldType>
+                <length>2</length>
+            </field>
+            <field>
+                <fieldName>almapno1</fieldName>
+                <fieldType>string</fieldType>
+                <length>2</length>
+            </field>
+            <field>
+                <fieldName>almapno2</fieldName>
+                <fieldType>string</fieldType>
+                <length>2</length>
+            </field>
+            <field>
+                <fieldName>almapno3</fieldName>
+                <fieldType>string</fieldType>
+                <length>2</length>
+            </field>
+            <field>
+                <fieldName>pattern2</fieldName>
+                <fieldType>string</fieldType>
+                <length>2</length>
+            </field>
+            <field>
+                <fieldName>xval</fieldName>
+                <fieldType>string</fieldType>
+                <length>6</length>
+            </field>
+            <field>
+                <fieldName>yval</fieldName>
+                <fieldType>string</fieldType>
+                <length>3</length>
+            </field>
         </body>
         <footer></footer>
     </data>

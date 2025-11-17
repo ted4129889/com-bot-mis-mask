@@ -18,7 +18,7 @@ repositories {
 dependencies {
 //    implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation files('libs/TBConvert-0.0.1.jar')
-    implementation files('libs/txcontrol-1.0.0-plain.jar')
+//    implementation files('libs/txcontrol-1.0.0-plain.jar')
 
 
 //    testImplementation platform('org.junit:junit-bom:5.9.1')

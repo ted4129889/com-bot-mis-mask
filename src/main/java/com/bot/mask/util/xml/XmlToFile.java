@@ -10,8 +10,6 @@ import com.bot.mask.util.files.TextFileUtil;
 import com.bot.mask.util.xml.vo.XmlData;
 import com.bot.mask.util.xml.vo.XmlField;
 import com.bot.mask.util.xml.vo.XmlHeaderBodyFooter;
-import com.bot.txcontrol.config.logger.ApLogHelper;
-import com.bot.txcontrol.eum.LogType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -102,8 +100,8 @@ public class XmlToFile {
 
             String outputConvert = fileName.replace(TXT_EXTENSION, "") + ".Conv";
 
-            ApLogHelper.info(
-                    log, false, LogType.NORMAL.getCode(), "read input file = {}", inputPath);
+            LogProcess.info(
+                    log, "read input file = {}", inputPath);
 
 //            // 判斷檔案型態使用
 //            byte[] fileBytes = new byte[0];
@@ -115,7 +113,7 @@ public class XmlToFile {
 //                textFileUtil.createEmptyFileIfNotExist(outputConvert);
 //            }
 
-            int partDataSize = 4096;
+            int partDataSize = 2048;
             byte[] fileBytes;
 
             try (InputStream is = Files.newInputStream(inputPath)) {
@@ -131,6 +129,8 @@ public class XmlToFile {
                 fileBytes = new byte[0];
             }
 
+            LogProcess.info(log, "fileBytes  = " + bytesToHex(fileBytes));
+
             // 整批資料處理
             //            List<Map<String, String>> parsed = processor.parse(fileBytes, layout);
             // 分批資料處理
@@ -140,117 +140,14 @@ public class XmlToFile {
                     xmlFieldBodyList,
                     xmlFieldFooterList,
                     fileBytes,
+                    inputPath.toString(),
                     outputConvert);
 
         } catch (Exception e) {
-            LogProcess.error(log, "readCobolFile error = " + e.getMessage(),e);
+            LogProcess.error(log, "readCobolFile error = " + e.getMessage(), e);
         }
 
     }
-
-
-//    /**
-//     * 讀取Cobol來源檔案轉碼並輸出 <br>
-//     * COBOL預設的編碼：EBCDIC + Binary (Packed Decimal)
-//     *
-//     * @param fileName  檔案名稱(XML與TXT同名)
-//     * @param batchDate 批次日期
-//     * @return List<Map < String, String>> 查询结果的列表
-//     */
-//    public void readCobolFileConvToTextFile(String fileName, int batchDate) {
-//
-//        LogProcess.info(log, "XmlToFile readCobolFileConvertToTextFile...");
-//
-//        List<Map<String, String>> tmpList = new ArrayList<>();
-//        try {
-//            // XML檔案路徑(讀取)
-//            String xml = xmlInputFileDir + fileName;
-//
-//            batchDate = batchDate < 19110000 ? batchDate + 19110000 : batchDate;
-//
-//            // 解析XML檔案格式
-//            XmlMapper xmlMapper = SecureXmlMapper.createXmlMapper();
-//
-//            // 路徑驗證
-//            File validXmlPath = new File(INPUT_XML_PATH);
-//
-//            /* FORTIFY: The file path is securely controlled and validated */
-//            File file = new File(xml);
-//
-//            if (!file.exists()) {
-//                throw new FileNotFoundException("File not found: " + xml);
-//            }
-//
-//            if (!file.getCanonicalPath().startsWith(validXmlPath.getCanonicalPath())) {
-//                throw new SecurityException("Unauthorized path");
-//            }
-//
-//            File confirmFile = new File(INPUT_XML_PATH + fileName);
-//
-//            XmlData xmlData = xmlMapper.readValue(confirmFile, XmlData.class);
-//
-//            // 取得XML定義好的欄位規格
-//            List<XmlField> xmlFieldHeader = xmlData.getHeader().getFieldList();
-//
-//            // 取得XML定義好的欄位規格
-//            List<XmlField> xmlFieldBody = xmlData.getBody().getFieldList();
-//
-//            // 取得XML定義好的欄位規格
-//            List<XmlField> xmlFieldFooter = xmlData.getFooter().getFieldList();
-//
-//            LogProcess.info(log,
-//                    "read xmlFieldHeader = {}",
-//                    xmlFieldHeader);
-//            LogProcess.info(log, "read xmlFieldBody = {}", xmlFieldBody);
-//            LogProcess.info(log,
-//                    "read xmlFieldFooter = {}",
-//                    xmlFieldFooter);
-//
-//            // TXT檔案路徑 讀取
-//            fileName = inputFileDir + batchDate + SLASH + fileName;
-//
-//            Path targetPath = Path.of(fileName);
-//            // 先建立父目錄
-//            Files.createDirectories(targetPath.getParent());
-//            // 確認檔案路徑正確
-//            fileName = FilenameUtils.normalize(fileName);
-//            // 定義檔欄位組裝
-//            List<XmlField> allFieldList = new ArrayList<>();
-//            // 表頭
-//            allFieldList.addAll(xmlFieldHeader);
-//            // 內容
-//            allFieldList.addAll(xmlFieldBody);
-//            // 表尾
-//            allFieldList.addAll(xmlFieldFooter);
-//
-//            // CobolFileProcessor processor =cobolProcessorFactory.getProcessor(fileBytes);
-//            CobolFileProcessor processor = cobolProcessorFactory.getProcessor(allFieldList);
-//
-//            String outputConvert =
-//                    inputFileDir + batchDate + SLASH + fileName + ".Conv";
-//
-//            LogProcess.info(log, "read input file = {}", fileName);
-//            LogProcess.info(log, "read output file = {}", outputConvert);
-//
-//            byte[] fileBytes = new byte[0];
-//            // 格式讀取錯誤或是沒
-//            try {
-//                fileBytes = Files.readAllBytes(targetPath);
-//            } catch (IOException e) {
-//
-//            }
-//
-//            // 整批資料處理
-//            //            List<Map<String, String>> parsed = processor.parse(fileBytes, layout);
-//            // 分批資料處理
-//            handleDataToFile(
-//                    processor, xmlFieldHeader, xmlFieldBody, xmlFieldFooter, fileBytes, outputConvert);
-//
-//        } catch (Exception e) {
-//            LogProcess.error(log,"readreadCobolFile error");
-//        }
-////        return tmpList;
-//    }
 
     /**
      * 處理資料 寫入檔案
@@ -260,7 +157,8 @@ public class XmlToFile {
             List<XmlField> xmlFieldHeader,
             List<XmlField> xmlFieldBody,
             List<XmlField> xmlFieldFooter,
-            byte[] fileBytes,
+            byte[] partFileBytes,
+            String inputFileDir,
             String outputConvertFile) {
 
 
@@ -270,7 +168,7 @@ public class XmlToFile {
         List<CobolField> layoutFooter = convertXmlToCobolFields(xmlFieldFooter);
 
 
-        EncodingType type = detectEncodingType(fileBytes);
+        EncodingType type = detectEncodingType(partFileBytes);
         LogProcess.info(log, "type = {}", type);
 
         boolean useMs950Handle = false;
@@ -283,12 +181,13 @@ public class XmlToFile {
         } else {
             useMs950Handle = false;
         }
+        LogProcess.info(log, "useMs950Handle = {}", useMs950Handle);
 
 
         // 分批資料處理
         List<Map<String, String>> parsedBatch = new ArrayList<>(BATCH_LIMIT);
         processor.parseCobolWithOptionalHeaderFooter(
-                fileBytes,
+                inputFileDir,
                 layoutHeader,
                 layoutBody,
                 layoutFooter,
@@ -319,8 +218,8 @@ public class XmlToFile {
                         writeFileCobolToText(List.of(tailRow), outputConvertFile, true);
                     }
                 },
-                1,
-                1
+                layoutHeader.isEmpty() ? 0 : 1,
+                layoutFooter.isEmpty() ? 0 : 1
         );
 
 
@@ -547,4 +446,11 @@ public class XmlToFile {
         return EncodingType.UNKNOWN;
     }
 
+    public String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02X", b));
+        }
+        return sb.toString();
+    }
 }

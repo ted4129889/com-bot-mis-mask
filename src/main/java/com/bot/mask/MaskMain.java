@@ -6,16 +6,12 @@ import com.bot.mask.ui.GuiApp;
 import javafx.application.Application;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.ApplicationContext;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.context.annotation.ComponentScan;
 
 
-@SpringBootApplication(scanBasePackages = {
-        "com.bot.mask",
-        "com.bot.txcontrol.util"
-})
-
+@SpringBootApplication(scanBasePackages = "com.bot")
+//@ComponentScan({"com.bot.mask", "com.bot.txcontrol.util", "com.bot.txcontrol.buffer", "com.bot.txcontrol.exception", "com.bot.txcontrol.eum"})
 public class MaskMain {
 
     public static void main(String[] args) {
