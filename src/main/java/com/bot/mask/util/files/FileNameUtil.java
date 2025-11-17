@@ -43,7 +43,7 @@ public class FileNameUtil {
             tmpFileName = tmpFileName.replace("(?i)\\.conv$", ""); // (?i) 表示不區分大小寫
             tmpFileName = tmpFileName.replace(".[yyyymmdd]", "");
             tmpFileName = tmpFileName.replace("misbh_", "");
-        }else{
+        } else {
             tmpFileName = tmpFileName.replace("misbh_", "");
             tmpFileName = tmpFileName.replace(dateRegex, ".[yyyymmdd]");
             tmpFileName = tmpFileName.replace(dateRegex2, "[yyyymmdd]");
@@ -51,20 +51,22 @@ public class FileNameUtil {
         }
 
 
-
 //        if(tmpFileName.trim().equals(xmlFileName.trim().toLowerCase())){
 
 //
 //        }
         //如果XML裡面的fileName命名是有包含Conv，表示為轉檔(一次性)，相比時要截掉Conv
-        if(xmlFileName.contains("Conv")) {
+        if (xmlFileName.contains("Conv")) {
             //XML要先去除掉CONV
             xmlFileName = xmlFileName.substring(4);
             //檔案名稱要去掉底線數字或日期
-            tmpFileName = tmpFileName.replace( ".[yyyymmdd]","");
+            tmpFileName = tmpFileName.replace(".[yyyymmdd]", "");
             tmpFileName = tmpFileName.replaceAll("_(?:[1-9]|1[0-2])$", "");
 //            System.out.println("xmlFileName = " + xmlFileName.toLowerCase());
 //            System.out.println("tmpFileName = " + tmpFileName);
+        }
+        if (tmpFileName.contains(".conv")) {
+            tmpFileName = tmpFileName.substring(0, tmpFileName.length() - 5);
         }
 
         return tmpFileName.trim().equals(xmlFileName.trim().toLowerCase());
@@ -82,7 +84,7 @@ public class FileNameUtil {
 
         // 只要名稱中包含 Faslnclfl（不分大小寫）就直接排除
         if (fileName.toLowerCase().contains("faslnclfl".toLowerCase())) {
-            LogProcess.info(log,"fileName = faslnclfl,與外送處理方式相同");
+            LogProcess.info(log, "fileName = faslnclfl,與外送處理方式相同");
             return false;
         }
 
