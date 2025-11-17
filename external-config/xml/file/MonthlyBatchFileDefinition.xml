@@ -7643,7 +7643,7 @@
             <field>
                 <fieldName>bintr</fieldName>
                 <fieldType>COMP</fieldType>
-                <length>4.5</length>
+                <length>4</length>
                 <decimal>6</decimal>
             </field>
             <field>
@@ -7679,7 +7679,7 @@
             <field>
                 <fieldName>newintr</fieldName>
                 <fieldType>COMP</fieldType>
-                <length>4.5</length>
+                <length>4</length>
                 <decimal>6</decimal>
             </field>
             <field>
