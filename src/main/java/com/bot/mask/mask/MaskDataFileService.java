@@ -136,7 +136,7 @@ public class MaskDataFileService {
             try {
                 for (XmlData xmlData : xmlDataList) {
                     String xmlFileName = xmlData.getFileName();
-
+        ;
                     //先匹配 XML內的fileName檔案名稱 和 讀取檔案的名稱相同
                     if (fileNameUtil.isFileNameMatch(inputFileName, xmlFileName)) {
 
@@ -170,7 +170,7 @@ public class MaskDataFileService {
 
 
                             //XML 有Conv 開頭的表示資料轉檔(一次性用) 需特殊處理
-                            if (xmlFileName.contains("Conv")) {
+                            if (xmlFileName.contains("Conv") || inputFilePath.contains(".Conv")) {
                                 //Conv 輸入及輸出的檔名就不用動
                                 outputFilePath = inputFilePath.replace("input", "output_mask_datafile");
                             } else {
@@ -205,9 +205,10 @@ public class MaskDataFileService {
                                 //處理中間檔
                             } else if (inputFileName.toLowerCase().startsWith("fas") || inputFileName.toLowerCase().startsWith("misbh_fas")) {
                                 //XML 有Conv 開頭的表示資料轉檔(一次性用) 需特殊處理
-                                if (xmlFileName.contains("Conv")) {
+                                if (xmlFileName.contains("Conv")  || inputFilePath.contains(".Conv")) {
                                     LogProcess.info(log, "performMasking4 inputFilePath = " + inputFilePath);
 //                                    outputData = performMasking4(inputFilePath, xmlData);
+
                                     //調整批次處理
                                     performMasking4(inputFilePath, xmlData, outputFilePath);
 

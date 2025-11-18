@@ -5265,6 +5265,7 @@
                 <fieldType>X</fieldType>
                 <length>10</length>
                 <decimal>0</decimal>
+                <maskType>1</maskType>
             </field>
             <field>
                 <fieldName>brno1</fieldName>
@@ -5311,8 +5312,8 @@
             <field>
                 <fieldName>averate</fieldName>
                 <fieldType>DISPLAY</fieldType>
-                <length>4</length>
-                <decimal>0</decimal>
+                <length>2</length>
+                <decimal>2</decimal>
             </field>
             <field>
                 <fieldName>actslp</fieldName>
@@ -5683,6 +5684,7 @@
                 <fieldType>X</fieldType>
                 <length>10</length>
                 <decimal>0</decimal>
+                <maskType>1</maskType>
             </field>
             <field>
                 <fieldName>actno</fieldName>
@@ -6861,6 +6863,7 @@
                 <fieldType>X</fieldType>
                 <length>10</length>
                 <decimal>0</decimal>
+                <maskType>1</maskType>
             </field>
             <field>
                 <fieldName>actno</fieldName>
@@ -9780,7 +9783,7 @@
         <body>
             <separator>,</separator>
             <field>
-                <fieldName>brno</fieldName>
+                <fieldName>apid</fieldName>
                 <fieldType>string</fieldType>
                 <length>3</length>
             </field>
@@ -9791,27 +9794,52 @@
                 <maskType>1</maskType>
             </field>
             <field>
-                <fieldName>alcd</fieldName>
-                <fieldType>string</fieldType>
-                <length>1</length>
-            </field>
-            <field>
-                <fieldName>yymm</fieldName>
-                <fieldType>string</fieldType>
-                <length>5</length>
-            </field>
-            <field>
                 <fieldName>sactno</fieldName>
                 <fieldType>string</fieldType>
                 <length>12</length>
             </field>
             <field>
-                <fieldName>curcd</fieldName>
+                <fieldName>alcd</fieldName>
                 <fieldType>string</fieldType>
-                <length>2</length>
+                <length>1</length>
             </field>
             <field>
                 <fieldName>apno</fieldName>
+                <fieldType>string</fieldType>
+                <length>3</length>
+            </field>
+            <field>
+                <fieldName>avalnum</fieldName>
+                <fieldType>string</fieldType>
+                <length>15</length>
+            </field>
+            <field>
+                <fieldName>avbal</fieldName>
+                <fieldType>string</fieldType>
+                <length>13</length>
+            </field>
+            <field>
+                <fieldName>avbalnt</fieldName>
+                <fieldType>string</fieldType>
+                <length>15</length>
+            </field>
+            <field>
+                <fieldName>avexrt</fieldName>
+                <fieldType>string</fieldType>
+                <length>9</length>
+            </field>
+            <field>
+                <fieldName>avintrt</fieldName>
+                <fieldType>string</fieldType>
+                <length>9</length>
+            </field>
+            <field>
+                <fieldName>bcode</fieldName>
+                <fieldType>string</fieldType>
+                <length>6</length>
+            </field>
+            <field>
+                <fieldName>brno</fieldName>
                 <fieldType>string</fieldType>
                 <length>3</length>
             </field>
@@ -9821,64 +9849,19 @@
                 <length>2</length>
             </field>
             <field>
-                <fieldName>bcode</fieldName>
-                <fieldType>string</fieldType>
-                <length>4</length>
-            </field>
-            <field>
-                <fieldName>mlybal</fieldName>
-                <fieldType>string</fieldType>
-                <length>13</length>
-            </field>
-            <field>
-                <fieldName>mlynum</fieldName>
+                <fieldName>costnumwt</fieldName>
                 <fieldType>string</fieldType>
                 <length>15</length>
             </field>
             <field>
-                <fieldName>numintr</fieldName>
+                <fieldName>costrt</fieldName>
                 <fieldType>string</fieldType>
-                <length>15</length>
+                <length>7</length>
             </field>
             <field>
-                <fieldName>mlyday</fieldName>
+                <fieldName>curcd</fieldName>
                 <fieldType>string</fieldType>
                 <length>2</length>
-            </field>
-            <field>
-                <fieldName>avbal</fieldName>
-                <fieldType>string</fieldType>
-                <length>13</length>
-            </field>
-            <field>
-                <fieldName>avintrt_i</fieldName>
-                <fieldType>string</fieldType>
-                <length>2</length>
-            </field>
-            <field>
-                <fieldName>dot</fieldName>
-                <fieldType>string</fieldType>
-                <length>1</length>
-            </field>
-            <field>
-                <fieldName>avintrt_f</fieldName>
-                <fieldType>string</fieldType>
-                <length>6</length>
-            </field>
-            <field>
-                <fieldName>avexrt_i</fieldName>
-                <fieldType>string</fieldType>
-                <length>3</length>
-            </field>
-            <field>
-                <fieldName>dot</fieldName>
-                <fieldType>string</fieldType>
-                <length>1</length>
-            </field>
-            <field>
-                <fieldName>avexrt_f</fieldName>
-                <fieldType>string</fieldType>
-                <length>5</length>
             </field>
             <field>
                 <fieldName>gins</fieldName>
@@ -9886,12 +9869,17 @@
                 <length>10</length>
             </field>
             <field>
-                <fieldName>nins</fieldName>
+                <fieldName>mlybal</fieldName>
                 <fieldType>string</fieldType>
-                <length>10</length>
+                <length>13</length>
             </field>
             <field>
-                <fieldName>costnumwt</fieldName>
+                <fieldName>mlyday</fieldName>
+                <fieldType>string</fieldType>
+                <length>2</length>
+            </field>
+            <field>
+                <fieldName>mlynum</fieldName>
                 <fieldType>string</fieldType>
                 <length>15</length>
             </field>
@@ -9901,34 +9889,14 @@
                 <length>12</length>
             </field>
             <field>
-                <fieldName>avalnum</fieldName>
+                <fieldName>netavbalnt</fieldName>
                 <fieldType>string</fieldType>
                 <length>15</length>
             </field>
             <field>
-                <fieldName>ntavalnum</fieldName>
+                <fieldName>nins</fieldName>
                 <fieldType>string</fieldType>
-                <length>15</length>
-            </field>
-            <field>
-                <fieldName>costrt_i</fieldName>
-                <fieldType>string</fieldType>
-                <length>2</length>
-            </field>
-            <field>
-                <fieldName>dot</fieldName>
-                <fieldType>string</fieldType>
-                <length>1</length>
-            </field>
-            <field>
-                <fieldName>costrt_f</fieldName>
-                <fieldType>string</fieldType>
-                <length>4</length>
-            </field>
-            <field>
-                <fieldName>avbalnt</fieldName>
-                <fieldType>string</fieldType>
-                <length>15</length>
+                <length>10</length>
             </field>
             <field>
                 <fieldName>ninsnt</fieldName>
@@ -9936,19 +9904,24 @@
                 <length>12</length>
             </field>
             <field>
-                <fieldName>netavbalnt</fieldName>
+                <fieldName>ntavalnum</fieldName>
                 <fieldType>string</fieldType>
-                <length>15</length>
+                <length>16</length>
             </field>
             <field>
-                <fieldName>apid</fieldName>
+                <fieldName>numintr</fieldName>
                 <fieldType>string</fieldType>
-                <length>3</length>
+                <length>15</length>
             </field>
             <field>
                 <fieldName>prdcd</fieldName>
                 <fieldType>string</fieldType>
                 <length>2</length>
+            </field>
+            <field>
+                <fieldName>yymm</fieldName>
+                <fieldType>string</fieldType>
+                <length>6</length>
             </field>
         </body>
         <footer>
