@@ -8002,7 +8002,7 @@
             </field>
             <field>
                 <fieldName>cdwsno</fieldName>
-                <fieldType>DISPLAY</fieldType>
+                <fieldType>X</fieldType>
                 <length>2</length>
                 <decimal>0</decimal>
             </field>
@@ -8292,7 +8292,7 @@
             </field>
             <field>
                 <fieldName>cdwsno</fieldName>
-                <fieldType>DISPLAY</fieldType>
+                <fieldType>X</fieldType>
                 <length>2</length>
                 <decimal>0</decimal>
             </field>
