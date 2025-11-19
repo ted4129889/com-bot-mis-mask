@@ -149,7 +149,12 @@ public class CobolRecordDecoder {
 
             LogProcess.debug(log, "[DEBUG decodeAscii FasXXXX FIle ] Field: {}, Type: {}, Length: {} , hexValue: {}", field.name, field.type, field.digits,hexStr);
 
+
             String val = astarUtils.burToUTF8(fieldBytes);
+
+//            Charset charset = Charset.forName(CHARSET_MS950);
+//            String val = new String(astarUtils.utf8ToBIG5(astarUtils.burToUTF8(fieldBytes)), Charset.forName(CHARSET_MS950));
+
             // 判斷數值正負號
             String convertVal1 = decodeText(val, field.decimal, field.type);
             // 無法編碼的處理

@@ -5512,8 +5512,8 @@
             <field>
                 <fieldName>averate</fieldName>
                 <fieldType>DISPLAY</fieldType>
-                <length>4</length>
-                <decimal>0</decimal>
+                <length>2</length>
+                <decimal>2</decimal>
             </field>
             <field>
                 <fieldName>actslp</fieldName>
@@ -8004,7 +8004,7 @@
             </field>
             <field>
                 <fieldName>cdwsno</fieldName>
-                <fieldType>DISPLAY</fieldType>
+                <fieldType>X</fieldType>
                 <length>2</length>
                 <decimal>0</decimal>
             </field>
@@ -8275,7 +8275,7 @@
             <field>
                 <fieldName>filler22</fieldName>
                 <fieldType>X</fieldType>
-                <length>17</length>
+                <length>50</length>
                 <decimal>0</decimal>
             </field>
         </body>
@@ -8294,7 +8294,7 @@
             </field>
             <field>
                 <fieldName>cdwsno</fieldName>
-                <fieldType>DISPLAY</fieldType>
+                <fieldType>X</fieldType>
                 <length>2</length>
                 <decimal>0</decimal>
             </field>
@@ -8566,6 +8566,12 @@
                 <fieldName>avg_counter_f</fieldName>
                 <fieldType>X</fieldType>
                 <length>1</length>
+                <decimal>0</decimal>
+            </field>
+            <field>
+                <fieldName>filler22</fieldName>
+                <fieldType>X</fieldType>
+                <length>35</length>
                 <decimal>0</decimal>
             </field>
         </body>

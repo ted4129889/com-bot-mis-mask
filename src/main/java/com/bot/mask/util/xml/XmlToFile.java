@@ -103,17 +103,8 @@ public class XmlToFile {
             LogProcess.info(
                     log, "read input file = {}", inputPath);
 
-//            // 判斷檔案型態使用
-//            byte[] fileBytes = new byte[0];
-//            // 格式讀取錯誤或是沒
-//            try {
-//                fileBytes = Files.readAllBytes(inputPath);
-//
-//            } catch (IOException e) {
-//                textFileUtil.createEmptyFileIfNotExist(outputConvert);
-//            }
 
-            int partDataSize = 2048;
+            int partDataSize = 4096;
             byte[] fileBytes;
 
             try (InputStream is = Files.newInputStream(inputPath)) {
@@ -400,7 +391,7 @@ public class XmlToFile {
         for (int i = 0; i < data.length; i++) {
             int b = data[i] & 0xFF;
 
-            // ========== EBCDIC 判斷 ==========
+            //  EBCDIC 判斷 
             if ((b >= 0xF0 && b <= 0xF9)
                     || // 數字
                     (b >= 0xC1 && b <= 0xE9)
@@ -411,7 +402,7 @@ public class XmlToFile {
                 ebcdicScore++;
             }
 
-            // ========== MS950 判斷 ==========
+            //  MS950 判斷 
             if (b >= 0x81 && b <= 0xFE && i + 1 < data.length) {
                 int b2 = data[i + 1] & 0xFF;
                 if (b2 >= 0x40 && b2 <= 0xFE && b2 != 0x7F) {
@@ -421,7 +412,7 @@ public class XmlToFile {
                 }
             }
 
-            // ========== UTF-8 判斷 ==========
+            //  UTF-8 判斷 
             if ((b & 0b10000000) == 0) {
                 utf8Score++; // ASCII
             } else if ((b & 0b11100000) == 0b11000000
@@ -438,7 +429,7 @@ public class XmlToFile {
             }
         }
 
-        // ========== 根據分數回傳 ==========
+        //  根據分數回傳 
         if (ebcdicScore > utf8Score && ebcdicScore > ms950Score) return EncodingType.EBCDIC;
         if (ms950Score > utf8Score && ms950Score > ebcdicScore) return EncodingType.MS950;
         if (utf8Score > ms950Score && utf8Score > ebcdicScore) return EncodingType.UTF8;

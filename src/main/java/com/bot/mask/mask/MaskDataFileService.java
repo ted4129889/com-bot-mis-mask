@@ -186,6 +186,10 @@ public class MaskDataFileService {
                             inputFilePath = inputFilePath;
                             outputFilePath = outputFilePath + ".Conv";
                         }
+
+                        LogProcess.info(log, "outputFilePath = " + outputFilePath);
+
+
                         List<String> outputData = new ArrayList<>();
 
                         //確認允許路徑
