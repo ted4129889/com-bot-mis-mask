@@ -1344,7 +1344,7 @@
             <field>
                 <fieldName>yyyymm</fieldName>
                 <fieldType>string</fieldType>
-                <length>5</length>
+                <length>6</length>
             </field>
             <field>
                 <fieldName>separator</fieldName>
@@ -4490,7 +4490,7 @@
             <field>
                 <fieldName>yymm</fieldName>
                 <fieldType>string</fieldType>
-                <length>5</length>
+                <length>6</length>
             </field>
             <field>
                 <fieldName>separator</fieldName>
