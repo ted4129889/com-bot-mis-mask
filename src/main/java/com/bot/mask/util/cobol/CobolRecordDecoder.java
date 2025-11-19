@@ -149,6 +149,7 @@ public class CobolRecordDecoder {
 
             LogProcess.debug(log, "[DEBUG decodeAscii FasXXXX FIle ] Field: {}, Type: {}, Length: {} , hexValue: {}", field.name, field.type, field.digits,hexStr);
 
+
             String val = astarUtils.burToUTF8(fieldBytes);
 
 //            Charset charset = Charset.forName(CHARSET_MS950);

@@ -8273,7 +8273,7 @@
             <field>
                 <fieldName>filler22</fieldName>
                 <fieldType>X</fieldType>
-                <length>17</length>
+                <length>50</length>
                 <decimal>0</decimal>
             </field>
         </body>
@@ -8564,6 +8564,12 @@
                 <fieldName>avg_counter_f</fieldName>
                 <fieldType>X</fieldType>
                 <length>1</length>
+                <decimal>0</decimal>
+            </field>
+            <field>
+                <fieldName>filler22</fieldName>
+                <fieldType>X</fieldType>
+                <length>35</length>
                 <decimal>0</decimal>
             </field>
         </body>
