@@ -859,6 +859,7 @@
                 <fieldName>cusno</fieldName>
                 <fieldType>string</fieldType>
                 <length>10</length>
+                <maskType>1</maskType>
             </field>
             <field>
                 <fieldName>separator</fieldName>
