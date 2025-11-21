@@ -1,7 +1,6 @@
 /* (C) 2024 */
 package com.bot.mask.util.xml.mask;
 
-import com.bot.mask.log.LogProcess;
 import com.bot.mask.util.text.FormatData;
 import com.bot.mask.util.xml.mask.xmltag.Field;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +22,7 @@ public class DataMasker {
     private static final String ID_NUMBER = "1"; // 身分證字號或統一(居留)證號
     private static final String BANK_ACCOUNT_NUMBER = "2"; // 銀行帳戶之號碼 (不遮)
     private static final String CREDIT_CARD_NUMBER = "3"; // 信用卡或簽帳卡之號碼
-    private static final String NAME = "4"; // 姓名
+    private static final String NAME = "4"; // 姓名(遮蔽補到底)
     private static final String ADDRESS = "5"; // 地址
     private static final String EMAIL_ADDRESS = "6"; // 電子郵遞地址
     private static final String PHONE_NUMBER = "7"; // 電話號碼
@@ -253,12 +252,32 @@ public class DataMasker {
      * @param value the value to be masked
      * @return the masked value
      */
+//    private String maskAllButFirst(String value) {
+//        // 第一個字不遮蔽，其餘以*代替
+//        //如果字串中 全部皆為數字，則使用9，否則使用* 代替
+//        String replaceObj = isAllDigitsOrDecimal(value) ? STR_NINE : STR_STAR;
+//
+//        return value.length() > 1 ? value.charAt(0) + formatData.getMaskedValue(value.substring(1), replaceObj) : value;
+//    }
+
+
     private String maskAllButFirst(String value) {
-        // 第一個字不遮蔽，其餘以*代替
-        //如果字串中 全部皆為數字，則使用9，否則使用* 代替
+        if (value == null) return null;
+
         String replaceObj = isAllDigitsOrDecimal(value) ? STR_NINE : STR_STAR;
 
-        return value.length() > 1 ? value.charAt(0) + formatData.getMaskedValue(value.substring(1), replaceObj) : value;
+        //前六位不處理
+        String prefix = value.substring(0, 1);
+        //第六位後處理遮蔽
+        String suffix = value.substring(1);
+        //補滿位置
+        String maskedTail = replaceObj.repeat(formatData.getDisplayWidth(suffix));
+
+
+
+        // 補回原本長度 (右側空白)
+
+        return prefix + maskedTail;
     }
 
     /**
@@ -267,9 +286,45 @@ public class DataMasker {
      * @param value the address to be masked
      * @return the masked address
      */
+//    private String maskAddress(String value) {
+//
+//        // 前六個字不遮蔽，其餘以*代替
+//        return value.length() > 6 ? value.substring(0, 6) + formatData.getMaskedValue(value.substring(6), "*") : value;
+//    }
     private String maskAddress(String value) {
-        // 前六個字不遮蔽，其餘以*代替
-        return value.length() > 6 ? value.substring(0, 6) + formatData.getMaskedValue(value.substring(6), "*") : value;
+        if (value == null) return null;
+
+        //前六位不處理
+        String prefix = value.substring(0, 6);
+        //第六位後處理遮蔽
+        String suffix = value.substring(6);
+        //第六位後的字串總長度
+        int suffixLen = formatData.getDisplayWidth(suffix);
+
+        //需要遮蔽的部分
+        String maskedPart = suffix.trim();
+        String maskedTail = "*".repeat(formatData.getDisplayWidth(maskedPart));
+
+        // 補回原本長度 (右側空白)
+
+        return prefix + padRight(maskedTail, suffixLen);
+    }
+
+
+    private String getFirstNCharsConsideringFullWidth(String text, int n) {
+        int count = 0;
+        int index = 0;
+
+        for (char c : text.toCharArray()) {
+            // 每遇到一個字元就算 1「字」
+            count++;
+            index++;
+
+            if (count == n) {
+                break;
+            }
+        }
+        return text.substring(0, index);
     }
 
     /**
@@ -290,10 +345,32 @@ public class DataMasker {
      * @return the masked phone number
      */
     private String maskPhoneNumber(String value) {
-        // 前四個字不遮蔽，其餘以9代替
-        return value.length() > 4
-                ? value.substring(0, 4) + "9".repeat(value.trim().length() - 4)
-                : value;
+        if (value == null) return null;
+        // 先記原始長度
+        int originalLen = value.length();
+        // TRIM 後的內容
+        String t = value.trim();
+
+        if (t.length() <= 4) {
+            // TRIM 後長度 <= 4 → 不需要遮罩
+            // 但仍需補回原本長度
+            return padRight(t, originalLen);
+        }
+
+        // 前 4 位不遮蔽
+        String prefix = t.substring(0, 4);
+
+        // 後面要補 9（依照 TRIM 後的長度計算）
+        String maskedTrim = prefix + "9".repeat(t.length() - 4);
+
+        // 最後補空白 → 總長度保持和原 value 一樣
+        return padRight(maskedTrim, originalLen);
+    }
+
+    // 右側補空白
+    private String padRight(String s, int totalLen) {
+        if (s.length() >= totalLen) return s;
+        return s + " ".repeat(totalLen - s.length());
     }
 
     /**
