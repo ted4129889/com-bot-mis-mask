@@ -257,67 +257,6 @@ public class MaskSqlWorkerService {
         return stmt;
     }
 
-    private Map<String, List<String>> extractTableAndColumnsFromFile(String filePath) {
-        Map<String, List<String>> result = new HashMap<>();
-
-        try (BufferedReader reader = Files.newBufferedReader(Paths.get(filePath), CHARSET)) {
-            StringBuilder sqlBuilder = new StringBuilder();
-            String line;
-
-            // 找第一個 INSERT INTO
-            while ((line = reader.readLine()) != null) {
-                line = line.trim();
-                if (line.toLowerCase().startsWith("insert into")) {
-                    sqlBuilder.append(line);
-                    // 拼接後續行直到找到 ") VALUES"
-                    while (!line.toLowerCase().contains(") values") && (line = reader.readLine()) != null) {
-                        sqlBuilder.append(" ").append(line.trim());
-                    }
-                    break;
-                }
-            }
-
-            String sql = sqlBuilder.toString();
-            if (sql.isEmpty()) {
-                LogProcess.warn(log, " 未找到任何 INSERT INTO 語法");
-                return result;
-            }
-
-            // 解析 tableName（允許 schema.table 格式）
-            Pattern tablePattern = Pattern.compile("(?i)insert\\s+into\\s+([\\w.\\-\\[\\]\"]+)\\s*\\(");
-            Matcher tableMatcher = tablePattern.matcher(sql);
-            String tableName = null;
-            if (tableMatcher.find()) {
-                tableName = tableMatcher.group(1)
-                        .replaceAll("[\\[\\]\"]", ""); // 去掉 [] 與引號
-
-            }
-
-            // 解析欄位列表 (col1, col2, ...)
-            Pattern columnPattern = Pattern.compile("\\(([^)]+)\\)\\s*values", Pattern.CASE_INSENSITIVE);
-            Matcher columnMatcher = columnPattern.matcher(sql);
-            List<String> columns = new ArrayList<>();
-            if (columnMatcher.find()) {
-                String columnPart = columnMatcher.group(1);
-                columns = Arrays.stream(columnPart.split(","))
-                        .map(String::trim)
-                        .map(c -> c.replaceAll("[\\[\\]\"]", "")) // 去除 [] 與引號
-                        .toList();
-            }
-
-            if (tableName != null) {
-                result.put(tableName, columns);
-                LogProcess.info(log, " 解析到 Table: " + tableName + " 欄位數: " + columns.size());
-            }
-
-        } catch (IOException e) {
-            LogProcess.error(log, " 讀檔錯誤: " + e.getMessage(), e);
-        }
-
-        return result;
-    }
-
-
     public String handleLine(String line, String batchDate) {
         final Pattern DB_PATTERN = Pattern.compile("\\b(bot\\w*?db)(?:_(\\d{8}))?\\b");
 

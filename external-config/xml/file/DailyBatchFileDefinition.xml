@@ -4411,7 +4411,7 @@
             <field>
                 <fieldName>sharid</fieldName>
                 <fieldType>DISPLAY</fieldType>
-                <length>1</length>
+                <length>2</length>
                 <decimal>0</decimal>
             </field>
             <field>

@@ -53,6 +53,14 @@ public class MaskExportServiceImpl implements MaskExportService {
     private static final String PARAM_VALUE = "value";
     private static final String PARAM_TYPE = "type";
     private static final String PARAM_LENGTH = "length";
+    // 累積寫入總筆數（所有 writeBatchFiles 呼叫共用）
+// 累計已寫入的筆數（控制是否要換檔）
+    private long totalWriteCount = 0;
+
+    // 檔案序號（_1, _2, _3...）
+    private int fileIndex = 1;
+
+    private static final int MAX_FILE_SIZE = 1_000_000;
 
     @Override
     public boolean exportMaskedFile(Connection conn, String xmlFileName, String tableName, String env, String param) {
@@ -182,19 +190,39 @@ public class MaskExportServiceImpl implements MaskExportService {
             List<Field> fields,
             boolean deleteFlag
     ) throws IOException {
+
+        // 每個檔案都一定有 _1, _2, _3
+        String fileSuffix = "_" + String.format("%02d",fileIndex);
+
         // 原始資料
         List<String> originalSql = generateSqlLines(rows, tableName, deleteFlag);
+
         textFileUtil.writeFileContent(
-                outputFileOriginalPath + tableName + SQL_EXTENSION,
-                originalSql, CHARSET);
+                outputFileOriginalPath + tableName + fileSuffix + SQL_EXTENSION,
+                originalSql,
+                CHARSET
+        );
+
         // 2. 遮蔽後資料
         List<Map<String, Object>> maskedRows = deepCopyRows(rows);
         dataMasker.maskData(maskedRows, fields, true);
         List<String> maskedSql = generateSqlLines(maskedRows, tableName, deleteFlag);
 
         textFileUtil.writeFileContent(
-                outputFilePath + tableName + SQL_EXTENSION,
-                maskedSql, CHARSET);
+                outputFilePath + tableName + fileSuffix + SQL_EXTENSION,
+                maskedSql,
+                CHARSET
+        );
+
+        totalWriteCount += rows.size();
+
+        //每 100萬筆， 換下一個檔案
+        if (totalWriteCount >= MAX_FILE_SIZE) {
+            // 下一個檔案序號
+            fileIndex++;
+            // 重設累計筆數
+            totalWriteCount = 0;
+        }
     }
 
     //避免遮蔽時改到原始資料，省掉原來不必要的

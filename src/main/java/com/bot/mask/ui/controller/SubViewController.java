@@ -164,9 +164,9 @@ public class SubViewController {
 
                 break;
             default:
-                if (selectedDate != null) {
+                if (selectedDate != null || ("local".equals(env))) {
 
-                    String date = selectedDate.toString().replace("-", "");
+                    String date = selectedDate == null? "":selectedDate.toString().replace("-", "");
 
                     lblStatus.setText("遮蔽資料表 執行中...");
                     // 2. 建立背景 Task
