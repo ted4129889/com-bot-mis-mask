@@ -266,18 +266,19 @@ public class DataMasker {
 
         String replaceObj = isAllDigitsOrDecimal(value) ? STR_NINE : STR_STAR;
 
-        //前六位不處理
+        //前一位不處理
         String prefix = value.substring(0, 1);
-        //第六位後處理遮蔽
+        //第一位後處理遮蔽
         String suffix = value.substring(1);
-        //補滿位置
-        String maskedTail = replaceObj.repeat(formatData.getDisplayWidth(suffix));
+        //第一位後的字串總長度
+        int suffixLen = formatData.getDisplayWidth(suffix);
 
-
+        //需要遮蔽的部分
+        String maskedPart = suffix.trim();
+        String maskedTail = replaceObj.repeat(formatData.getDisplayWidth(maskedPart));
 
         // 補回原本長度 (右側空白)
-
-        return prefix + maskedTail;
+        return prefix + padRight(maskedTail, suffixLen);
     }
 
     /**
