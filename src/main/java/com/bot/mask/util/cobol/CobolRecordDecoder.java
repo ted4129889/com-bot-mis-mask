@@ -319,7 +319,7 @@ public class CobolRecordDecoder {
             }
         }
 
-        // 補零（例如 0.05 需要補成 0005）
+        // 補零
         while (rawDigits.length() <= decimalPlaces) {
             rawDigits.insert(0, "0");
         }
