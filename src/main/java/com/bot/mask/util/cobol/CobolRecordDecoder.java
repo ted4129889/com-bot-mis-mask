@@ -99,7 +99,8 @@ public class CobolRecordDecoder {
                                 charset = StandardCharsets.US_ASCII;
                                 value = new String(fieldBytes, charset).trim();
                             } else if (looksLikeEBCDIC(fieldBytes)) {
-                                //Cp037=>IBM Mainframe 標準 EBCDIC,Cp1047=>BM AIX / UNIX 使用的 EBCDIC 非標準
+                                //V : Cp037=>IBM Mainframe 標準 EBCDIC
+                                //X : Cp1047=>IBM AIX / UNIX 使用的 EBCDIC 非標準
                                 charset = Charset.forName("Cp037");
                                 value = new String(fieldBytes, charset).trim();
                             } else {
