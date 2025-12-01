@@ -1,14 +1,19 @@
 /* (C) 2024 */
 package com.bot.mask.util.xml.mask;
 
+import com.bot.mask.log.LogProcess;
 import com.bot.mask.util.text.FormatData;
 import com.bot.mask.util.xml.mask.xmltag.Field;
+import com.bot.txcontrol.util.text.astart.AstarUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +56,9 @@ public class DataMasker {
     @Autowired
     private IdMapping idMapping;
 
+    @Autowired
+    AstarUtils astarUtils;
+
     //    @Autowired private IdConverterByYaml idConverterByYaml;
 
     /**
@@ -74,7 +82,7 @@ public class DataMasker {
                 if (columnInfo != null) {
                     Object value = columnInfo.get("value");
                     if (isNotMask) {
-                        columnInfo.put("value", applyMask(value != null ? value.toString() : null, maskType));
+                        columnInfo.put("value", applyMask(value != null ? value.toString() : null, maskType, 0));
                     } else {
                         columnInfo.put("value", value != null ? value.toString() : null);
                     }
@@ -93,29 +101,30 @@ public class DataMasker {
      *
      * @param value    the value to be masked
      * @param maskType the type of masking to apply
+     * @param length   value length
      * @return the masked value
      */
-    public String applyMask(String value, String maskType) throws IOException {
+    public String applyMask(String value, String maskType, int length) throws IOException {
         // 如果value為空則直接return
         if (value == null || value.isEmpty()) return value;
 //        long start = System.nanoTime();
         String result = switch (maskType) {
             case ID_NUMBER -> maskId(value);
-            case CREDIT_CARD_NUMBER -> maskCreditCardNumber(value);
+            case CREDIT_CARD_NUMBER -> maskCreditCardNumber(value, length);
             case NAME,
                     PLACE_OF_BIRTH,
                     EDUCATION,
                     WORK_EXPERIENCE,
                     OCCUPATION,
                     NICKNAME,
-                    SERVICE_UNIT -> maskAllButFirst(value);
-            case ADDRESS -> maskAddress(value);
-            case EMAIL_ADDRESS -> maskEmail(value);
-            case PHONE_NUMBER -> maskPhoneNumber(value);
-            case BIRTHDAY -> maskBirthDay(value);
-            case JOB_TITLE -> maskJobTitle(value);
-            case MARITAL_STATUS -> maskMaritalStatus(value);
-            case PASSPORT_NUMBER -> maskPassportNumber(value);
+                    SERVICE_UNIT -> maskAllButFirst(value, length);
+            case ADDRESS -> maskAddress(value, length);
+            case EMAIL_ADDRESS -> maskEmail(value, length);
+            case PHONE_NUMBER -> maskPhoneNumber(value, length);
+            case BIRTHDAY -> maskBirthDay(value, length);
+            case JOB_TITLE -> maskJobTitle(value, length);
+            case MARITAL_STATUS -> maskMaritalStatus(value, length);
+            case PASSPORT_NUMBER -> maskPassportNumber(value, length);
             default -> value;
         };
 //        long duration = System.nanoTime() - start;
@@ -237,7 +246,7 @@ public class DataMasker {
      * @param value the credit card number to be masked
      * @return the masked credit card number
      */
-    private String maskCreditCardNumber(String value) {
+    private String maskCreditCardNumber(String value, int length) {
         // 前6 後4，中間以*代替
         return value.length() > 10
                 ? value.substring(0, 6)
@@ -259,13 +268,23 @@ public class DataMasker {
 //
 //        return value.length() > 1 ? value.charAt(0) + formatData.getMaskedValue(value.substring(1), replaceObj) : value;
 //    }
-
-
-    private String maskAllButFirst(String value) {
+    private String maskAllButFirst(String value, int length) {
         if (value == null) return null;
 
         String replaceObj = isAllDigitsOrDecimal(value) ? STR_NINE : STR_STAR;
+//        LogProcess.info(log,"b value = {} ",value);
+//        LogProcess.info(log,"byte value = {} ",bytesToHex(astarUtils.utf8ToBIG5(value)));
 
+        value = formatData.getReplaceSpace(value," ");
+
+        //實際字串長度
+        int actualLen = formatData.getDisplayWidth(value);
+        //差異長度: 實際字串長度 與 定義好的長度 比較
+        int diffLen = actualLen <= length?length - actualLen : 0;
+
+//        LogProcess.info(log,"a value = {} actualLen = {} diffLen = {} ",value,actualLen,diffLen);
+        //若有差異，剩餘補空白
+        value = value + " ".repeat(diffLen);
         //前一位不處理
         String prefix = value.substring(0, 1);
         //第一位後處理遮蔽
@@ -292,9 +311,15 @@ public class DataMasker {
 //        // 前六個字不遮蔽，其餘以*代替
 //        return value.length() > 6 ? value.substring(0, 6) + formatData.getMaskedValue(value.substring(6), "*") : value;
 //    }
-    private String maskAddress(String value) {
+    private String maskAddress(String value, int length) {
         if (value == null) return null;
-
+        value = formatData.getReplaceSpace(value," ");
+        //實際字串長度
+        int actualLen = formatData.getDisplayWidth(value);
+        //差異長度: 實際字串長度 與 定義好的長度 比較
+        int diffLen = actualLen <= length?length - actualLen : 0;
+        //若有差異，剩餘補空白
+        value = value + " ".repeat(diffLen);
         //前六位不處理
         String prefix = value.substring(0, 6);
         //第六位後處理遮蔽
@@ -334,7 +359,7 @@ public class DataMasker {
      * @param value the email address to be masked
      * @return the masked email address
      */
-    private String maskEmail(String value) {
+    private String maskEmail(String value, int length) {
         // 前二個字不遮蔽、其餘以@COM 代替
         return value.length() > 2 ? value.substring(0, 2) + "@COM" : value;
     }
@@ -345,7 +370,7 @@ public class DataMasker {
      * @param value the phone number to be masked
      * @return the masked phone number
      */
-    private String maskPhoneNumber(String value) {
+    private String maskPhoneNumber(String value, int length) {
         if (value == null) return null;
         // 先記原始長度
         int originalLen = value.length();
@@ -380,7 +405,7 @@ public class DataMasker {
      * @param value the birthday to be masked
      * @return the masked birthday
      */
-    private String maskBirthDay(String value) {
+    private String maskBirthDay(String value, int length) {
         // 前六位固定設為199001，後二位不遮
         return "199001" + (value.length() == 8 ? value.substring(6) : "01");
     }
@@ -391,7 +416,7 @@ public class DataMasker {
      * @param value the job title to be masked
      * @return the masked job title
      */
-    private String maskJobTitle(String value) {
+    private String maskJobTitle(String value, int length) {
         // 以統一職稱代替IdConverterByYaml
         return "統一職稱";
     }
@@ -402,7 +427,7 @@ public class DataMasker {
      * @param value the marital status to be masked
      * @return the masked marital status
      */
-    private String maskMaritalStatus(String value) {
+    private String maskMaritalStatus(String value, int length) {
         // 以一個*代替
         return "*";
     }
@@ -413,7 +438,7 @@ public class DataMasker {
      * @param value the passport number to be masked
      * @return the masked passport number
      */
-    private String maskPassportNumber(String value) {
+    private String maskPassportNumber(String value, int length) {
         // 前五個字不遮蔽，其餘以9 代替
         return value.length() > 5 ? value.substring(0, 5) + "9".repeat(value.length() - 5) : value;
     }
@@ -430,5 +455,14 @@ public class DataMasker {
         }
         return true;
     }
+
+    public String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02X", b));
+        }
+        return sb.toString();
+    }
+
 }
 

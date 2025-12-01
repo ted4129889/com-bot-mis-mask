@@ -4,6 +4,7 @@ package com.bot.mask.util.text;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 
+import com.bot.mask.log.LogProcess;
 import com.bot.txcontrol.util.text.format.FormatUtil;
 import com.bot.mask.util.files.TextFileUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -171,7 +172,7 @@ public class FormatData {
     public int getDisplayWidth(String str) {
         int length = 0;
         for (char c : str.toCharArray()) {
-            if (isChinese(c) || isFullWidthSpace(c) || isFullWidthChar(c)) {
+            if (isChinese(c) || isFullWidthSpace(c) || isFullWidthChar(c) || isSpecialWidthChar(c)) {
                 length += 2;
             } else {
                 length += 1;
@@ -188,7 +189,7 @@ public class FormatData {
      * 中文替換成2個replaceTxt、全形空白補2個半形空白、
      * 其他全形字元也補2個replaceTxt，半形補1個replaceTxt
      */
-    public String getMaskedValue(String str, String replaceTxt) {
+    public String getReplaceValue(String str, String replaceTxt) {
         StringBuilder result = new StringBuilder();
 
         for (char c : str.toCharArray()) {
@@ -198,12 +199,12 @@ public class FormatData {
             } else if (isFullWidthSpace(c)) {
                 // 全形空白補兩個半形空白
                 result.append(replaceTxt).append(replaceTxt);
+            } else if ( isSpecialWidthChar(c)) {
+                // 特殊字體補兩個半行空白
+                result.append(replaceTxt).append(replaceTxt);
             } else if (isFullWidthChar(c)) {
                 // 其他全形字元替換1個字
                 result.append(replaceTxt).append(replaceTxt);
-            } else if (Character.isWhitespace(c)) {
-                // 半形空白替換1個字
-                result.append(replaceTxt);
             } else {
                 // 其他半形字元替換1個字
                 result.append(replaceTxt);
@@ -212,6 +213,34 @@ public class FormatData {
 
         return result.toString();
     }
+
+    public String getReplaceSpace(String str, String replaceTxt) {
+        StringBuilder result = new StringBuilder();
+        for (char c : str.toCharArray()) {
+
+            if (isChinese(c)) {
+                // 中文佔兩位
+                result.append(c);
+            } else if (isFullWidthSpace(c)) {
+                // 全形空白補兩個半形空白
+                result.append(replaceTxt).append(replaceTxt);
+            } else if ( isSpecialWidthChar(c)) {
+                // 特殊字體補兩個半行空白
+                result.append(replaceTxt).append(replaceTxt);
+            } else if (isFullWidthChar(c)) {
+                // 其他全形字元替換1個字
+                result.append(c);
+            } else {
+                // 其他半形字元替換1個字
+                result.append(c);
+            }
+        }
+
+        return result.toString();
+    }
+
+
+
 
     // 判斷是否為中文
     public boolean isChinese(char c) {
@@ -232,6 +261,10 @@ public class FormatData {
     /** 判斷是否為全形字元（包含全形英數與符號） */
     private boolean isFullWidthChar(char c) {
         return (c >= 0xFF01 && c <= 0xFF60) || (c >= 0xFFE0 && c <= 0xFFE6);
+    }
+    /** 亂碼 / 特殊字，視覺寬度通常 = 2 */
+    private boolean isSpecialWidthChar(char c){
+        return  c >= 0xE000 && c <= 0xF8FF;
     }
 
 }

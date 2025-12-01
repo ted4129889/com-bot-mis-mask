@@ -312,7 +312,7 @@ public class TextFileUtil {
         if ("UTF-8".equalsIgnoreCase(charsetName)) {
             charset = StandardCharsets.UTF_8;
         } else if ("BIG5".equalsIgnoreCase(charsetName)) {
-            charset = Charset.forName("Big5");
+            charset = Charset.forName("MS950");
         }
         encoder = charset.newEncoder();
         encoder.onMalformedInput(CodingErrorAction.REPLACE);
