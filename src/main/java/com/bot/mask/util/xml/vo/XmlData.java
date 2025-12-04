@@ -44,8 +44,8 @@ public class XmlData {
     @JacksonXmlProperty(isAttribute = true, localName = "fileName")
     public String fileName;
 
-    @JacksonXmlProperty(localName = "paramDate")
-    private String  paramDate;
+    @JacksonXmlProperty(localName = "condition")
+    private String  condition;
 
     @JacksonXmlProperty(localName = "suffix")
     private String  suffix;

@@ -249,7 +249,8 @@ public class FormatData {
                 || ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A
                 || ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B
                 || ub == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS
-                || ub == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS_SUPPLEMENT;
+                || ub == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS_SUPPLEMENT
+                || ub == Character.UnicodeBlock.MISCELLANEOUS_SYMBOLS;
     }
 
 
@@ -260,7 +261,20 @@ public class FormatData {
 
     /** 判斷是否為全形字元（包含全形英數與符號） */
     private boolean isFullWidthChar(char c) {
-        return (c >= 0xFF01 && c <= 0xFF60) || (c >= 0xFFE0 && c <= 0xFFE6);
+        // 中日韓統一表意文字 (中文)
+        if (c >= 0x4E00 && c <= 0x9FFF) return true;
+
+        // 全形 ASCII、全形標點
+        if (c >= 0xFF01 && c <= 0xFF60) return true;
+        if (c >= 0xFFE0 && c <= 0xFFE6) return true;
+
+        // 注音符號 ㄅㄆㄇㄈ ㄧㄨㄩ
+        if (c >= 0x3100 && c <= 0x312F) return true;
+
+        // 注音擴展
+        if (c >= 0x31A0 && c <= 0x31BF) return true;
+
+        return false;
     }
     /** 亂碼 / 特殊字，視覺寬度通常 = 2 */
     private boolean isSpecialWidthChar(char c){

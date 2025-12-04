@@ -15,6 +15,7 @@ import com.bot.mask.util.xml.vo.XmlFile;
 import com.bot.txcontrol.util.parse.Parse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.juli.logging.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -484,6 +485,8 @@ public class MaskDataFileService {
         //起始位置
         int sPos = 0;
         StringBuilder s = new StringBuilder();
+
+        boolean show = false;
         byte[] bytes = line.getBytes(charset);
         //XML定義檔的格式
         for (XmlField xmlField : xmlFieldList) {
@@ -499,7 +502,6 @@ public class MaskDataFileService {
                     Arrays.copyOfRange(
                             bytes, sPos,sPos+length);
 
-
             // 取得可使用的 substring 長度結尾
 //            String remaining = line.substring(sPos);
 //            int safeCut = getSafeSubstringLength(remaining, length, charset);
@@ -507,6 +509,8 @@ public class MaskDataFileService {
             // 切出這個欄位字串
 //            String value = remaining.substring(0, safeCut);
             String value = new String(fieldBytes, charset);
+
+
 
             // 更新 char index 位置（要考慮已用掉的實際字元數）
             sPos += length;
@@ -532,6 +536,8 @@ public class MaskDataFileService {
             } else {
                 s.append(value);
             }
+
+
         }
         return s.toString();
     }

@@ -11,9 +11,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.util.Arrays;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -156,6 +154,11 @@ public class DataMasker {
      * @return the masked ID
      */
     private String maskId(String value) throws IOException {
+//        if (value.contains("A203964255")) {
+//            show = true;
+//        } else {
+//            show = false;
+//        }
         return switch (determineIdType(value)) {
             // OBU前三碼不置換，後7碼置換
             case OBU -> OBU + generateRandomString(value.substring(3), OBU);
@@ -268,29 +271,34 @@ public class DataMasker {
 //
 //        return value.length() > 1 ? value.charAt(0) + formatData.getMaskedValue(value.substring(1), replaceObj) : value;
 //    }
+
+    boolean show = false;
+
     private String maskAllButFirst(String value, int length) {
         if (value == null) return null;
 
         String replaceObj = isAllDigitsOrDecimal(value) ? STR_NINE : STR_STAR;
-//        LogProcess.info(log,"b value = {} ",value);
-//        LogProcess.info(log,"byte value = {} ",bytesToHex(astarUtils.utf8ToBIG5(value)));
 
-        value = formatData.getReplaceSpace(value," ");
+        Charset charset = Charset.forName("MS950");
+        byte[] bytes = value.getBytes(charset);
+
+        value = formatData.getReplaceSpace(value, " ");
 
         //實際字串長度
-        int actualLen = formatData.getDisplayWidth(value);
+        int bytesLen = bytes.length;
         //差異長度: 實際字串長度 與 定義好的長度 比較
-        int diffLen = actualLen <= length?length - actualLen : 0;
+        int diffLen = bytesLen <= length ? length - bytesLen : 0;
 
 //        LogProcess.info(log,"a value = {} actualLen = {} diffLen = {} ",value,actualLen,diffLen);
         //若有差異，剩餘補空白
         value = value + " ".repeat(diffLen);
         //前一位不處理
         String prefix = value.substring(0, 1);
+        int prefixLen = formatData.getDisplayWidth(prefix);
         //第一位後處理遮蔽
         String suffix = value.substring(1);
         //第一位後的字串總長度
-        int suffixLen = formatData.getDisplayWidth(suffix);
+        int suffixLen = bytesLen - prefixLen;
 
         //需要遮蔽的部分
         String maskedPart = suffix.trim();
@@ -313,19 +321,33 @@ public class DataMasker {
 //    }
     private String maskAddress(String value, int length) {
         if (value == null) return null;
-        value = formatData.getReplaceSpace(value," ");
+        Charset charset = Charset.forName("MS950");
+        byte[] bytes = value.getBytes(charset);
+
+        // 切出這個欄位字串
+//            String value = remaining.substring(0, safeCut);
+        value = formatData.getReplaceSpace(value, " ");
+
         //實際字串長度
-        int actualLen = formatData.getDisplayWidth(value);
+        int bytesLen = bytes.length;
+
         //差異長度: 實際字串長度 與 定義好的長度 比較
-        int diffLen = actualLen <= length?length - actualLen : 0;
+        int diffLen = bytesLen <= length ? length - bytesLen : 0;
         //若有差異，剩餘補空白
         value = value + " ".repeat(diffLen);
+        if (show) {
+            LogProcess.info(log, "value zero=o = {}", value);
+        }
         //前六位不處理
         String prefix = value.substring(0, 6);
+        int prefixLen = formatData.getDisplayWidth(prefix);
+        if (show) {
+            LogProcess.info(log, "prefixLen 0~6 = {}", prefixLen);
+        }
         //第六位後處理遮蔽
         String suffix = value.substring(6);
         //第六位後的字串總長度
-        int suffixLen = formatData.getDisplayWidth(suffix);
+        int suffixLen = bytesLen - prefixLen;
 
         //需要遮蔽的部分
         String maskedPart = suffix.trim();

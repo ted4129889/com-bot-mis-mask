@@ -8,19 +8,18 @@ import com.bot.mask.util.xml.mask.DataMasker;
 import com.bot.mask.util.xml.mask.XmlParser;
 import com.bot.mask.util.xml.mask.xmltag.Field;
 import com.bot.mask.util.xml.vo.XmlData;
-
 import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.logging.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.io.IOException;
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -60,7 +59,8 @@ public class MaskExportServiceImpl implements MaskExportService {
     // 檔案序號（_1, _2, _3...）
     private int fileIndex = 1;
 
-    private static final int MAX_FILE_SIZE = 1_000_000;
+    private int maxLimit = 5000000;
+//    private int MAX_FILE_SIZE = 5000000;
 
     @Override
     public boolean exportMaskedFile(Connection conn, String xmlFileName, String tableName, String env, String param) {
@@ -96,6 +96,9 @@ public class MaskExportServiceImpl implements MaskExportService {
         }
 
         String sql = getSql(param, allowedTable, xmlData);
+        //根據欄位數量決定每個檔案筆數。
+        int countCol = countSelectedFields(sql);
+        maxLimit = decideLimit(countCol);
 
         List<Map<String, Object>> batchList = new ArrayList<>(batchSize);
         try (PreparedStatement pstmt = conn.prepareStatement(
@@ -111,10 +114,7 @@ public class MaskExportServiceImpl implements MaskExportService {
                 if (!rs.isBeforeFirst()) {
                     LogProcess.info(log, "No data found for table: " + allowedTable);
                     return false;
-                } else {
-//                    LogProcess.info(log,"The data exists for table: " + allowedTable);
                 }
-
                 List<Field> fields = xmlData.getFieldList();
                 while (rs.next()) {
                     // 每筆 new 一個 Map，避免重用同一物件
@@ -158,7 +158,6 @@ public class MaskExportServiceImpl implements MaskExportService {
         } catch (SQLException | IOException e) {
 
             LogProcess.warn(log, "Invalid object name '" + allowedTable + "'");
-//            LogProcess.warn(log,"Error executing exportMaskedFile", e);
             return false;
         }
         return true;
@@ -168,16 +167,12 @@ public class MaskExportServiceImpl implements MaskExportService {
 
 
         String sql = "SELECT * FROM " + xmlData.getTable().getTableName();
-
-        String paramCol = "";
-        if (xmlData.getParamDate() != null) {
-            paramCol = xmlData.getParamDate();
-            sql = "SELECT * FROM " + xmlData.getTable().getTableName() + " WHERE (" +
-                    "    CASE " +
-                    "        WHEN LEN(CAST(" + paramCol + " AS VARCHAR)) = 7 THEN " +
-                    " CAST(CAST(LEFT(CAST(" + paramCol + "  AS VARCHAR), 3) AS INT) + 1911 AS VARCHAR(4)) + RIGHT(CAST(" + paramCol + "  AS VARCHAR), 4)" +
-                    "        ELSE " + paramCol + " END ) = CAST(" + param + " AS VARCHAR)";
+        String codition = "";
+        if (xmlData.getCondition() != null) {
+            codition = xmlData.getCondition();
+            sql = "SELECT * FROM " + xmlData.getTable().getTableName() + " WHERE " + codition;
         }
+        LogProcess.info(log, " sql =  {}", sql);
         return sql;
     }
 
@@ -192,7 +187,7 @@ public class MaskExportServiceImpl implements MaskExportService {
     ) throws IOException {
 
         // 每個檔案都一定有 _1, _2, _3
-        String fileSuffix = "_" + String.format("%02d",fileIndex);
+        String fileSuffix = "_" + String.format("%02d", fileIndex);
 
         // 原始資料
         List<String> originalSql = generateSqlLines(rows, tableName, deleteFlag);
@@ -217,7 +212,7 @@ public class MaskExportServiceImpl implements MaskExportService {
         totalWriteCount += rows.size();
 
         //每 100萬筆， 換下一個檔案
-        if (totalWriteCount >= MAX_FILE_SIZE) {
+        if (totalWriteCount >= maxLimit) {
             // 下一個檔案序號
             fileIndex++;
             // 重設累計筆數
@@ -338,6 +333,23 @@ public class MaskExportServiceImpl implements MaskExportService {
         }
 
         return dbName + "." + parts[1] + "." + parts[2];
+    }
+
+
+    // 取得欄位數
+    private int countSelectedFields(String sql) {
+        String selectPart = sql.toLowerCase().split("from")[0].replace("select", "").trim();
+        String[] fields = selectPart.split(",");
+        return fields.length;
+    }
+
+    // 根據欄位數決定批次大小
+    private int decideLimit(int fieldCount) {
+        if (fieldCount <= 10) return 1500000;
+        if (fieldCount <= 15) return 1000000;
+        if (fieldCount <= 20) return 750000;
+        if (fieldCount <= 30) return 500000;
+        return 100000;
     }
 
 }
