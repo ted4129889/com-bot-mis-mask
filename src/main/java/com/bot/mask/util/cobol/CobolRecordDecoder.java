@@ -15,7 +15,10 @@ import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Component
@@ -48,85 +51,92 @@ public class CobolRecordDecoder {
             double byteLen = field.digits;
 
             int hexLen = (int) (byteLen * 2);
-
+            // 處理 COMP
             if (field.type == CobolField.Type.COMP) {
 
                 String hexSlice = hexStr.substring(hexCursor, hexCursor + hexLen);
-                LogProcess.debug(log, "[DEBUG decodeBinary FasXXXX FIle ] Field: {}, Type: {}, Length: {} , hexValue: {}", field.name, field.type, field.digits,hexSlice);
+                LogProcess.debug(log, "[DEBUG decodeBinary FasXXXX FIle ] Field: {}, Type: {}, Length: {} , hexValue: {}", field.name, field.type, field.digits, hexSlice);
 
                 String value;
 
                 if (looksLikeComp3(hexSlice, field.decimal)) {
+                    //COMP 3
                     value = decodeComp3(hexSlice, hexLen, field.decimal);
 
                     tmpType = 1;
                     hexCursor += hexLen;
                     byteCursor = (int) Math.ceil(hexCursor / 2.0);
                 } else {
+                    //COMP
                     // 沒有特殊符號，正常搬
                     value = hexSlice;
-
                     tmpType = 2;
                     hexCursor += hexLen;
                     byteCursor += byteLen;
                 }
                 resultVal = value;
                 result.put(field.name, value);
-            } else {
+
+                continue;
+            }
+
+            // 處理 DISPLAY / X
+            if (field.type == CobolField.Type.DISPLAY || field.type == CobolField.Type.X) {
 
                 byte[] fieldBytes =
                         Arrays.copyOfRange(
                                 data, (int) byteCursor, (int) (byteCursor + field.digits));
-                LogProcess.debug(log, "[DEBUG decodeBinary FasXXX FIle] Field: {}, Type: {}, Length: {} , fieldBytes: {}", field.name, field.type, field.digits,fieldBytes);
+                LogProcess.debug(log, "[DEBUG decodeBinary FasXXX FIle] Field: {}, Type: {}, Length: {} , fieldBytes: {}", field.name, field.type, field.digits, fieldBytes);
 
                 Object value;
                 String resultX = "";
 
-                switch (field.type) {
-                    case DISPLAY:
-                    case X:
-                        // 嘗試解析為 signed zoned decimal
-                        if (isSignedZonedDecimal(fieldBytes, field.decimal)) {
-                            tmpType = 3;
+                // 解析 signed zoned decimal
+                if (isSignedZonedDecimal(fieldBytes, field.decimal)) {
+                    tmpType = 3;
 
-                            resultX = decodeSignedZonedDecimal(fieldBytes, field.decimal);
+                    resultX = decodeSignedZonedDecimal(fieldBytes, field.decimal);
 
-                        } else {
-                            tmpType = 4;
+                } else {
+                    tmpType = 4;
 
-                            Charset charset;
-                            if (allAsciiPrintable(fieldBytes)) {
-                                charset = StandardCharsets.US_ASCII;
-                                value = new String(fieldBytes, charset).trim();
-                            } else if (looksLikeEBCDIC(fieldBytes)) {
-                                //V : Cp037=>IBM Mainframe 標準 EBCDIC
-                                //X : Cp1047=>IBM AIX / UNIX 使用的 EBCDIC 非標準
-                                charset = Charset.forName("CP037");
-                                value = new String(fieldBytes, charset).trim();
-                            } else {
-                                charset = Charset.forName(CHARSET_MS950);
-                                value = new String(astarUtils.utf8ToBIG5(astarUtils.burToUTF8(fieldBytes)), charset);
-                            }
+                    Charset charset;
+                    // EBCDIC 判斷
+                    if (looksLikeEBCDIC(fieldBytes)) {
+                        tmpType = 42;
 
-                            LogProcess.debug(log, "[DEBUG decodeBinary FasXXX FIle] field.digits: {} vs. Length: {} ", field.digits,formatData.getDisplayWidth(value.toString()));
+                        //V : Cp037=>IBM Mainframe 標準 EBCDIC
+                        //X : Cp1047=>IBM AIX / UNIX 使用的 EBCDIC 非標準
+                        charset = Charset.forName("CP037");
+                        value = new String(fieldBytes, charset).trim();
+                    }
+                    // ASCII 判斷
+                    else if (allAsciiPrintable(fieldBytes)) {
+                        tmpType = 41;
+                        charset = StandardCharsets.US_ASCII;
+                        value = new String(fieldBytes, charset).trim();
+                    } else {
+                        tmpType = 43;
 
-                            int diff = (int) field.digits - formatData.getDisplayWidth(value.toString());
-                            //通常結果為字串(空白往後補)
-                            resultX =  value + SPACE.repeat(diff);
+                        charset = Charset.forName(CHARSET_MS950);
+                        value = new String(astarUtils.utf8ToBIG5(astarUtils.burToUTF8(fieldBytes)), charset);
+                    }
 
-                        }
-                        break;
-                    default:
-                        resultX = null;
+                    LogProcess.debug(log, "[DEBUG decodeBinary FasXXX FIle] field.digits: {} vs. Length: {} ", field.digits, formatData.getDisplayWidth(value.toString()));
 
+                    int diff = (int) field.digits - formatData.getDisplayWidth(value.toString());
+                    //通常結果為字串(空白往後補)
+                    resultX = value + SPACE.repeat(diff);
 
                 }
+
                 resultVal = resultX;
                 result.put(field.name, resultX);
                 byteCursor += byteLen;
                 hexCursor = (int) (byteCursor * 2);
             }
-            LogProcess.debug(log,"[DEBUG decodeBinary FasXXXX FIle ] type = {},Value = {}",tmpType,resultVal);
+
+            LogProcess.debug(log, "[DEBUG decodeBinary FasXXXX FIle ] type = {},Value = {}", tmpType, resultVal);
 
         }
 
@@ -141,7 +151,7 @@ public class CobolRecordDecoder {
 
         Map<String, String> result = new LinkedHashMap<>();
         int cursor = 0;
-        LogProcess.debug(log, "[DEBUG decodeAscii FasXXXX FIle ] decodeAscii bytesToHex : {}",  bytesToHex(data).replace(SPACE, ""));
+        LogProcess.debug(log, "[DEBUG decodeAscii FasXXXX FIle ] decodeAscii bytesToHex : {}", bytesToHex(data).replace(SPACE, ""));
 
         for (CobolField field : layout) {
             int len = (int) field.getDigits();
@@ -149,7 +159,7 @@ public class CobolRecordDecoder {
 
             String hexStr = bytesToHex(fieldBytes).replace(SPACE, "");
 
-            LogProcess.debug(log, "[DEBUG decodeAscii FasXXXX FIle ] Field: {}, Type: {}, Length: {} , hexValue: {}", field.name, field.type, field.digits,hexStr);
+            LogProcess.debug(log, "[DEBUG decodeAscii FasXXXX FIle ] Field: {}, Type: {}, Length: {} , hexValue: {}", field.name, field.type, field.digits, hexStr);
 
 
             String val = astarUtils.burToUTF8(fieldBytes);
@@ -165,14 +175,14 @@ public class CobolRecordDecoder {
             String convertVal3 = checkHexStartEndAndPad(hexStr, convertVal2);
             // 最後長度計算
             String convertVal4 = padToHalfWidthLength(convertVal3, (int) field.digits, field.type);
-            LogProcess.debug(log,  "[DEBUG decodeAscii FasXXXX FIle ] Convert Value Processing : {} => {} => {} => {}",  convertVal1,convertVal2,convertVal3,convertVal4);
+            LogProcess.debug(log, "[DEBUG decodeAscii FasXXXX FIle ] Convert Value Processing : {} => {} => {} => {}", convertVal1, convertVal2, convertVal3, convertVal4);
 
             result.put(field.getName(), convertVal4);
 
             cursor += len;
         }
 
-        LogProcess.debug(log,  "[DEBUG decodeAscii FasXXXX FIle ] Hex Conv Result:{}", result);
+        LogProcess.debug(log, "[DEBUG decodeAscii FasXXXX FIle ] Hex Conv Result:{}", result);
 
         return result;
     }
@@ -184,7 +194,7 @@ public class CobolRecordDecoder {
 
         Map<String, String> result = new LinkedHashMap<>();
 
-        LogProcess.debug(log, "[DEBUG FasXXXX FIle ] decodeAsciiMs950 bytesToHex : {}",  bytesToHex(data).replace(SPACE, ""));
+        LogProcess.debug(log, "[DEBUG FasXXXX FIle ] decodeAsciiMs950 bytesToHex : {}", bytesToHex(data).replace(SPACE, ""));
 
         int cursor = 0;
 
@@ -193,8 +203,7 @@ public class CobolRecordDecoder {
             byte[] fieldBytes = Arrays.copyOfRange(data, cursor, cursor + len);
 
             String hexStr = bytesToHex(fieldBytes).replace(SPACE, "");
-            LogProcess.debug(log, "[DEBUG FasXXXX FIle ] Field: {}, Type: {}, Length: {} , hexValue: {}", field.name, field.type, field.digits,hexStr);
-
+            LogProcess.debug(log, "[DEBUG FasXXXX FIle ] Field: {}, Type: {}, Length: {} , hexValue: {}", field.name, field.type, field.digits, hexStr);
 
 
             String val;
@@ -215,19 +224,21 @@ public class CobolRecordDecoder {
 
             String convertVal4 = padToHalfWidthLength(convertVal2, (int) field.digits, field.type);
 
-            LogProcess.debug(log,  "[DEBUG FasXXXX FIle ] Convert Value Processing : {} => {} => {} ", convertVal1,convertVal2,convertVal4);
+            LogProcess.debug(log, "[DEBUG FasXXXX FIle ] Convert Value Processing : {} => {} => {} ", convertVal1, convertVal2, convertVal4);
 
 
             result.put(field.getName(), convertVal4);
             cursor += len;
         }
 
-        LogProcess.debug(log,  "[DEBUG FasXXXX FIle ] Hex Conv Result:{}", result);
+        LogProcess.debug(log, "[DEBUG FasXXXX FIle ] Hex Conv Result:{}", result);
 
         return result;
     }
 
-    /** COMP正負符號 */
+    /**
+     * COMP正負符號
+     */
     private boolean looksLikeComp3(String hex, int decimal) {
         String sign = hex.substring(0, 1);
 
@@ -237,7 +248,9 @@ public class CobolRecordDecoder {
         return false;
     }
 
-    /** 解開成實際(展開)字串 */
+    /**
+     * 解開成實際(展開)字串
+     */
     private String decodeComp3(String hex, int totalHexLen, int decimal) {
         hex = hex.toUpperCase();
         String signNibble = hex.substring(0, 1);
@@ -253,11 +266,11 @@ public class CobolRecordDecoder {
             digits = hex;
             digitCount = totalHexLen;
         }
-        if(sign.length() == 1 && digits.length() == 0){
+        if (sign.length() == 1 && digits.length() == 0) {
             return " ";
         }
 
-        ApLogHelper.info(log, false, LogType.NORMAL.getCode(), "[DEBUG] sign:{},digits:{}", sign, digits);
+        ApLogHelper.debug(log, false, LogType.NORMAL.getCode(), "[DEBUG] sign:{},digits:{}", sign, digits);
         BigDecimal result = new BigDecimal(sign + digits);
         result = result.movePointLeft(decimal);
 
@@ -291,7 +304,7 @@ public class CobolRecordDecoder {
     /**
      * 解碼 COBOL 中的 有符號 Zoned Decimal 格式的數值欄位，可處理含小數位或純整數。
      *
-     * @param bytes Zoned Decimal 編碼的 byte 陣列
+     * @param bytes         Zoned Decimal 編碼的 byte 陣列
      * @param decimalPlaces 小數位數（若為 0 則回傳純整數）
      * @return 解碼後的字串，如 "-123.45" 或 "+789"，格式錯誤則回傳 null
      */
@@ -348,7 +361,7 @@ public class CobolRecordDecoder {
             int b = bytes[i] & 0xFF;
             int high = b & 0xF0;
 
-            ApLogHelper.info(log, false, LogType.NORMAL.getCode(), "[DEBUG] b:{},high:{}", b, high);
+            ApLogHelper.debug(log, false, LogType.NORMAL.getCode(), "[DEBUG] b:{},high:{}", b, high);
 
             if (i < bytes.length - 1) {
                 // 中間位元應為 F0 ~ F9
@@ -361,7 +374,9 @@ public class CobolRecordDecoder {
         return true;
     }
 
-    /** 全部為可列印的 ASCII，就用 ASCII */
+    /**
+     * 全部為可列印的 ASCII，就用 ASCII
+     */
     private boolean allAsciiPrintable(byte[] bytes) {
         for (byte b : bytes) {
             int val = b & 0xFF;
@@ -370,7 +385,9 @@ public class CobolRecordDecoder {
         return true;
     }
 
-    /** 判斷來源檔案屬是否為ASCII(中文) */
+    /**
+     * 判斷來源檔案屬是否為ASCII(中文)
+     */
     private boolean looksLikeEBCDIC(byte[] bytes) {
         if (bytes == null || bytes.length == 0) return false;
 
@@ -419,7 +436,7 @@ public class CobolRecordDecoder {
     /**
      * 將包含尾碼符號（如正負號）的 COMP-3 類型文字欄位轉成正常字串，並加入小數點處理。
      *
-     * @param input 如 "123{", "999A" 等
+     * @param input   如 "123{", "999A" 等
      * @param decimal 小數位數（例如 2 表示變成 12.34；0 表示不處理）
      * @return 正常表示的字串，例如 "-123.45"
      */
@@ -535,16 +552,18 @@ public class CobolRecordDecoder {
         return sign + numeric;
     }
 
-    /** 判斷與剔除無法正常編碼的字元 */
+    /**
+     * 判斷與剔除無法正常編碼的字元
+     */
     private String filterUnencodable(String input) {
         Charset big5 = Charset.forName("BIG5");
         CharsetEncoder encoder = big5.newEncoder();
         StringBuilder sb = new StringBuilder();
-        //        ApLogHelper.info(log, false, LogType.NORMAL.getCode(), "[DEBUG] input {}", input);
+        //        ApLogHelper.debug(log, false, LogType.NORMAL.getCode(), "[DEBUG] input {}", input);
 
         for (int i = 0; i < input.length(); i++) {
             char c = input.charAt(i);
-            //            ApLogHelper.info(log, false, LogType.NORMAL.getCode(), "[DEBUG] charAt
+            //            ApLogHelper.debug(log, false, LogType.NORMAL.getCode(), "[DEBUG] charAt
             // :{}", c);
 
             if (encoder.canEncode(c)) {
@@ -554,7 +573,7 @@ public class CobolRecordDecoder {
             }
         }
 
-        //        ApLogHelper.info(
+        //        ApLogHelper.debug(
         //                log, false, LogType.NORMAL.getCode(), "[DEBUG]sb.toString(): {}",
         // sb.toString());
 
@@ -564,7 +583,7 @@ public class CobolRecordDecoder {
     /**
      * 判斷 hex 字串是否以 2B 開頭、2C 結尾 若為 true，則在原始字串前後加上半形空白再回傳 否則回傳原字串
      *
-     * @param hex 十六進位字串（不分大小寫）
+     * @param hex      十六進位字串（不分大小寫）
      * @param original 原始文字字串
      * @return 若符合條件則加上半形空白後的字串，否則原樣回傳
      */
@@ -589,9 +608,9 @@ public class CobolRecordDecoder {
     /**
      * 根據字串內容計算半形長度（全形:2，半形:1）， 若長度不足預期長度，則補滿半形空白直到相同長度。
      *
-     * @param input 原始字串（可能含中日文或全形符號）
+     * @param input        原始字串（可能含中日文或全形符號）
      * @param targetLength 預期長度（以半形寬度為單位）
-     * @param type Cobol的欄位型態
+     * @param type         Cobol的欄位型態
      * @return 補滿後的字串
      */
     private String padToHalfWidthLength(String input, int targetLength, CobolField.Type type) {
@@ -625,7 +644,9 @@ public class CobolRecordDecoder {
         return result.toString();
     }
 
-    /** 判斷是否為全形字元（全形中文、全形英數、全形標點） */
+    /**
+     * 判斷是否為全形字元（全形中文、全形英數、全形標點）
+     */
     private boolean isFullWidth(char ch) {
         // 全形範圍：常見在 U+FF01 ~ U+FF60、U+FFE0 ~ U+FFE6
         // 以及中日韓常用字（U+4E00 ~ U+9FFF）
