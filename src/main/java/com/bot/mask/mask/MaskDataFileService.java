@@ -15,7 +15,6 @@ import com.bot.mask.util.xml.vo.XmlFile;
 import com.bot.txcontrol.util.parse.Parse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.juli.logging.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -23,6 +22,7 @@ import org.springframework.stereotype.Component;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.nio.charset.*;
 import java.nio.file.Files;
@@ -137,7 +137,7 @@ public class MaskDataFileService {
             try {
                 for (XmlData xmlData : xmlDataList) {
                     String xmlFileName = xmlData.getFileName();
-        ;
+                    ;
                     //先匹配 XML內的fileName檔案名稱 和 讀取檔案的名稱相同
                     if (fileNameUtil.isFileNameMatch(inputFileName, xmlFileName)) {
 
@@ -210,7 +210,7 @@ public class MaskDataFileService {
                                 //處理中間檔
                             } else if (inputFileName.toLowerCase().startsWith("fas") || inputFileName.toLowerCase().startsWith("misbh_fas")) {
                                 //XML 有Conv 開頭的表示資料轉檔(一次性用) 需特殊處理
-                                if (xmlFileName.contains("Conv")  || inputFilePath.contains(".Conv")) {
+                                if (xmlFileName.contains("Conv") || inputFilePath.contains(".Conv")) {
                                     LogProcess.info(log, "performMasking4 inputFilePath = " + inputFilePath);
 //                                    outputData = performMasking4(inputFilePath, xmlData);
 
@@ -312,7 +312,7 @@ public class MaskDataFileService {
 //            LogProcess.info(log, "result after masking count = " + result.size());
 
         } catch (Exception e) {
-            LogProcess.error(log, "performMasking error = {} " + e.getMessage(),e);
+            LogProcess.error(log, "performMasking error = {} " + e.getMessage(), e);
 
         }
 
@@ -377,7 +377,7 @@ public class MaskDataFileService {
                 LogProcess.info(log, "not allowed to read  = " + outputFileName);
             }
         } catch (Exception e) {
-            LogProcess.error(log, "performMasking3 error =" + e);
+            LogProcess.error(log, "performMasking2 error ={}", e.getMessage(), e);
         }
 
         return result;
@@ -418,7 +418,8 @@ public class MaskDataFileService {
             fileToFileBatch3(inputFileName, CHARSET_BIG5, xmlFieldListH, xmlFieldListB, xmlFieldListF, header, footer, outputFileName);
 
         } catch (Exception e) {
-            LogProcess.error(log, "performMasking3 error =" + e);
+            LogProcess.error(log, "performMasking2 error ={}", e.getMessage(), e);
+
         }
 
         return outputData;
@@ -462,7 +463,7 @@ public class MaskDataFileService {
 //            LogProcess.info(log, "result after masking count = " + result.size());
 
         } catch (Exception e) {
-            LogProcess.error(log, "performMasking4 error =" + e);
+            LogProcess.error(log, "performMasking4 error ={}", e.getMessage(), e);
 
 
         }
@@ -500,7 +501,7 @@ public class MaskDataFileService {
 
             byte[] fieldBytes =
                     Arrays.copyOfRange(
-                            bytes, sPos,sPos+length);
+                            bytes, sPos, sPos + length);
 
             // 取得可使用的 substring 長度結尾
 //            String remaining = line.substring(sPos);
@@ -509,7 +510,6 @@ public class MaskDataFileService {
             // 切出這個欄位字串
 //            String value = remaining.substring(0, safeCut);
             String value = new String(fieldBytes, charset);
-
 
 
             // 更新 char index 位置（要考慮已用掉的實際字元數）
@@ -526,7 +526,7 @@ public class MaskDataFileService {
                 //進行遮蔽處理
                 String valueMask = cleanAndRestore(value, v -> {
                     try {
-                        return dataMasker.applyMask(v, maskType,length);
+                        return dataMasker.applyMask(v, maskType, length);
                     } catch (IOException e) {
                         LogProcess.error(log, "error = {}" + e);
                     }
@@ -607,7 +607,7 @@ public class MaskDataFileService {
                 //進行遮蔽處理
                 String valueMask = cleanAndRestore(value, v -> {
                     try {
-                        return dataMasker.applyMask(v, maskType,length);
+                        return dataMasker.applyMask(v, maskType, length);
                     } catch (IOException e) {
                         LogProcess.error(log, "error = {}", e);
                     }
@@ -658,7 +658,8 @@ public class MaskDataFileService {
         //XML定義檔的格式
         for (int idx = 0; idx < xmlFieldList.size(); idx++) {
             XmlField xmlField = xmlFieldList.get(idx);
-            int length = parse.string2Integer(xmlField.getLength());
+            String type =xmlField.getFieldType();
+            int length = "COMP".equals(type)? parse.string2BigDecimal(xmlField.getLength()).multiply(BigDecimal.TWO).intValue():parse.string2Integer(xmlField.getLength());
             String maskType = xmlField.getMaskType();
             String value = sLine[i];
 
@@ -669,7 +670,7 @@ public class MaskDataFileService {
             if (maskType != null) {
                 String valueMask = cleanAndRestore(value, v -> {
                     try {
-                        return dataMasker.applyMask(v, maskType,length);
+                        return dataMasker.applyMask(v, maskType, length);
                     } catch (IOException e) {
                         LogProcess.error(log, "error = {}", e);
                     }
@@ -728,7 +729,7 @@ public class MaskDataFileService {
             if (maskType != null) {
                 String valueMask = cleanAndRestore(value, v -> {
                     try {
-                        return dataMasker.applyMask(v, maskType,length);
+                        return dataMasker.applyMask(v, maskType, length);
                     } catch (IOException e) {
                         LogProcess.error(log, "error = {}", e);
                     }
@@ -996,7 +997,7 @@ public class MaskDataFileService {
                         outputData = new ArrayList<>();
                     }
 
-                    if (totalCnt % 100000 == 0 && totalCnt > 0)  {
+                    if (totalCnt % 100000 == 0 && totalCnt > 0) {
 //                        LogProcess.info(log, "Number of entries already outputFile = {} ", outputData);
                     }
 
@@ -1041,7 +1042,7 @@ public class MaskDataFileService {
                     }
                 } else {
                     buf.write(c);
-                  }
+                }
                 prev = c;
 
             }
@@ -1415,17 +1416,18 @@ public class MaskDataFileService {
                 .onMalformedInput(CodingErrorAction.REPORT)
                 .onUnmappableCharacter(CodingErrorAction.REPORT);
 
-        int headerLen = 0;
-        int bodyLen = 0;
-        int footerLen = 0;
+        BigDecimal headerLen = BigDecimal.ZERO;
+        BigDecimal bodyLen = BigDecimal.ZERO;
+        BigDecimal footerLen = BigDecimal.ZERO;
+
         for (XmlField xmlField : xmlFieldListH) {
-            headerLen = headerLen + parse.string2Integer(xmlField.getLength());
+            headerLen = headerLen.add(parse.string2BigDecimal(xmlField.getLength()));
         }
         for (XmlField xmlField : xmlFieldListB) {
-            bodyLen = bodyLen + parse.string2Integer(xmlField.getLength());
+            bodyLen = bodyLen.add(parse.string2BigDecimal(xmlField.getLength()));
         }
         for (XmlField xmlField : xmlFieldListF) {
-            footerLen = footerLen + parse.string2Integer(xmlField.getLength());
+            footerLen = footerLen.add(parse.string2BigDecimal(xmlField.getLength()));
         }
 
         LogProcess.info(log, "headerLen = {} ,bodyLen = {} , footerLen = {} , headerCnt = {} , footerCnt = {}", headerLen, bodyLen, footerLen, headerCnt, footerCnt);
@@ -1461,16 +1463,16 @@ public class MaskDataFileService {
 //                    LogProcess.info(log, "lineNo = {},s =  {}  ",lineNo,s);
 
 
-                    if (headerCnt == 1 && headerLen > 0 && lineNo == 1) {
+                    if (headerCnt == 1 && headerLen.compareTo(BigDecimal.ZERO) > 0  && lineNo == 1) {
                         outputData.add(processField4(xmlFieldListH, s));
                         continue;
                     }
                     //總筆數減去表尾 要大於等於 計算中筆數
-                    if (bodyLen > 0 && lineNo > 0) {
+                    if (bodyLen.compareTo(BigDecimal.ZERO) > 0 && lineNo > 0) {
                         outputData.add(processField4(xmlFieldListB, s));
                     }
 
-                    if (footerCnt == 1 && footerLen > 0) {
+                    if (footerCnt == 1 && footerLen.compareTo(BigDecimal.ZERO) > 0) {
                         outputData.add(processField4(xmlFieldListF, s));
                     }
 
@@ -1542,15 +1544,14 @@ public class MaskDataFileService {
                 if (lineNo == 1 && !s.isEmpty() && s.charAt(0) == '\uFEFF') s = s.substring(1);
 //                out.add(s);
 
-                if (headerCnt == 1 && headerLen > 0 && lineNo == 1) {
+                if (headerCnt == 1 && headerLen.compareTo(BigDecimal.ZERO) > 0  && lineNo == 1) {
                     outputData.add(processField4(xmlFieldListH, s));
                 }
                 //總筆數減去表尾 要大於等於 計算中筆數
-                if (bodyLen > 0 && lineNo > 0) {
+                if (bodyLen.compareTo(BigDecimal.ZERO) > 0 && lineNo > 0) {
                     outputData.add(processField4(xmlFieldListB, s));
                 }
-
-                if (footerCnt == 1 && footerLen > 0) {
+                if (footerCnt == 1 && footerLen.compareTo(BigDecimal.ZERO) > 0) {
                     outputData.add(processField4(xmlFieldListF, s));
                 }
 

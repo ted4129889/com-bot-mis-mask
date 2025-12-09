@@ -163,17 +163,14 @@ public class XmlToFile {
         LogProcess.info(log, "type = {}", type);
 
         boolean useMs950Handle = false;
-        if (type == EncodingType.MS950) {
+        if (EncodingType.MS950.equals(type)) {
             useMs950Handle = true;
-        } else if (type == EncodingType.UTF8) {
-            useMs950Handle = false;
-        } else if (type == EncodingType.EBCDIC) {
+        } else if (EncodingType.EBCDIC.equals(type)) {
             useMs950Handle = true;
         } else {
             useMs950Handle = false;
         }
         LogProcess.info(log, "useMs950Handle = {}", useMs950Handle);
-
 
         // 分批資料處理
         List<Map<String, String>> parsedBatch = new ArrayList<>(BATCH_LIMIT);
