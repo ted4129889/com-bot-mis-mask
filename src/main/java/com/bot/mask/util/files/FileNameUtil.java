@@ -62,12 +62,13 @@ public class FileNameUtil {
             //檔案名稱要去掉底線數字或日期
             tmpFileName = tmpFileName.replace(".[yyyymmdd]", "");
             tmpFileName = tmpFileName.replaceAll("_(?:[1-9]|1[0-2])$", "");
-//            System.out.println("xmlFileName = " + xmlFileName.toLowerCase());
-//            System.out.println("tmpFileName = " + tmpFileName);
+
         }
         if (tmpFileName.contains(".conv")) {
             tmpFileName = tmpFileName.substring(0, tmpFileName.length() - 5);
         }
+//        System.out.println("tmpFileName = " + tmpFileName.trim());
+//        System.out.println("xmlFileName = " + xmlFileName.trim().toLowerCase());
 
         return tmpFileName.trim().equals(xmlFileName.trim().toLowerCase());
     }

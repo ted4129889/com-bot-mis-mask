@@ -3,6 +3,7 @@ package com.bot.mask.util.xml.mask;
 
 import com.bot.mask.log.LogProcess;
 import com.bot.mask.util.text.FormatData;
+import com.bot.mask.util.xml.mask.IdMapping;
 import com.bot.mask.util.xml.mask.xmltag.Field;
 import com.bot.txcontrol.util.text.astart.AstarUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -110,12 +111,12 @@ public class DataMasker {
             case ID_NUMBER -> maskId(value);
             case CREDIT_CARD_NUMBER -> maskCreditCardNumber(value, length);
             case NAME,
-                    PLACE_OF_BIRTH,
-                    EDUCATION,
-                    WORK_EXPERIENCE,
-                    OCCUPATION,
-                    NICKNAME,
-                    SERVICE_UNIT -> maskAllButFirst(value, length);
+                 PLACE_OF_BIRTH,
+                 EDUCATION,
+                 WORK_EXPERIENCE,
+                 OCCUPATION,
+                 NICKNAME,
+                 SERVICE_UNIT -> maskAllButFirst(value, length);
             case ADDRESS -> maskAddress(value, length);
             case EMAIL_ADDRESS -> maskEmail(value, length);
             case PHONE_NUMBER -> maskPhoneNumber(value, length);
@@ -132,19 +133,30 @@ public class DataMasker {
     }
 
     private static String determineIdType(String value) {
-        String result = "";
-        switch (value.trim().length()) {
-            case 10:
-                result = value.startsWith(OBU) ? OBU : ID;
-                break;
-            case 8:
-                result = UNIFIED_NUMBER;
-                break;
-            default:
-                result = value;
-                break;
+        //值為null或是空白，返回原值
+        if (value == null || value.isBlank()) return value;
+
+        //先剔除空白
+        String trimmed = value.trim();
+
+        //先看前三碼是不是OBU
+        if (trimmed.startsWith(OBU)) {
+            return OBU;
         }
-        return result;
+
+        char first = trimmed.charAt(0);
+        //檢查第一碼是不是英文 => 身分證
+        if (Character.isLetter(first)) {
+            return ID;
+        }
+
+        // 檢查第一碼是不是數字 => 統一編號
+        if (Character.isDigit(first)) {
+            return UNIFIED_NUMBER;
+        }
+
+        //不符合以上三種條件，回傳原值
+        return value;
     }
 
     /**
@@ -154,11 +166,7 @@ public class DataMasker {
      * @return the masked ID
      */
     private String maskId(String value) throws IOException {
-//        if (value.contains("A203964255")) {
-//            show = true;
-//        } else {
-//            show = false;
-//        }
+
         return switch (determineIdType(value)) {
             // OBU前三碼不置換，後7碼置換
             case OBU -> OBU + generateRandomString(value.substring(3), OBU);
@@ -181,17 +189,28 @@ public class DataMasker {
     private String generateRandomString(String value, String idType) throws IOException {
         StringBuilder maskedString = new StringBuilder(value.length());
         HashMap<Integer, String> mapping = getCachedMapping(idType);
+        //臨時還原用
+//        HashMap<String, String> mapping = new HashMap<>();
+//        mapping.put("N", "0");
+//        mapping.put("J", "1");
+//        mapping.put("9", "2");
+//        mapping.put("u", "3");
+//        mapping.put("f", "4");
+//        mapping.put("$", "5");
+//        mapping.put("y", "6");
+//        mapping.put("j", "7");
+//        mapping.put("I", "8");
+//        mapping.put("U", "9");
+//        StringBuilder sb = new StringBuilder();
+//
+//        for (char ch : value.toCharArray()) {
+//            String key = String.valueOf(ch);
+//            String mapped = mapping.getOrDefault(key, key); // 沒有對應就原字返回
+//            sb.append(mapped);
+//        }
 
         boolean isConvert = !UNIFIED_NUMBER.equals(idType) && value.chars().anyMatch(c -> !Character.isDigit(c));
 
-//        for (char c : value.toCharArray()) {
-//            if (isConvert) {
-//                maskedString.append(c);
-//            } else {
-//                int digit = Character.getNumericValue(c);
-//                maskedString.append(mapping.get(digit));
-//            }
-//        }
         for (char c : value.toCharArray()) {
             // 處理空白或非數字
             if (Character.isWhitespace(c)) {
