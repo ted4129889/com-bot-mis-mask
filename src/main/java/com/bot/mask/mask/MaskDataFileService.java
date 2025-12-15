@@ -139,7 +139,6 @@ public class MaskDataFileService {
                     String xmlFileName = xmlData.getFileName();
                     //先匹配 XML內的fileName檔案名稱 和 讀取檔案的名稱相同
                     if (fileNameUtil.isFileNameMatch(inputFileName, xmlFileName)) {
-                        LogProcess.info(log, "有進來嗎2");
                         //補:如果不需要遮蔽的話就直接搬檔案即可
                         List<XmlField> xmlFieldListH = xmlData.getHeader().getFieldList();
                         List<XmlField> xmlFieldListB = xmlData.getBody().getFieldList();

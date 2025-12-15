@@ -5312,7 +5312,7 @@
             <field>
                 <fieldName>averate</fieldName>
                 <fieldType>DISPLAY</fieldType>
-                <length>2</length>
+                <length>4</length>
                 <decimal>2</decimal>
             </field>
             <field>
@@ -5512,7 +5512,7 @@
             <field>
                 <fieldName>averate</fieldName>
                 <fieldType>DISPLAY</fieldType>
-                <length>2</length>
+                <length>4</length>
                 <decimal>2</decimal>
             </field>
             <field>

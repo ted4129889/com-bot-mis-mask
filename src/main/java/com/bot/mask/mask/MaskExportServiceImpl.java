@@ -85,7 +85,7 @@ public class MaskExportServiceImpl implements MaskExportService {
 
 
         } catch (IOException e) {
-            LogProcess.info(log, "讀取TABLE XML 格式錯誤 :" + xmlFileName);
+            LogProcess.error(log, "讀取TABLE XML 格式錯誤 :" + xmlFileName,e);
         }
 
         if ("prod".equals(env)) {

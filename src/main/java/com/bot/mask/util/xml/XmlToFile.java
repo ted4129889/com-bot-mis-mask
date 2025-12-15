@@ -120,7 +120,7 @@ public class XmlToFile {
                 fileBytes = new byte[0];
             }
 
-            LogProcess.info(log, "fileBytes  = " + bytesToHex(fileBytes));
+            LogProcess.info(log, "Retrieve 4096 Bytes  = " + bytesToHex(fileBytes));
 
             // 整批資料處理
             //            List<Map<String, String>> parsed = processor.parse(fileBytes, layout);

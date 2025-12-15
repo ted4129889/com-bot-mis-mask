@@ -39,14 +39,6 @@ public class AsciiConvertedFileProcessor implements CobolFileProcessor {
             int s = i * recordLen;
             int e = (i + 1) * recordLen;
             byte[] singleData = Arrays.copyOfRange(data, s, e);
-            //            1.這段用好，然後開始測這三個案例 OK
-            //                    2.分批寫的問題 OK
-            //                3.如果有表投表委的問題 OK
-            //                4.寫在遮蔽檔案 可以把日期格式去除掉再來比對 以及 要把定義檔加上遮蔽欄位
-            //                5.確認包版的問題
-            //                6.禮拜一要先確定FTP問題，然後可以跑之後確認檔案內容，然後再給YOKO時間，給啟俊專案包版
-            //                7.RESTFUL 測試是否可以直接抓API?
-
             Map<String, String> row = decoder.decodeAscii(singleData, layout);
             result.add(row);
         }
