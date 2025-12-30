@@ -145,7 +145,7 @@ public class DataMasker {
 
         char first = trimmed.charAt(0);
         //檢查第一碼是不是英文 => 身分證
-        if (Character.isLetter(first) && trimmed.length() == 10) {
+        if (trimmed.length() == 10) {
             return ID;
         }
 
