@@ -20,9 +20,4 @@ public class Mapping {
     @JacksonXmlProperty(localName = "convNum")
     private Integer convNum;
 
-//    public Mapping() {}
-//    public Mapping(int number, String chara) {
-//        this.number = number;
-//        this.chara = chara;
-//    }
 }

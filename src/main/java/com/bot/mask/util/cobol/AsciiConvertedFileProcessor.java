@@ -148,17 +148,6 @@ public class AsciiConvertedFileProcessor implements CobolFileProcessor {
 
         } else {
             // ===================== 定長：逐筆讀 recordLen =====================
-//            if (bodyLen <= 0) {
-//                throw new IllegalArgumentException("定長模式需要有效的 layoutBody/recordLen");
-//            }
-//            // 有指定 header/footer 但 layout 長度為 0 的防呆
-//            if (headerCnt > 0 && headerLen == 0) {
-//                throw new IllegalArgumentException("有指定 headerCnt，但 layoutHeader 或 headerLen 為 0");
-//            }
-//            if (footerCnt > 0 && footerLen == 0) {
-//                throw new IllegalArgumentException("有指定 footerCnt，但 layoutFooter 或 footerLen 為 0");
-//            }
-
             try (FileChannel ch = FileChannel.open(path, StandardOpenOption.READ)) {
                 final long totalLen = ch.size();
                 LogProcess.info(log, "File totalLen = {}", totalLen);

@@ -76,10 +76,12 @@ public final class LogProcess {
 
     private static void logToUI(Level level, String prefix, Logger logger ,String message, Object... args) {
         Consumer<String> sink = uiLogger;
-        if (sink == null) return;                   // 未註冊就略過
-        if (!uiLevelEnabled(level)) return;         // 低於 UI 最小等級就不印
+        // 未註冊就略過
+        if (sink == null) return;
+        // 低於 UI 最小等級就不印
+        if (!uiLevelEnabled(level)) return;
 
-        // 使用 SLF4J 的 MessageFormatter 正確處理 {} 參數（含跳脫）
+        // 使用 SLF4J 的 MessageFormatter 正確處理 {} 參數
         String formatted = (args == null || args.length == 0)
                 ? message
                 : MessageFormatter.arrayFormat(message, args).getMessage();

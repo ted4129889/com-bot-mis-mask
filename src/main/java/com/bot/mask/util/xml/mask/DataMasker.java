@@ -3,7 +3,6 @@ package com.bot.mask.util.xml.mask;
 
 import com.bot.mask.log.LogProcess;
 import com.bot.mask.util.text.FormatData;
-import com.bot.mask.util.xml.mask.IdMapping;
 import com.bot.mask.util.xml.mask.xmltag.Field;
 import com.bot.txcontrol.util.text.astart.AstarUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -146,7 +145,7 @@ public class DataMasker {
 
         char first = trimmed.charAt(0);
         //檢查第一碼是不是英文 => 身分證
-        if (Character.isLetter(first)) {
+        if (Character.isLetter(first) && trimmed.length() == 10) {
             return ID;
         }
 

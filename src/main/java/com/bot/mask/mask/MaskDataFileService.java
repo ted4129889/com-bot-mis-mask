@@ -42,9 +42,6 @@ public class MaskDataFileService {
     @Value("${localFile.mis.batch.input}")
     private String inputPath;
 
-    @Value("${localFile.mis.batch.output}")
-    private String outputPath;
-
     @Value("${localFile.mis.xml.file_def}")
     private String botMaskXmlFilePath;
 
@@ -57,12 +54,8 @@ public class MaskDataFileService {
     private Parse parse;
     @Autowired
     private TextFileUtil textFileUtil;
-
     @Autowired
     private FileNameUtil fileNameUtil;
-
-    @Autowired
-    private PathUtil pathUtil;
     @Autowired
     private DataMasker dataMasker;
     @Autowired
@@ -71,9 +64,6 @@ public class MaskDataFileService {
     private static final String CHARSET_BIG5 = "Big5";
     private static final String CHARSET_MS950 = "MS950";
     private static final String CHARSET_UTF8 = "UTF-8";
-
-    private int headerCnt = 0;
-    private int footerCnt = 0;
 
     public boolean exec() {
         LogProcess.info(log, "執行資料檔案遮蔽處理...");
@@ -91,7 +81,6 @@ public class MaskDataFileService {
             xmlFile = xmlParser.parseXmlFile2(tbotMaskXmlFilePath);
 
             xmlDataListD = xmlFile.getDataList();
-//
             LogProcess.info(log, "xmlDataListD.size = " + xmlDataListD.size());
 
             xmlDataList.addAll(xmlDataListD);
@@ -102,44 +91,45 @@ public class MaskDataFileService {
             xmlDataListM = xmlFile.getDataList();
 
             LogProcess.info(log, "xmlDataListM.size = " + xmlDataListM.size());
-//            LogProcess.info(log, "xmlDataListM = " + xmlDataListM);
 
             xmlDataList.addAll(xmlDataListM);
 
-
             LogProcess.info(log, "xmlDataList.size = " + xmlDataList.size());
-//            LogProcess.info(log, "xmlDataList = " + xmlDataList);
-
-//            LogProcess.info(log,"xmlDataList = " + xmlDataList);
 
             fileNames = xmlDataList.stream()
                     .map(XmlData::getFileName)
                     .collect(Collectors.toList());
 
         } catch (IOException e) {
-            LogProcess.error(log, "xml 讀取問題 = {}", e);
-
+            LogProcess.error(log, "xml 讀取問題 = {}", e.getMessage(),e);
         }
-        LogProcess.info(log, "讀取 external-config/xml/bot_output 資料夾下的 日批及月批 定義檔內有" + xmlDataList.size() + "組 <data> 格式，檔名清單如下...");
+
+        LogProcess.info(log, "讀取 external-config/xml/file 資料夾下的 日批及月批 定義檔內有" + xmlDataList.size() + "組 <data> 格式，檔名清單如下...");
         LogProcess.info(log, fileNames.toString());
         int calcuTotal = 0;
         //台銀原檔案路徑
         List<String> folderList = getFilePaths(tbotOutputPath);
-        LogProcess.info(log, "在batch-file/input資料夾內的檔案有" + folderList.size() + "個，清單如下...");
-        LogProcess.info(log, folderList.toString());
-        for (String inputFilePath : folderList) {
-            //允許路徑，若有txt去除
-            inputFilePath = FilenameUtils.normalize(inputFilePath.replace(TXT_EXTENSION, ""));
 
+        LogProcess.info(log, "在 batch-file/input 資料夾內的檔案有" + folderList.size() + "個，清單如下...");
+        LogProcess.info(log, folderList.toString());
+
+        for (String inputFilePath : folderList) {
+
+            //允許路徑，並去除txt
+            inputFilePath = FilenameUtils.normalize(inputFilePath.replace(TXT_EXTENSION, ""));
+            //輸入檔案路徑(含檔名)
             Path inputFilePathTmp = Paths.get(inputFilePath);
+            LogProcess.info(log, "inputFilePath = " + inputFilePath);
+            //將檔案名稱，有掛日期的部分調整與定義檔上名稱相同(如:fileName.[yyyymmdd])，用於對照定義檔使用
             String inputFileName = textFileUtil.replaceDateWithPlaceholder(inputFilePathTmp.getFileName().toString());
-            LogProcess.info(log, "inputFileName = {}",inputFileName);
+            LogProcess.info(log, "after replaced inputFileName = {}",inputFileName);
             try {
                 for (XmlData xmlData : xmlDataList) {
                     String xmlFileName = xmlData.getFileName();
                     //先匹配 XML內的fileName檔案名稱 和 讀取檔案的名稱相同
                     if (fileNameUtil.isFileNameMatch(inputFileName, xmlFileName)) {
-                        //補:如果不需要遮蔽的話就直接搬檔案即可
+
+                        //如果不需要遮蔽的話就直接搬檔案即可
                         List<XmlField> xmlFieldListH = xmlData.getHeader().getFieldList();
                         List<XmlField> xmlFieldListB = xmlData.getBody().getFieldList();
                         List<XmlField> xmlFieldListF = xmlData.getFooter().getFieldList();
@@ -160,15 +150,13 @@ public class MaskDataFileService {
                             resultHasMaskType = false;
                         }
 
-                        LogProcess.info(log, "inputFilePath = " + inputFilePath);
                         //設好要輸出的路徑
                         String outputFilePath = inputFilePath.replace("input", "output_mask_datafile");
 
-                        //Fas 檔案轉檔處理，只有中間檔案 會有 conv
+                        //Fas 檔案轉檔處理，只有中間檔案及資料轉檔檔案
                         if (fileNameUtil.isFasFile(inputFilePath)) {
 
-
-                            //XML 有Conv 開頭的表示資料轉檔(一次性用) 需特殊處理
+                            //XML 有Conv 開頭的表示資料轉檔(一次性用) 或是 檔案結尾已經是.Conv的表示中間檔檔案已轉過，特殊處理
                             if (xmlFileName.contains("Conv") || inputFilePath.contains(".Conv")) {
                                 //Conv 輸入及輸出的檔名就不用動
                                 outputFilePath = inputFilePath.replace("input", "output_mask_datafile");
@@ -188,9 +176,6 @@ public class MaskDataFileService {
 
                         LogProcess.info(log, "outputFilePath = " + outputFilePath);
 
-
-                        List<String> outputData = new ArrayList<>();
-
                         //確認允許路徑
                         outputFilePath = FilenameUtils.normalize(outputFilePath.replace("Misbh_", ""));
 
@@ -203,6 +188,7 @@ public class MaskDataFileService {
                             //特殊處理的中間檔
                             if (inputFileName.toLowerCase().contains("faslnclfl")) {
                                 LogProcess.info(log, "performMasking2 inputFilePath = " + inputFilePath);
+                                //調整批次處理並輸出檔案
                                 performMasking2(inputFilePath, xmlData, outputFilePath);
 
                                 //處理中間檔
@@ -210,26 +196,21 @@ public class MaskDataFileService {
                                 //XML 有Conv 開頭的表示資料轉檔(一次性用) 需特殊處理
                                 if (xmlFileName.contains("Conv") || inputFilePath.contains(".Conv")) {
                                     LogProcess.info(log, "performMasking4 inputFilePath = " + inputFilePath);
-//                                    outputData = performMasking4(inputFilePath, xmlData);
 
-                                    //調整批次處理
+                                    //調整批次處理並輸出檔案
                                     performMasking4(inputFilePath, xmlData, outputFilePath);
 
                                 } else {
-                                    //調整批次處理
+                                    //調整批次處理並輸出檔案
                                     LogProcess.info(log, "performMasking3 inputFilePath = " + inputFilePath);
                                     performMasking3(inputFilePath, xmlData, outputFilePath);
                                 }
                                 //處理外送檔
                             } else {
                                 LogProcess.info(log, "performMasking inputFilePath = " + inputFilePath);
-                                //調整批次處理
+                                //調整批次處理並輸出檔案
                                 performMasking(inputFilePath, xmlData, outputFilePath);
                             }
-
-                            //輸出檔案
-//                            textFileUtil.writeFileContent(outputFilePath, outputData, CHARSET_BIG5);
-
 
                             calcuTotal++;
                         } else {
@@ -244,6 +225,7 @@ public class MaskDataFileService {
             } catch (Exception e) {
                 LogProcess.error(log, "XmlToInsertGenerator.sqlConvInsertTxt error = " + e);
             }
+
         }
 
         LogProcess.info(log, "產出遮蔽後的檔案在 batch-file/output_mask_datafile 資料夾,有" + calcuTotal + "個檔案");
@@ -301,13 +283,8 @@ public class MaskDataFileService {
 
             // body處理...
             List<XmlField> xmlFieldListB = xmlData.getBody().getFieldList();
-//            if (!xmlFieldListB.isEmpty()) {
-//                result.addAll(processFileData(inputFileName, xmlFieldListH, xmlFieldListB, xmlFieldListF, header, footer, outputFIleName));
-//            }
 
             fileToFileBatch(inputFileName, CHARSET_BIG5, xmlFieldListH, xmlFieldListB, xmlFieldListF, header, footer, outputFileName);
-
-//            LogProcess.info(log, "result after masking count = " + result.size());
 
         } catch (Exception e) {
             LogProcess.error(log, "performMasking error = {} " + e.getMessage(), e);
@@ -325,7 +302,7 @@ public class MaskDataFileService {
      * @param outputFileName 輸出檔案(含路徑)
      */
 
-    public List<String> performMasking2(String inputFileName, XmlData xmlData, String outputFileName) {
+    public void performMasking2(String inputFileName, XmlData xmlData, String outputFileName) {
         LogProcess.info(log, "performMasking2... ");
 
         List<XmlField> xmlFieldHeaderList = xmlData.getHeader().getFieldList();
@@ -377,8 +354,6 @@ public class MaskDataFileService {
         } catch (Exception e) {
             LogProcess.error(log, "performMasking2 error ={}", e.getMessage(), e);
         }
-
-        return result;
     }
 
     /**
@@ -389,13 +364,11 @@ public class MaskDataFileService {
      * @param outputFileName 輸出檔案(含路徑)
      */
 
-    public List<String> performMasking3(String inputFileName, XmlData xmlData, String outputFileName) {
+    public void performMasking3(String inputFileName, XmlData xmlData, String outputFileName) {
         LogProcess.info(log, "performMasking3... ");
 
         int header = 0;
         int footer = 0;
-        //輸出資料
-        List<String> outputData = new ArrayList<>();
         try {
 
             // 解析XML檔案格式
@@ -412,15 +385,12 @@ public class MaskDataFileService {
             // body處理...
             List<XmlField> xmlFieldListB = xmlData.getBody().getFieldList();
 
-
             fileToFileBatch3(inputFileName, CHARSET_BIG5, xmlFieldListH, xmlFieldListB, xmlFieldListF, header, footer, outputFileName);
 
         } catch (Exception e) {
             LogProcess.error(log, "performMasking2 error ={}", e.getMessage(), e);
 
         }
-
-        return outputData;
     }
 
     /**
@@ -431,15 +401,12 @@ public class MaskDataFileService {
      * @param outputFileName 輸出檔案(含路徑)
      */
 
-    public List<String> performMasking4(String inputFileName, XmlData xmlData, String outputFileName) {
+    public void performMasking4(String inputFileName, XmlData xmlData, String outputFileName) {
         LogProcess.info(log, "performMasking4... ");
 
-        List<String> result = new ArrayList<>();
         int header = 0;
         int footer = 0;
         try {
-            // 解析XML檔案格式
-
             // 解析XML檔案格式
             // header處理...
             List<XmlField> xmlFieldListH = xmlData.getHeader().getFieldList();
@@ -453,22 +420,14 @@ public class MaskDataFileService {
             }
             // body處理...
             List<XmlField> xmlFieldListB = xmlData.getBody().getFieldList();
-//            if (!xmlFieldListB.isEmpty()) {
-//                result.addAll(processFileData2(fileName, xmlFieldListH, xmlFieldListB, xmlFieldListF, header, footer));
-//            }
-            fileToFileBatch4(inputFileName, CHARSET_BIG5, xmlFieldListH, xmlFieldListB, xmlFieldListF, header, footer, outputFileName);
 
-//            LogProcess.info(log, "result after masking count = " + result.size());
+            fileToFileBatch4(inputFileName, CHARSET_BIG5, xmlFieldListH, xmlFieldListB, xmlFieldListF, header, footer, outputFileName);
 
         } catch (Exception e) {
             LogProcess.error(log, "performMasking4 error ={}", e.getMessage(), e);
-
-
         }
 
-        return result;
     }
-
 
     /**
      * 匹配單筆資料定義檔欄位，並將資料做遮蔽處理
@@ -479,7 +438,7 @@ public class MaskDataFileService {
      */
     private String processField(List<XmlField> xmlFieldList, String line) {
         Charset charset = Charset.forName("MS950");
-        Charset charset2 = Charset.forName("UTF-8");
+//        Charset charset2 = Charset.forName("UTF-8");
 
         //起始位置
         int sPos = 0;
@@ -506,9 +465,7 @@ public class MaskDataFileService {
 //            int safeCut = getSafeSubstringLength(remaining, length, charset);
 
             // 切出這個欄位字串
-//            String value = remaining.substring(0, safeCut);
             String value = new String(fieldBytes, charset);
-
 
             // 更新 char index 位置（要考慮已用掉的實際字元數）
             sPos += length;
@@ -551,22 +508,13 @@ public class MaskDataFileService {
      */
     private String processField2(List<XmlField> xmlFieldList, String line) {
         Charset charset = Charset.forName(CHARSET_MS950);
-        Charset charset2 = Charset.forName("UTF-8");
+//        Charset charset2 = Charset.forName("UTF-8");
 
         int xmlLength = 0;
         for (XmlField xmlField : xmlFieldList) {
 //            LogProcess.info(log,"xmlLength = " + xmlField.getLength() +" , fieldName = " + xmlField.getFieldName());
             xmlLength = xmlLength + parse.string2Integer(xmlField.getLength());
         }
-        byte[] bytes = line.getBytes(charset);
-        int dataLength = bytes.length;
-
-
-        //先比對檔案資料長度是否與定義檔加總一致
-//        if (xmlLength != dataLength) {
-//            LogProcess.info(log,"xml length = " + xmlLength + " VS data length = " + dataLength);
-//            return line;
-//        }
         //起始位置
         int sPos = 0;
         StringBuilder s = new StringBuilder();
@@ -581,7 +529,6 @@ public class MaskDataFileService {
             String fieledName = xmlField.getFieldName();
             int length = parse.string2Integer(xmlField.getLength());
             String maskType = xmlField.getMaskType();
-
 
             // 取得可使用的 substring 長度結尾
             String remaining = line.substring(sPos);
@@ -633,8 +580,8 @@ public class MaskDataFileService {
      * @return 回傳遮罩後的資料
      */
     private String processField4(List<XmlField> xmlFieldList, String line) {
-        Charset charset = Charset.forName(CHARSET_MS950);
-        Charset charset2 = Charset.forName("UTF-8");
+//        Charset charset = Charset.forName(CHARSET_MS950);
+//        Charset charset2 = Charset.forName("UTF-8");
 
         int xmlColumnCnt = 0;
         for (XmlField xmlField : xmlFieldList) {
@@ -661,8 +608,6 @@ public class MaskDataFileService {
             String maskType = xmlField.getMaskType();
             String value = sLine[i];
 
-//            LogProcess.info(log, "xmlFieldh = " + xmlField + ",value = " + value);
-
             i++;
 
             if (maskType != null) {
@@ -684,7 +629,6 @@ public class MaskDataFileService {
             }
         }
 
-
         return s.toString();
     }
 
@@ -696,14 +640,13 @@ public class MaskDataFileService {
      * @return 回傳遮罩後的資料
      */
     private String processFieldCobol(List<XmlField> xmlFieldList, String line) {
-        Charset charset = Charset.forName(CHARSET_MS950);
-        Charset charset2 = Charset.forName("UTF-8");
+//        Charset charset = Charset.forName(CHARSET_MS950);
+//        Charset charset2 = Charset.forName("UTF-8");
 
         int xmlColumnCnt = 0;
         for (XmlField xmlField : xmlFieldList) {
             xmlColumnCnt = xmlColumnCnt + 1;
         }
-//        byte[] bytes = line.getBytes(charset);
 
         String[] sLine = line.split(",");
         int dataLength = sLine.length;
@@ -746,105 +689,6 @@ public class MaskDataFileService {
 
 
         return s.toString();
-    }
-
-
-    /**
-     * 匹配單筆資料定義檔欄位，並將資料做遮蔽處理
-     *
-     * @param inputFileName  讀取檔案名稱(用於確認路徑)
-     * @param xmlFieldListH  定義檔欄位(表頭)
-     * @param xmlFieldListB  定義檔欄位(內容)
-     * @param xmlFieldListF  定義檔欄位(表尾)
-     * @param outputFileName 輸出檔案名稱(用於確認路徑)
-     * @return 回傳遮罩後的資料
-     */
-    private List<String> processFileData(String inputFileName, List<XmlField> xmlFieldListH, List<XmlField> xmlFieldListB, List<XmlField> xmlFieldListF, int headerCnt, int footerCnt, String outputFileName) {
-
-        //輸出資料
-        List<String> outputData = new ArrayList<>();
-
-        String allowedPath = FilenameUtils.normalize(inputPath);
-
-        // 確認檔案路徑 是否與 允許的路徑匹配
-        if (CheakSafePathUtil.isSafeFilePath(allowedPath, inputFileName)) {
-            // 讀取檔案內容
-
-            List<String> lines = textFileUtil.readFileContentWithHex(inputFileName, CHARSET_BIG5);
-//            List<String> lines = textFileUtil.readFileContent(fileName, CHARSET_BIG5);
-            int index = 0;
-            for (String s : lines) {
-
-                index++;
-                if (headerCnt == 1 && headerCnt == index) {
-                    outputData.add(processField(xmlFieldListH, s));
-                    continue;
-                }
-                //總筆數減去表尾 要大於等於 計算中筆數
-                if (lines.size() - footerCnt >= index) {
-                    outputData.add(processField(xmlFieldListB, s));
-                }
-
-                if (footerCnt == 1 && lines.size() == index) {
-                    outputData.add(processField(xmlFieldListF, s));
-                }
-
-
-            }
-        } else {
-            LogProcess.info(log, "not allowed to read  = {}", inputFileName);
-        }
-
-        return outputData;
-
-    }
-
-
-    /**
-     * 特殊處理 只處理資料轉檔的檔案(一次性)
-     *
-     * @param fileName      檔案名稱(用於確認路徑)
-     * @param xmlFieldListH 定義檔欄位(表頭)
-     * @param xmlFieldListB 定義檔欄位(內容)
-     * @param xmlFieldListF 定義檔欄位(表尾)
-     * @return 回傳遮罩後的資料
-     */
-    private List<String> processFileData2(String fileName, List<XmlField> xmlFieldListH, List<XmlField> xmlFieldListB, List<XmlField> xmlFieldListF, int headerCnt, int footerCnt) {
-        LogProcess.info(log, "processFileData2 ... (Conv)");
-        //輸出資料
-        List<String> outputData = new ArrayList<>();
-
-        String allowedPath = FilenameUtils.normalize(inputPath);
-
-        // 確認檔案路徑 是否與 允許的路徑匹配
-        if (CheakSafePathUtil.isSafeFilePath(allowedPath, fileName)) {
-            // 讀取檔案內容
-            List<String> lines = textFileUtil.readFileContent(fileName, CHARSET_BIG5);
-
-            int index = 0;
-            for (String s : lines) {
-                index++;
-                if (headerCnt == 1 && headerCnt == index) {
-                    outputData.add(processField4(xmlFieldListH, s));
-                    continue;
-                }
-                //總筆數減去表尾 要大於等於 計算中筆數
-                if (lines.size() - footerCnt >= index) {
-                    outputData.add(processField4(xmlFieldListB, s));
-                }
-
-                if (footerCnt == 1 && lines.size() == index) {
-                    outputData.add(processField4(xmlFieldListF, s));
-                }
-
-
-            }
-        } else {
-            LogProcess.info(log, "not allowed to read  = {}", fileName);
-        }
-
-        return outputData;
-
     }
 
     /**
@@ -943,7 +787,6 @@ public class MaskDataFileService {
         }
 
         LogProcess.info(log, "headerLen = {} ,bodyLen = {} , footerLen = {} , headerCnt = {} , footerCnt = {}", headerLen, bodyLen, footerLen, headerCnt, footerCnt);
-
 
         List<String> outputData = new ArrayList<>();
         int lineNo = 0;
