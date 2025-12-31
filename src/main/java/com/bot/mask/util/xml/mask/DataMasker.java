@@ -170,8 +170,11 @@ public class DataMasker {
             // OBU前三碼不置換，後7碼置換
             case OBU -> OBU + generateRandomString(value.substring(3), OBU);
             // 本國ID後8碼置換
-            case ID -> value.substring(0, 2) + generateRandomString(value.substring(2), ID);
-            // 統編全部8碼置換
+            // 20251231 改第一碼不遮，後面數字全轉英文小寫
+//            case ID -> value.substring(0, 2) + generateRandomString(value.substring(2), ID);
+            case ID -> generateRandomString(value, UNIFIED_NUMBER);
+            // 統編全部8碼置換            case ID -> generateRandomString(value, ID);
+            // 20251231 改第一碼不遮，後面數字全轉英文小寫
             case UNIFIED_NUMBER -> generateRandomString(value, UNIFIED_NUMBER);
             //其餘就是照ID方式全轉，但英文就不動
             default -> generateRandomString(value, UNIFIED_NUMBER);
@@ -210,14 +213,16 @@ public class DataMasker {
 
         boolean isConvert = !UNIFIED_NUMBER.equals(idType) && value.chars().anyMatch(c -> !Character.isDigit(c));
 
+        int index = 0;
         for (char c : value.toCharArray()) {
+
             // 處理空白或非數字
             if (Character.isWhitespace(c)) {
                 maskedString.append(c); // 保留空白
                 continue;
             }
-
-            if (isConvert) {
+            index++;
+            if (index == 1) {
                 // 原樣保留
                 maskedString.append(c);
             } else {
