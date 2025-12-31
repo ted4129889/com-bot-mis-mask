@@ -172,7 +172,7 @@ public class DataMasker {
             // 本國ID後8碼置換
             // 20251231 改第一碼不遮，後面數字全轉英文小寫
 //            case ID -> value.substring(0, 2) + generateRandomString(value.substring(2), ID);
-            case ID -> generateRandomString(value, UNIFIED_NUMBER);
+            case ID -> generateRandomString(value, ID);
             // 統編全部8碼置換            case ID -> generateRandomString(value, ID);
             // 20251231 改第一碼不遮，後面數字全轉英文小寫
             case UNIFIED_NUMBER -> generateRandomString(value, UNIFIED_NUMBER);
@@ -211,7 +211,7 @@ public class DataMasker {
 //            sb.append(mapped);
 //        }
 
-        boolean isConvert = !UNIFIED_NUMBER.equals(idType) && value.chars().anyMatch(c -> !Character.isDigit(c));
+//        boolean isConvert = !UNIFIED_NUMBER.equals(idType) && value.chars().anyMatch(c -> !Character.isDigit(c));
 
         int index = 0;
         for (char c : value.toCharArray()) {
