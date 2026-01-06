@@ -222,7 +222,7 @@ public class DataMasker {
                 continue;
             }
             index++;
-            if (index == 1) {
+            if (ID.equals(idType) && index == 1) {
                 // 原樣保留
                 maskedString.append(c);
             } else {

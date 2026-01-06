@@ -546,7 +546,7 @@ public class CobolRecordDecoder {
 
         if (decimal > 0 && numeric.length() > decimal) {
             int cut = numeric.length() - decimal;
-            numeric = numeric.substring(0, cut) + "." + numeric.substring(cut);
+            numeric = numeric.substring(0, cut).replace(".","") + "." + numeric.substring(cut);
         }
 
         return sign + numeric;
