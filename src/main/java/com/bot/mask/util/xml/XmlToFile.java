@@ -43,6 +43,8 @@ public class XmlToFile {
     @Value("${localFile.mis.batch.input}")
     private String inputFileDir;
 
+    @Value("${common.separator}")
+    private String SEPARATOR;
 
     @Autowired
     CobolRecordDecoder cobolRecordDecoder;
@@ -293,7 +295,7 @@ public class XmlToFile {
 
             for (Map<String, String> row : parsed) {
 
-                String line = String.join(",", row.values());
+                String line = String.join(SEPARATOR, row.values());
                 writer.write(line);
                 writer.newLine();
             }

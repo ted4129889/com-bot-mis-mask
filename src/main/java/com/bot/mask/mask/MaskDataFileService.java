@@ -48,6 +48,9 @@ public class MaskDataFileService {
     @Value("${localFile.mis.xml.file_def2}")
     private String botMaskXmlFilePath2;
 
+    @Value("${common.separator}")
+    private String SEPARATOR;
+
     @Autowired
     private XmlParser xmlParser;
     @Autowired
@@ -564,7 +567,7 @@ public class MaskDataFileService {
             }
 
             if (idx < xmlFieldList.size()) {
-                s.append(",");
+                s.append(SEPARATOR);
             }
 
         }
@@ -588,7 +591,7 @@ public class MaskDataFileService {
             xmlColumnCnt = xmlColumnCnt + 1;
         }
 
-        String[] sLine = line.split(",");
+        String[] sLine = line.split(SEPARATOR);
         int dataLength = sLine.length;
         //先比對檔案資料長度是否與定義檔加總一致
         if (xmlColumnCnt != dataLength) {
@@ -625,7 +628,7 @@ public class MaskDataFileService {
             }
 
             if (idx < xmlFieldList.size() - 1) {
-                s.append(",");
+                s.append(SEPARATOR);
             }
         }
 
@@ -648,7 +651,7 @@ public class MaskDataFileService {
             xmlColumnCnt = xmlColumnCnt + 1;
         }
 
-        String[] sLine = line.split(",");
+        String[] sLine = line.split(SEPARATOR);
         int dataLength = sLine.length;
         //先比對檔案資料長度是否與定義檔加總一致
         if (xmlColumnCnt != dataLength) {
@@ -683,7 +686,7 @@ public class MaskDataFileService {
 
 
             if (idx < xmlFieldList.size() - 1) {
-                s.append(",");
+                s.append(SEPARATOR);
             }
         }
 

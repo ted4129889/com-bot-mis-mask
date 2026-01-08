@@ -2,42 +2,42 @@
 <data>
     <mapping>
         <number>0</number>
-        <chara>a</chara>
+        <chara>A</chara>
     </mapping>
     <mapping>
         <number>1</number>
-        <chara>b</chara>
+        <chara>B</chara>
     </mapping>
     <mapping>
         <number>2</number>
-        <chara>c</chara>
+        <chara>C</chara>
     </mapping>
     <mapping>
         <number>3</number>
-        <chara>d</chara>
+        <chara>D</chara>
     </mapping>
     <mapping>
         <number>4</number>
-        <chara>e</chara>
+        <chara>E</chara>
     </mapping>
     <mapping>
         <number>5</number>
-        <chara>f</chara>
+        <chara>F</chara>
     </mapping>
     <mapping>
         <number>6</number>
-        <chara>g</chara>
+        <chara>G</chara>
     </mapping>
     <mapping>
         <number>7</number>
-        <chara>h</chara>
+        <chara>H</chara>
     </mapping>
     <mapping>
         <number>8</number>
-        <chara>i</chara>
+        <chara>I</chara>
     </mapping>
     <mapping>
         <number>9</number>
-        <chara>j</chara>
+        <chara>J</chara>
     </mapping>
 </data>

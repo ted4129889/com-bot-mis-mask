@@ -63,6 +63,9 @@ localFile:
 externalSort:
   blockSize: 100000
 
+common:
+  separator: ${SEPARATOR}
+
 app:
   file-processing:
     max-lines: 100000
