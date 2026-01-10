@@ -314,7 +314,6 @@ public class DataMasker {
         //差異長度: 實際字串長度 與 定義好的長度 比較
         int diffLen = bytesLen <= length ? length - bytesLen : 0;
 
-//        LogProcess.info(log,"a value = {} actualLen = {} diffLen = {} ",value,actualLen,diffLen);
         //若有差異，剩餘補空白
         value = value + " ".repeat(diffLen);
         //前一位不處理
