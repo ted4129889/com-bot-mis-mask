@@ -63,7 +63,7 @@ public class MaskExportServiceImpl implements MaskExportService {
 //    private int MAX_FILE_SIZE = 5000000;
 
     @Override
-    public boolean exportMaskedFile(Connection conn, String xmlFileName, String tableName, String env, String param) {
+    public boolean exportMaskedFile(Connection conn, String xmlFileName, String tableName, String env, String date) {
         // 驗證並取得允許的表名
         String allowedTable = validXmlFile(xmlFileName, tableName, env);
         if (allowedTable == null) return false;
@@ -85,17 +85,18 @@ public class MaskExportServiceImpl implements MaskExportService {
 
 
         } catch (IOException e) {
-            LogProcess.error(log, "讀取TABLE XML 格式錯誤 :" + xmlFileName,e);
+            LogProcess.error(log, "讀取TABLE XML 格式錯誤 :" + xmlFileName, e);
         }
 
-        if ("prod".equals(env)) {
-
-            allowedTable = buildTableName(xmlData.getTable().getTableName(), readConfigXmlGetDbSuffix());
+        if ("prod".equals(env) || "local".equals(env)) {
+            allowedTable = buildTableName(xmlData.getTable().getTableName(), date);
         } else {
             allowedTable = xmlData.getTable().getTableName();
         }
 
-        String sql = getSql(param, allowedTable, xmlData);
+        //組成正確的語句，並加入條件
+        String sql = getSql(allowedTable,xmlData.getCondition());
+
         //根據欄位數量決定每個檔案筆數。
         int countCol = countSelectedFields(sql);
         maxLimit = decideLimit(countCol);
@@ -163,14 +164,13 @@ public class MaskExportServiceImpl implements MaskExportService {
         return true;
     }
 
-    private static String getSql(String param, String allowedTable, XmlData xmlData) {
+    private static String getSql(String tableName, String  condition) {
 
-
-        String sql = "SELECT * FROM " + xmlData.getTable().getTableName();
+        String sql = "SELECT * FROM " + tableName;
         String codition = "";
-        if (xmlData.getCondition() != null) {
-            codition = xmlData.getCondition();
-            sql = "SELECT * FROM " + xmlData.getTable().getTableName() + " WHERE " + codition;
+        //在相應資料表的xml下加上如 <condition>date = 20260101</condition>，就會使用 WHERE條件
+        if (condition != null) {
+            sql = "SELECT * FROM " + tableName + " WHERE " + codition;
         }
         LogProcess.info(log, " sql =  {}", sql);
         return sql;
@@ -323,14 +323,11 @@ public class MaskExportServiceImpl implements MaskExportService {
     }
 
 
-    private String buildTableName(String tableName, String suffix) {
+    private String buildTableName(String tableName, String date) {
         String[] parts = tableName.split("\\.");
         if (parts.length < 3) return tableName;
 
-        String dbName = parts[0];
-        if (suffix != null && !suffix.isEmpty()) {
-            dbName += suffix;
-        }
+        String dbName = parts[0] + (!date.isEmpty() ? "_" + date : "");
 
         return dbName + "." + parts[1] + "." + parts[2];
     }

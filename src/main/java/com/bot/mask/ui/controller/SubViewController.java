@@ -124,7 +124,7 @@ public class SubViewController {
     private void btnMaskData() {
         LocalDate selectedDate = datePicker.getValue();
         String env = envComboBox.getValue();
-
+        String date = (selectedDate != null) ? selectedDate.toString().replace("-", "") : "";
 
         // 1. 禁用按鈕，顯示執行狀態
         setButtonsDisabled(true);
@@ -165,8 +165,6 @@ public class SubViewController {
                 break;
             default:
                 if (selectedDate != null || ("local".equals(env))) {
-
-                    String date = selectedDate == null? "":selectedDate.toString().replace("-", "");
 
                     lblStatus.setText("遮蔽資料表 執行中...");
                     // 2. 建立背景 Task

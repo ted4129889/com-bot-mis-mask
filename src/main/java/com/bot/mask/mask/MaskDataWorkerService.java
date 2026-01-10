@@ -31,11 +31,11 @@ public class MaskDataWorkerService {
             String tableName,
             String xmlFileName,
             String env,
-            String dateParam,
+            String date,
             Consumer<Boolean> onFinish
     ) {
         try (Connection conn = dataSource.getConnection()) {
-            boolean success = maskExportService.exportMaskedFile(conn, xmlFileName, tableName, env, dateParam);
+            boolean success = maskExportService.exportMaskedFile(conn, xmlFileName, tableName, env, date);
             onFinish.accept(success);  // 成功就傳 true
         } catch (SQLException e) {
             LogProcess.error(log,"資料庫連線失敗: " + tableName);

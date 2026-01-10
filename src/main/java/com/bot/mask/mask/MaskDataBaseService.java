@@ -31,6 +31,7 @@ public class MaskDataBaseService {
 
     public boolean exec(String env, String date) {
         LogProcess.info(log, "執行資料庫資料遮蔽處理...");
+        LogProcess.info(log, "env = {} , date = {}", env, date);
 
         totalCnt = 0;
         tableCnt = 0;
@@ -44,11 +45,11 @@ public class MaskDataBaseService {
 
             switch (env) {
                 case "local" ->
-                        handleEnvTables(AllowedLocalTableName.values(), AllowedLocalTableName::getTableName, t -> t, env);
+                        handleEnvTables(AllowedLocalTableName.values(), AllowedLocalTableName::getTableName, t -> t, env,date);
                 case "dev" ->
-                        handleEnvTables(AllowedDevTableName.values(), AllowedDevTableName::getTableName, this::buildXmlName, env);
+                        handleEnvTables(AllowedDevTableName.values(), AllowedDevTableName::getTableName, this::buildXmlName, env,date);
                 case "prod" ->
-                        handleEnvTables(AllowedProdTableName.values(), AllowedProdTableName::getTableName, t -> t, env);
+                        handleEnvTables(AllowedProdTableName.values(), AllowedProdTableName::getTableName, t -> t, env,date);
                 default -> {
                     LogProcess.warn(log, "不支援的環境參數: " + env);
                     return false;
@@ -67,7 +68,8 @@ public class MaskDataBaseService {
             T[] tables,
             Function<T, String> getTableNameFunc,
             Function<String, String> xmlNameBuilder,
-            String env
+            String env,
+            String date
     ) {
         if (tables == null || tables.length == 0) {
             LogProcess.warn(log, "無任何可處理的 Table！");
@@ -84,7 +86,7 @@ public class MaskDataBaseService {
                     tableName,
                     xmlFileName,
                     env,
-                    param,
+                    date,
                     success -> { // 每個任務完成回報
                         synchronized (this) {
                             tableCnt++;

@@ -302,6 +302,8 @@ public class DataMasker {
 
         if (value.isBlank()) return null;
 
+        if (value.length() < 1) return null;
+
         String replaceObj = isAllDigitsOrDecimal(value) ? STR_NINE : STR_STAR;
 
         Charset charset = Charset.forName("MS950");
@@ -344,9 +346,13 @@ public class DataMasker {
 //        return value.length() > 6 ? value.substring(0, 6) + formatData.getMaskedValue(value.substring(6), "*") : value;
 //    }
     private String maskAddress(String value, int length) {
+
+
         if (value == null) return null;
 
         if (value.isBlank()) return null;
+
+        if (value.length() < 6) return null;
 
         Charset charset = Charset.forName("MS950");
         byte[] bytes = value.getBytes(charset);

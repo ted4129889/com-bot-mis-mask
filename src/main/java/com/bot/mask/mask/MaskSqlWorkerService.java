@@ -18,7 +18,7 @@ import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.*;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -42,6 +42,7 @@ public class MaskSqlWorkerService {
     @Async("executionExecutor")
     public void runSql(String filePath, String env, String batchDate, Consumer<Boolean> onFinish) {
         try {
+            LogProcess.info(log, " env = {}", env);
             boolean success;
             try (Connection conn = dataSource.getConnection()) {
                 conn.setAutoCommit(false);
@@ -198,23 +199,6 @@ public class MaskSqlWorkerService {
         return line;
     }
 
-    private String changeSchema(String tableName, String env, String batchDate) {
-        if ("dev".equals(env)) {
-            tableName = tableName.replaceAll("\\b(bot\\w*?db)_sync\\.dbo\\.", "misbh_db.$1.");
-            tableName = tableName.replaceAll("\\b(bot\\w*?db)(?:_\\w+)?\\.dbo\\.", "misbh_db.$1.");
-        } else if ("local".equals(env)) {
-            if (Objects.equals(batchDate, "")) {
-                tableName = tableName.replaceAll("\\b(bot\\w*?db)_\\d{8}\\b", "$1");
-            } else {
-                tableName = tableName.replaceAll("\\b(bot\\w*?db)_\\d{8}\\b", "$1_" + batchDate);
-            }
-        }
-
-
-        return tableName;
-    }
-
-
     private int executeBatchAndCommit(Connection conn, Statement stmt) throws SQLException {
         int[] results = stmt.executeBatch();
         conn.commit();
@@ -268,11 +252,6 @@ public class MaskSqlWorkerService {
             String existingDate = m.group(2);
             String replacement;
 
-//            if (existingDate == null) {
-//                replacement = (batchDate != null && !batchDate.isBlank())
-//                        ? dbName + "_" + batchDate
-//                        : dbName;
-//            } else {
             replacement = (batchDate != null && !batchDate.isBlank())
                     ? dbName + "_" + existingDate
                     : dbName;
