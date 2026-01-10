@@ -299,6 +299,8 @@ public class DataMasker {
 
     private String maskAllButFirst(String value, int length) {
         if (value == null) return null;
+//        地址遮蔽有問題
+        if (value.isBlank()) return null;
 
         String replaceObj = isAllDigitsOrDecimal(value) ? STR_NINE : STR_STAR;
 
@@ -344,6 +346,9 @@ public class DataMasker {
 //    }
     private String maskAddress(String value, int length) {
         if (value == null) return null;
+
+        if (value.isBlank()) return null;
+
         Charset charset = Charset.forName("MS950");
         byte[] bytes = value.getBytes(charset);
 
@@ -417,6 +422,9 @@ public class DataMasker {
      */
     private String maskPhoneNumber(String value, int length) {
         if (value == null) return null;
+
+        if (value.isBlank()) return null;
+
         // 先記原始長度
         int originalLen = value.length();
         // TRIM 後的內容

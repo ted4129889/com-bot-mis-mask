@@ -182,7 +182,7 @@ public class MaskSqlWorkerService {
         if ("dev".equals(env)) {
             line = line.replaceAll("\\b(bot\\w*?db)_sync\\.dbo\\.", "misbh_db.$1.");
             line = line.replaceAll("\\b(bot\\w*?db)(?:_\\w+)?\\.dbo\\.", "misbh_db.$1.");
-        } else if ("local".equals(env)) {
+        } else if ("local".equals(env) || "prod".equals(env)) {
 //            if (batchDate == null || batchDate.isBlank()) {
 //                // 無日期 → 移除日期後綴
 //                line = line.replaceAll("\\b(bot\\w*?db)_\\d{8}\\b", "$1");
