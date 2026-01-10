@@ -299,7 +299,7 @@ public class DataMasker {
 
     private String maskAllButFirst(String value, int length) {
         if (value == null) return null;
-//        地址遮蔽有問題
+
         if (value.isBlank()) return null;
 
         String replaceObj = isAllDigitsOrDecimal(value) ? STR_NINE : STR_STAR;
