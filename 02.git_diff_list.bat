@@ -1,6 +1,9 @@
 @echo off
 setlocal EnableDelayedExpansion
 
+echo 當前專案的tag版次(以最新時間排序)，如下：
+git tag --sort=-creatordate
+
 set /p OLD_TAG=輸入前一版的tag (如 release-20260110): 
 set /p NEW_TAG=輸入最新版的tag (如 release-20260111): 
 

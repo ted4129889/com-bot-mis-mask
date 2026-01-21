@@ -45,6 +45,9 @@ if /I not "%CONTINUE%"=="y" (
     exit /b 0
 )
 
+echo 當前專案的tag版次(以最新時間排序)，如下：
+git tag --sort=-creatordate
+
 REM 輸入這次版本tag名稱
 echo.
 set /p TAG_NAME=請輸入tag名稱：

@@ -142,17 +142,19 @@ public class DataMasker {
         if (trimmed.startsWith(OBU)) {
             return OBU;
         }
-
         char first = trimmed.charAt(0);
-        //檢查第一碼是不是英文 => 身分證
-        if (trimmed.length() == 10) {
-            return ID;
-        }
 
         // 檢查第一碼是不是數字 => 統一編號
         if (Character.isDigit(first)) {
             return UNIFIED_NUMBER;
         }
+
+
+        //檢查第一碼是不是英文 => 身分證
+        if (trimmed.length() == 10) {
+            return ID;
+        }
+
 
         //不符合以上三種條件，回傳原值
         return value;
@@ -189,9 +191,23 @@ public class DataMasker {
     }
 
     private String generateRandomString(String value, String idType) throws IOException {
-        StringBuilder maskedString = new StringBuilder(value.length());
-        HashMap<Integer, String> mapping = getCachedMapping(idType);
-        //臨時還原用
+//        StringBuilder maskedString = new StringBuilder(value.length());
+//        LogProcess.info(log, "idType = {}", idType);
+//        LogProcess.info(log, "value = {}", value);
+//
+//        HashMap<Integer, String> mapping = getCachedMapping(idType);
+//        LogProcess.info(log, "mapping = {}", mapping);
+//        StringBuilder sb = new StringBuilder();
+//        for (char ch : value.toCharArray()) {
+//            String key = String.valueOf(ch);
+//            String mapped = mapping.getOrDefault(key, key); // 沒有對應就原字返回
+//            sb.append(mapped);
+//        }
+//        LogProcess.info(log, "value sb = {}", sb);
+//
+//        return sb.toString();
+
+////        臨時還原用
 //        HashMap<String, String> mapping = new HashMap<>();
 //        mapping.put("N", "0");
 //        mapping.put("J", "1");
@@ -203,41 +219,74 @@ public class DataMasker {
 //        mapping.put("j", "7");
 //        mapping.put("I", "8");
 //        mapping.put("U", "9");
-//        StringBuilder sb = new StringBuilder();
-//
-//        for (char ch : value.toCharArray()) {
-//            String key = String.valueOf(ch);
-//            String mapped = mapping.getOrDefault(key, key); // 沒有對應就原字返回
-//            sb.append(mapped);
-//        }
 
-//        boolean isConvert = !UNIFIED_NUMBER.equals(idType) && value.chars().anyMatch(c -> !Character.isDigit(c));
+        Map<Integer, String> forward = getCachedMapping(idType); // 0->N
+        Map<String, String> mapping = new HashMap<>();
 
-        int index = 0;
-        for (char c : value.toCharArray()) {
+        for (Map.Entry<Integer, String> e : forward.entrySet()) {
+            mapping.put(String.valueOf(e.getKey()), e.getValue());
+        }
 
-            // 處理空白或非數字
-            if (Character.isWhitespace(c)) {
-                maskedString.append(c); // 保留空白
-                continue;
-            }
-            index++;
-            if (ID.equals(idType) && index == 1) {
-                // 原樣保留
-                maskedString.append(c);
-            } else {
-                int digit = Character.getNumericValue(c);
-                String mapped = mapping.get(digit);
+        StringBuilder sb = new StringBuilder();
+        if (value.length() == 10) {
 
-                if (mapped != null) {
-                    maskedString.append(mapped);
+            int in = 0;
+            for (char ch : value.toCharArray()) {
+                in++;
+                String key = String.valueOf(ch);
+                //十碼的時候，統編與身分證前兩碼不處理
+                if (in <= 2) {
+                    if (UNIFIED_NUMBER.equals(idType)) {
+                        sb.append("0");
+                    } else {
+                        sb.append(key);
+                    }
                 } else {
-                    // 保留原字元
-                    maskedString.append(c);
+                    sb.append(mapping.getOrDefault(key, key));
                 }
             }
         }
-        return maskedString.toString();
+        //統一編號
+        if (value.length() == 8) {
+
+            for (char ch : value.toCharArray()) {
+                String key = String.valueOf(ch);
+
+                sb.append(mapping.getOrDefault(key, key));
+            }
+        }
+
+
+        return sb.toString();
+//
+//        return sb.toString();
+//        boolean isConvert = ID.equals(idType) ;
+//
+//        int index = 0;
+//        for (char c : value.toCharArray()) {
+//
+//            // 處理空白或非數字
+//            if (Character.isWhitespace(c)) {
+//                maskedString.append(c); // 保留空白
+//                continue;
+//            }
+//            index++;
+//            if (isConvert) {
+//                // 原樣保留
+//                maskedString.append(c);
+//            } else {
+//                int digit = Character.getNumericValue(c);
+//                String mapped = mapping.get(digit);
+//
+//                if (mapped != null) {
+//                    maskedString.append(mapped);
+//                } else {
+//                    // 保留原字元
+//                    maskedString.append(c);
+//                }
+//            }
+//        }
+//        return maskedString.toString();
     }
 //    private String generateRandomString(String value, String idType) throws IOException {
 //

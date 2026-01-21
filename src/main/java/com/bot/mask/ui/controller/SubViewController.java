@@ -164,7 +164,7 @@ public class SubViewController {
 
                 break;
             default:
-                if (selectedDate != null || ("local".equals(env))) {
+//                if (selectedDate != null || ("local".equals(env))) {
 
                     lblStatus.setText("遮蔽資料表 執行中...");
                     // 2. 建立背景 Task
@@ -198,11 +198,11 @@ public class SubViewController {
 
                     break;
 
-                } else {
-                    showAlert("", "請先選擇批次日期(BatchDate)");
-                    setButtonsDisabled(false);
-                }
-                break;
+//                } else {
+//                    showAlert("", "請先選擇批次日期(BatchDate)");
+//                    setButtonsDisabled(false);
+//                }
+//                break;
         }
 
 

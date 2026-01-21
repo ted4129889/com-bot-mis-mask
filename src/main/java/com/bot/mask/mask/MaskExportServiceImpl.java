@@ -139,14 +139,14 @@ public class MaskExportServiceImpl implements MaskExportService {
                     batchList.add(rowMap);
 
                     if (batchList.size() >= batchSize) {
-                        writeBatchFiles(batchList, allowedTable, fields, hasDeleted);
+                        writeBatchFiles(batchList, allowedTable, fields, hasDeleted,xmlData.getCondition());
                         hasDeleted = true;
                         batchList.clear();
                     }
                 }
                 // 處理剩餘不足 batchSize 的資料
                 if (!batchList.isEmpty()) {
-                    writeBatchFiles(batchList, allowedTable, fields, hasDeleted);
+                    writeBatchFiles(batchList, allowedTable, fields, hasDeleted,xmlData.getCondition());
                 }
 
                 //統計耗時
@@ -167,10 +167,9 @@ public class MaskExportServiceImpl implements MaskExportService {
     private static String getSql(String tableName, String  condition) {
 
         String sql = "SELECT * FROM " + tableName;
-        String codition = "";
         //在相應資料表的xml下加上如 <condition>date = 20260101</condition>，就會使用 WHERE條件
         if (condition != null) {
-            sql = "SELECT * FROM " + tableName + " WHERE " + codition;
+            sql = "SELECT * FROM " + tableName + " WHERE " + condition;
         }
         LogProcess.info(log, " sql =  {}", sql);
         return sql;
@@ -183,14 +182,15 @@ public class MaskExportServiceImpl implements MaskExportService {
             List<Map<String, Object>> rows,
             String tableName,
             List<Field> fields,
-            boolean deleteFlag
+            boolean deleteFlag,
+            String condition
     ) throws IOException {
 
         // 每個檔案都一定有 _1, _2, _3
         String fileSuffix = "_" + String.format("%02d", fileIndex);
 
         // 原始資料
-        List<String> originalSql = generateSqlLines(rows, tableName, deleteFlag);
+        List<String> originalSql = generateSqlLines(rows, tableName, deleteFlag,condition);
 
         textFileUtil.writeFileContent(
                 outputFileOriginalPath + tableName + fileSuffix + SQL_EXTENSION,
@@ -201,7 +201,7 @@ public class MaskExportServiceImpl implements MaskExportService {
         // 2. 遮蔽後資料
         List<Map<String, Object>> maskedRows = deepCopyRows(rows);
         dataMasker.maskData(maskedRows, fields, true);
-        List<String> maskedSql = generateSqlLines(maskedRows, tableName, deleteFlag);
+        List<String> maskedSql = generateSqlLines(maskedRows, tableName, deleteFlag,condition);
 
         textFileUtil.writeFileContent(
                 outputFilePath + tableName + fileSuffix + SQL_EXTENSION,
@@ -242,11 +242,16 @@ public class MaskExportServiceImpl implements MaskExportService {
     private List<String> generateSqlLines(
             List<Map<String, Object>> rows,
             String tableName,
-            boolean deleteFlag
+            boolean deleteFlag,
+            String  condition
     ) {
         List<String> lines = new ArrayList<>(rows.size() + 1);
         if (!deleteFlag) {
-            lines.add(SQL_DELETE_PREFIX + tableName + ";");
+            if (condition != null) {
+                lines.add(SQL_DELETE_PREFIX + tableName + " WHERE " + condition + ";");
+            }else{
+                lines.add(SQL_DELETE_PREFIX + tableName + ";");
+            }
         }
 
         for (Map<String, Object> row : rows) {
