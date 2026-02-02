@@ -20,20 +20,6 @@ public class CobolProcessorFactory {
     private BinaryCobolFileProcessor binaryProcessor;
 
     /**
-     * 用檔案內容判斷編碼
-     */
-    public CobolFileProcessor getProcessor(byte[] bytes) {
-
-        if (isConvertedAsciiFile(bytes)) {
-            LogProcess.info(log, "use AsciiConvertedFileProcessor");
-            return asciiProcessor;
-        } else {
-            LogProcess.info(log,"use BinaryCobolFileProcessor");
-            return binaryProcessor;
-        }
-    }
-
-    /**
      * 用定義檔型態判斷編碼
      */
     public CobolFileProcessor getProcessor(List<XmlField> cobolTypeList) {
@@ -52,20 +38,5 @@ public class CobolProcessorFactory {
             LogProcess.info(log,"use BinaryCobolFileProcessor");
             return binaryProcessor;
         }
-    }
-
-    /**
-     * 判斷是否為 已轉文字的 ASCII 檔
-     */
-    private boolean isConvertedAsciiFile(byte[] bytes) {
-        int nonAsciiCount = 0;
-        for (byte b : bytes) {
-            int ub = b & 0xFF;
-            if (ub < 0x09 || (ub > 0x0D && ub < 0x20) || ub > 0x7E) {
-                nonAsciiCount++;
-            }
-        }
-        double ratio = (double) nonAsciiCount / bytes.length;
-        return ratio < 0.1;
     }
 }

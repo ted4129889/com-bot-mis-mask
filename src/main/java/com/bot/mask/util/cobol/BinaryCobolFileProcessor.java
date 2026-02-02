@@ -48,18 +48,6 @@ public class BinaryCobolFileProcessor implements CobolFileProcessor {
     }
 
     @Override
-    public void parseAndConsume(
-            byte[] data, List<CobolField> layout, Consumer<Map<String, String>> consumer) {
-//        parseCobolWithOptionalHeaderFooter(
-//                data, null, layout, null, true, h -> {}, consumer, f -> {}, 1, 1);
-    }
-
-    @Override
-    public void parseAndConsume2(
-            byte[] data, List<CobolField> layout, Consumer<Map<String, String>> consumer) {}
-
-
-    @Override
     public void parseCobolWithOptionalHeaderFooter(
             String inputFile,
             List<CobolField> layoutHeader,
@@ -117,7 +105,7 @@ public class BinaryCobolFileProcessor implements CobolFileProcessor {
 
             long offset = 0L;
 
-            // ---------- 讀表頭 ----------
+            //  讀表頭 
             if (headerLen > 0 && headerCnt > 0) {
                 for (int i = 0; i < headerCnt; i++) {
                     byte[] headerBytes = readFully(ch, headerLen);
@@ -127,7 +115,7 @@ public class BinaryCobolFileProcessor implements CobolFileProcessor {
                 }
             }
 
-            // ---------- 讀明細 (直到剩下 footerBytesTotal 為止) ----------
+            //  讀明細 (直到剩下 footerBytesTotal 為止) 
             final long bodyRegionEnd = totalLen - footerBytesTotal; // 不包含 footer 區
             while (offset + bodyLen <= bodyRegionEnd) {
                 byte[] recordBytes = readFully(ch, bodyLen);
@@ -147,7 +135,7 @@ public class BinaryCobolFileProcessor implements CobolFileProcessor {
                 offset += remaining;
             }
 
-            // ---------- 讀表尾 ----------
+            //  讀表尾 
             if (footerLen > 0 && footerCnt > 0) {
                 for (int i = 0; i < footerCnt; i++) {
                     byte[] footerBytes = readFully(ch, footerLen);
@@ -164,7 +152,6 @@ public class BinaryCobolFileProcessor implements CobolFileProcessor {
 
         } catch (IOException e) {
             LogProcess.error(log, "讀取檔案失敗: {}", inputFile, e);
-            // 如果你有原本的處理：建立空檔
             // textFileUtil.createEmptyFileIfNotExist(outputConvert);
             throw new UncheckedIOException(e);
         }

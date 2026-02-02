@@ -654,18 +654,4 @@ public class CobolRecordDecoder {
                 || (ch >= 0xFFE0 && ch <= 0xFFE6)
                 || (ch >= 0x4E00 && ch <= 0x9FFF);
     }
-
-    // hex 字串轉回 byte[]
-    public byte[] hexToBytes(String hex) {
-        int len = hex.length();
-        byte[] data = new byte[len / 2];
-        for (int i = 0; i < len; i += 2) {
-            data[i / 2] =
-                    (byte)
-                            ((Character.digit(hex.charAt(i), 16) << 4)
-                                    + Character.digit(hex.charAt(i + 1), 16));
-        }
-        return data;
-    }
-
 }

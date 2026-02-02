@@ -226,16 +226,15 @@ public class DataMasker {
         for (Map.Entry<Integer, String> e : forward.entrySet()) {
             mapping.put(String.valueOf(e.getKey()), e.getValue());
         }
-
+        String valueLen = value.trim();
         StringBuilder sb = new StringBuilder();
-        if (value.length() == 10) {
+        if (valueLen.length() == 10 && isValidTwIdFormat(value)) {
 
             int in = 0;
             for (char ch : value.toCharArray()) {
                 in++;
                 String key = String.valueOf(ch);
 
-                //十碼的時候，統編與身分證前兩碼不處理
                 if (in <= 2) {
                     if (UNIFIED_NUMBER.equals(idType)) {
                         sb.append("0");
@@ -246,26 +245,12 @@ public class DataMasker {
                     sb.append(mapping.getOrDefault(key, key));
                 }
             }
-        }
-        //統一編號
-        if (value.length() == 8) {
 
+        } else {
+
+            // 包含：10碼純數字、怪格式、其它長度
             for (char ch : value.toCharArray()) {
                 String key = String.valueOf(ch);
-
-                sb.append(mapping.getOrDefault(key, key));
-            }
-        }
-
-
-        if (value.length() == 7) {
-
-
-            int in = 0;
-            for (char ch : value.toCharArray()) {
-                in++;
-                String key = String.valueOf(ch);
-                //十碼的時候，統編與身分證前兩碼不處理
                 sb.append(mapping.getOrDefault(key, key));
             }
         }
@@ -302,7 +287,8 @@ public class DataMasker {
 //        }
 //        return maskedString.toString();
     }
-//    private String generateRandomString(String value, String idType) throws IOException {
+
+    //    private String generateRandomString(String value, String idType) throws IOException {
 //
 //
 //        StringBuilder maskedString = new StringBuilder(value.length());
@@ -328,6 +314,38 @@ public class DataMasker {
 //        }
 //        return maskedString.toString();
 //    }
+    //驗證身分證格式
+    private boolean isValidTwIdFormat(String value) {
+
+        if (value.length() != 10) {
+            return false;
+        }
+
+        // 第一碼必須是英文
+        if (!Character.isLetter(value.charAt(0))) {
+            return false;
+        }
+
+        // 後九碼必須全部是數字
+        for (int i = 1; i < 10; i++) {
+            if (!Character.isDigit(value.charAt(i))) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    //全數字
+    private boolean isAllDigit(String value) {
+
+        for (char ch : value.toCharArray()) {
+            if (!Character.isDigit(ch)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     /**
      * Masks the given credit card number.
@@ -491,7 +509,7 @@ public class DataMasker {
     private String maskPhoneNumber(String value, int length) {
         if (value == null) return null;
 
-        if (value.isBlank()) return null;
+        if (value.isBlank()) return value;
 
         // 先記原始長度
         int originalLen = value.length();

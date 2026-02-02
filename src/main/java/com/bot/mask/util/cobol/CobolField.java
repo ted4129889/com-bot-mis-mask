@@ -40,19 +40,6 @@ public class CobolField {
         return this.type == Type.COMP;
     }
 
-    /** 實際佔用的 byte 數 */
-    //    public int getByteLength() {
-    //        return switch (type) {
-    //            case DISPLAY, X -> digits * 2;
-    //            case COMP -> getBinaryLengthForComp(digits);
-    //            case COMP3 -> (int) Math.ceil((digits + 1) / 2.0);
-    //        };
-    //    }
-    //
-    //    /** HEX 長度（每 byte 對應 2 hex 字元） */
-    //    public int getHexLength() {
-    //        return getByteLength() * 2;
-    //    }
 
     /** 判斷 Binary COMP 所需 byte 數 */
     private int getBinaryLengthForComp(double digits) {

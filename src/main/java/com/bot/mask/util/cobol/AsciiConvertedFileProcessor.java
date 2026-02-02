@@ -46,25 +46,6 @@ public class AsciiConvertedFileProcessor implements CobolFileProcessor {
     }
 
     @Override
-    public void parseAndConsume(
-            byte[] data, List<CobolField> layout, Consumer<Map<String, String>> consumer) {
-//        parseCobolWithOptionalHeaderFooter(
-//                data, null, layout, null, false, h -> {
-//                }, consumer, t -> {
-//                }, 1, 1);
-    }
-
-    @Override
-    public void parseAndConsume2(
-            byte[] data, List<CobolField> layout, Consumer<Map<String, String>> consumer) {
-//        parseCobolWithOptionalHeaderFooter(
-//                data, null, layout, null, true, h -> {
-//                }, consumer, t -> {
-//                }, 1, 1);
-    }
-
-
-    @Override
     public void parseCobolWithOptionalHeaderFooter(
             String inputFile,
             List<CobolField> layoutHeader,
@@ -95,7 +76,7 @@ public class AsciiConvertedFileProcessor implements CobolFileProcessor {
 //        }
 
         if (!useMs950Handle) {
-            // ===================== 變長：以換行分隔 (CRLF/LF) =====================
+            //  變長：以換行分隔 (CRLF/LF) 
             // 串流讀檔，逐行切割，不轉十六進位、不整檔 split
             try (BufferedInputStream in = new BufferedInputStream(Files.newInputStream(path))) {
 
@@ -114,14 +95,13 @@ public class AsciiConvertedFileProcessor implements CobolFileProcessor {
                 // 表身 + 表尾：用 deque 緩存尾段
                 ArrayDeque<byte[]> tailDeque = new ArrayDeque<>(Math.max(footerCnt, 1));
                 while (true) {
-//                    byte[] line = readOneLine(in);
+
                     byte[] line = readOneRecord(in,bodyLen,false);
 
                     if (line == null) {
                         break; // EOF
                     }
 
-                    // 空行可視需求略過
                     if (line.length == 0) continue;
 
                     // 推入 tail；若超過 footerCnt，就彈出最舊者視為「表身」
@@ -136,7 +116,6 @@ public class AsciiConvertedFileProcessor implements CobolFileProcessor {
                 // 檔案讀完後，deque 中剩下的就是表尾（footerCnt 行，不足就剩幾行就幾行）
                 while (!tailDeque.isEmpty()) {
                     byte[] line = readOneRecord(in,footerLen,false);
-//                    byte[] tailLine = tailDeque.removeFirst();
                     Map<String, String> footerRow = decoder.decodeAsciiMs950(line, layoutFooter);
                     footerConsumer.accept(footerRow);
                 }
@@ -147,7 +126,7 @@ public class AsciiConvertedFileProcessor implements CobolFileProcessor {
             }
 
         } else {
-            // ===================== 定長：逐筆讀 recordLen =====================
+            //  定長：逐筆讀 recordLen 
             try (FileChannel ch = FileChannel.open(path, StandardOpenOption.READ)) {
                 final long totalLen = ch.size();
                 LogProcess.info(log, "File totalLen = {}", totalLen);
@@ -187,10 +166,6 @@ public class AsciiConvertedFileProcessor implements CobolFileProcessor {
                     footerConsumer.accept(footerRow);
                 }
 
-                // 非必要但可做對齊檢查：totalLen 是否為
-                // headerCnt*headerLen + n*bodyLen + footerCnt*footerLen（若 headerLen=0/異長，則略過）
-                // 依需求加上警告或校驗
-
             } catch (IOException e) {
                 LogProcess.error(log, "定長串流讀取失敗: {}", inputFile, e);
                 throw new UncheckedIOException(e);
@@ -198,7 +173,7 @@ public class AsciiConvertedFileProcessor implements CobolFileProcessor {
         }
     }
 
-    /* ===================== 輔助方法 ===================== */
+    /*  輔助方法  */
 
     /** 逐行讀取：支援 CRLF(0D0A) 與 LF(0A)。回傳不含換行符號的 line bytes；EOF 則回傳 null。 */
     private byte[] readOneLine(BufferedInputStream in) throws IOException {
