@@ -170,7 +170,7 @@ public class DataMasker {
 
         return switch (determineIdType(value)) {
             // OBU前三碼不置換，後7碼置換
-            case OBU -> OBU + generateRandomString(value.substring(3), ID);
+            case OBU -> OBU + generateRandomString(value.substring(3), UNIFIED_NUMBER);
             // 本國ID後8碼置換
             // 20251231 改第一碼不遮，後面數字全轉英文小寫
 //            case ID -> value.substring(0, 2) + generateRandomString(value.substring(2), ID);
